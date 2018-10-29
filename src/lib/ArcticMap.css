@@ -13,7 +13,19 @@
     color: rgb(33, 37, 41);
   }
 
+#bottomleftbar{
+  background: #fff;
+  position: absolute;
+  bottom: 30px;
+  left: 15px;
+  padding: 0px;
+  font-family: 'Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif'
+}
 
+#bottomleftbar p{
+  padding-left: 12px;
+  padding-right: 12px;
+}
   
 #bottombar {
     background: #fff;

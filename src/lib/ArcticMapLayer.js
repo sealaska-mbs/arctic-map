@@ -39,14 +39,7 @@ class ArcticMapLayer extends React.Component {
         ]) => {
             // Create a polygon geometry
 
-          
-            self.identifyTask = new IdentifyTask(self.props.src);
-            self.params = new IdentifyParameters();
-            self.params.tolerance = 3;
-            //self.params.layerIds = [0, 1, 2];
-            self.params.layerOption = "top";
-            self.params.width = self.state.view.width;
-            self.params.height = self.state.view.height;
+
 
             // this.setState({ graphic });
 
@@ -56,7 +49,7 @@ class ArcticMapLayer extends React.Component {
                     url: self.props.src,
                     outFields: ["*"],
                 });
-
+                self.layerRef = featureLayer;
                 self.state.map.add(featureLayer);
             }
 
@@ -65,7 +58,29 @@ class ArcticMapLayer extends React.Component {
                 var maplayer = new MapImageLayer({
                     url: self.props.src
                 });
+                maplayer.when(() => {
+                    // console.log(maplayer);
 
+                    var layerids = [];
+                    maplayer.allSublayers.items.forEach(sublayer => {
+                        layerids.push(sublayer.id);
+                    });
+                    layerids.reverse();
+
+                    self.identifyTask = new IdentifyTask(self.props.src);
+                    self.params = new IdentifyParameters();
+                    self.params.tolerance = 3;
+                    self.params.layerIds = layerids;
+                    self.params.layerOption = "visible";
+                    self.params.width = self.state.view.width;
+                    self.params.height = self.state.view.height;
+                    self.params.returnGeometry = true;
+
+                    //  console.log(self.params);
+
+                });
+
+                self.layerRef = maplayer;
                 self.state.map.add(maplayer);
             }
 
@@ -77,7 +92,7 @@ class ArcticMapLayer extends React.Component {
                     url: self.props.src,
                     format: "jpgpng" // server exports in either jpg or png format
                 });
-
+                self.layerRef = imagelayer;
                 self.state.map.add(imagelayer);
 
             }
@@ -86,9 +101,39 @@ class ArcticMapLayer extends React.Component {
         }); //.catch ((err) => console.error(err));
     }
 
+    renderPopup(feature){
+        if(!true){
+
+        }
+        else{
+            console.log(feature);
+            var popupText = "";
+            var atts = Object.getOwnPropertyNames(feature.attributes);
+            atts.forEach(att =>{
+                popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`
+            });
+
+        return popupText;
+        }
+    }
 
     render() {
         return null;
+    }
+
+    identify(event, callback) {
+        console.log(this.layerRef);
+        //console.log("Identify");
+        this.params.geometry = event.mapPoint;
+        this.params.mapExtent = this.state.view.extent;
+        //document.getElementById("viewDiv").style.cursor = "wait";
+        this.identifyTask.execute(this.params).then(function (response) {
+            //console.log(response);
+            callback(response);
+
+
+        });
+
     }
 
 

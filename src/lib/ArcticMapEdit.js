@@ -19,6 +19,7 @@ class ArcticMapEdit extends React.Component {
             view: props.view,
             graphic: null,
             hideEditors: false,
+            editing: false,
         };
     }
 
@@ -45,31 +46,31 @@ class ArcticMapEdit extends React.Component {
             const sketchViewModel = new SketchViewModel({
                 view: self.state.view,
                 layer: tempGraphicsLayer,
-                // pointSymbol: {
-                //     type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
-                //     style: "square",
-                //     color: "#8A2BE2",
-                //     size: "16px",
-                //     outline: { // autocasts as new SimpleLineSymbol()
-                //         color: [255, 255, 255],
-                //         width: 3
-                //     }
-                // },
-                // polylineSymbol: {
-                //     type: "simple-line", // autocasts as new SimpleLineSymbol()
-                //     color: "#8A2BE2",
-                //     width: "4",
-                //     style: "dash"
-                // },
-                // polygonSymbol: {
-                //     type: "simple-fill", // autocasts as new SimpleFillSymbol()
-                //     color: "rgba(138,43,226, 0.8)",
-                //     style: "solid",
-                //     outline: {
-                //         color: "white",
-                //         width: 1
-                //     }
-                // }
+                pointSymbol: {
+                    type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+                    style: "circle",
+                    color: "yellow",
+                    size: "3px",
+                    outline: { // autocasts as new SimpleLineSymbol()
+                        color: [255, 255, 255],
+                        width: 3
+                    }
+                },
+                polylineSymbol: {
+                    type: "simple-line", // autocasts as new SimpleLineSymbol()
+                    color: "yellow",
+                    width: "3",
+                    style: "solid"
+                },
+                polygonSymbol: {
+                    type: "simple-fill", // autocasts as new SimpleFillSymbol()
+                    color: "rgba(224, 206, 69, 0.8)",
+                    style: "solid",
+                    outline: {
+                        color: "yellow",
+                        width: 3
+                    }
+                }
             });
 
 
@@ -88,7 +89,7 @@ class ArcticMapEdit extends React.Component {
                     this.setState({ hideEditors: true });
                 }
 
-                this.setState({geojson : arcgisToGeoJSON(event.geometry.toJSON())});
+                this.setState({ geojson: arcgisToGeoJSON(event.geometry.toJSON()), editing: false });
                 //this.geojson = event.geometry;
 
             });
@@ -114,30 +115,59 @@ class ArcticMapEdit extends React.Component {
             self.state.view.ui.add(this.top_right_node, "top-right");
 
             self.setState({ loaded: true })
+
+
+            // scoped methods
+            self.setEditFeature = (feature) => {
+
+                this.state.sketchViewModel.reset();
+                this.state.tempGraphicsLayer.removeAll();
+                this.setState({ hideEditors: false, geojson: null });
+
+
+                const graphic = new Graphic({
+                    geometry: feature.geometry,
+                    symbol: this.state.sketchViewModel.polygonSymbol
+                });
+
+                //console.log(feature);
+                this.state.tempGraphicsLayer.add(graphic);
+                if (this.props.single) {
+                    console.log("Added one feature");
+                    this.setState({ hideEditors: true });
+                }
+
+                self.state.view.goTo(graphic);
+
+
+                this.setState({ geojson: arcgisToGeoJSON(feature.geometry.toJSON()) });
+            };
+            self.setEditFeature = self.setEditFeature.bind(self);
+
+
         }); //.catch ((err) => console.error(err));
     }
 
     addPointClick() {
-        this.state.sketchViewModel.create("point");
-
+        this.state.sketchViewModel.create("point", {mode: "click"});
+        this.setState({editing : true});
     }
-
 
     addLineClick() {
-        this.state.sketchViewModel.create("polyline");
-
+        this.state.sketchViewModel.create("polyline", {mode: "click"});
+        this.setState({editing : true});
     }
     addPolyClick() {
-        this.state.sketchViewModel.create("polygon");
-
+        this.state.sketchViewModel.create("polygon", {mode: "click"});
+        this.setState({editing : true});
     }
     addRecClick() {
-        this.state.sketchViewModel.create("rectangle");
-
+        this.state.sketchViewModel.create("rectangle", {mode: "click"});
+        this.setState({editing : true});
     }
     addCircleClick() {
-        this.state.sketchViewModel.create("circle");
-
+        this.state.sketchViewModel.create("circle", {mode: "click"});
+        this.setState({editing : true});
     }
 
 
@@ -145,8 +175,8 @@ class ArcticMapEdit extends React.Component {
     reset() {
         this.state.sketchViewModel.reset();
         this.state.tempGraphicsLayer.removeAll();
-        this.setState({ hideEditors: false, geojson : null });
-        
+        this.setState({ hideEditors: false, geojson: null });
+
     }
 
     widgetRender() {
@@ -180,16 +210,20 @@ class ArcticMapEdit extends React.Component {
         </div>;
     }
 
-
-    render() {
-
-        //return (<h2>Test</h2>);
+    componentDidUpdate() {
         if (this.top_right_node) {
             ReactDOM.render(
                 this.widgetRender(),
                 this.top_right_node
             );
         }
+    }
+
+
+    render() {
+
+        //return (<h2>Test</h2>);
+
 
         return (<span></span>);
     }
