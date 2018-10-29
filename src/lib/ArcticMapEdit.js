@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { arcgisToGeoJSON } from '@esri/arcgis-to-geojson-utils';
+//import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 import './ArcticMapEdit.css'
 
 
@@ -15,7 +17,8 @@ class ArcticMapEdit extends React.Component {
         this.state = {
             map: props.map,
             view: props.view,
-            graphic: null
+            graphic: null,
+            hideEditors: false,
         };
     }
 
@@ -33,7 +36,7 @@ class ArcticMapEdit extends React.Component {
             GraphicsLayer,
             SketchViewModel
         ]) => {
-            const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer' });
+            const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
             self.setState({ tempGraphicsLayer });
 
             self.state.map.add(tempGraphicsLayer);
@@ -80,6 +83,14 @@ class ArcticMapEdit extends React.Component {
                     symbol: sketchViewModel.graphic.symbol
                 });
                 tempGraphicsLayer.add(graphic);
+                if (this.props.single) {
+                    console.log("Added one feature");
+                    this.setState({ hideEditors: true });
+                }
+
+                this.setState({geojson : arcgisToGeoJSON(event.geometry.toJSON())});
+                //this.geojson = event.geometry;
+
             });
 
             // Listen the sketchViewModel's update-complete and update-cancel events
@@ -99,13 +110,10 @@ class ArcticMapEdit extends React.Component {
             });
 
 
-            var node = document.createElement("div");
-            self.state.view.ui.add(node, "top-right");
-            ReactDOM.render(
-              self.widgetRender(),
-              node
-            );
+            this.top_right_node = document.createElement("div");
+            self.state.view.ui.add(this.top_right_node, "top-right");
 
+            self.setState({ loaded: true })
         }); //.catch ((err) => console.error(err));
     }
 
@@ -134,32 +142,56 @@ class ArcticMapEdit extends React.Component {
 
 
 
-    reset(){
+    reset() {
         this.state.sketchViewModel.reset();
         this.state.tempGraphicsLayer.removeAll();
+        this.setState({ hideEditors: false, geojson : null });
+        
     }
 
-    widgetRender(){
+    widgetRender() {
         return <div id="topbar">
-        <button className="action-button esri-icon-blank-map-pin" id="pointButton" onClick={this.addPointClick.bind(this)}
-            type="button" title="Draw point"></button>
-
-        <button className="action-button esri-icon-polyline" id="polylineButton" type="button" onClick={this.addLineClick.bind(this)}
-            title="Draw polyline"></button>
-        <button className="action-button esri-icon-polygon" id="polygonButton" type="button" onClick={this.addPolyClick.bind(this)}
-            title="Draw polygon"></button>
-        <button className="action-button esri-icon-checkbox-unchecked" id="rectangleButton" onClick={this.addRecClick.bind(this)}
-            type="button" title="Draw rectangle"></button>
-        <button className="action-button esri-icon-radio-unchecked" id="circleButton" onClick={this.addCircleClick.bind(this)}
-            type="button" title="Draw circle"></button>
-        <button className="action-button esri-icon-trash" id="resetBtn" type="button" onClick={this.reset.bind(this)}
-            title="Clear graphics"></button>
-    </div>;
+            {this.state.hideEditors === false &&
+                <span>
+                    {this.props.point &&
+                        <button className="action-button esri-icon-blank-map-pin" id="pointButton" onClick={this.addPointClick.bind(this)}
+                            type="button" title="Draw point"></button>
+                    }
+                    {this.props.line &&
+                        <button className="action-button esri-icon-polyline" id="polylineButton" type="button" onClick={this.addLineClick.bind(this)}
+                            title="Draw polyline"></button>
+                    }
+                    {this.props.polygon &&
+                        <button className="action-button esri-icon-polygon" id="polygonButton" type="button" onClick={this.addPolyClick.bind(this)}
+                            title="Draw polygon"></button>
+                    }
+                    {this.props.square &&
+                        <button className="action-button esri-icon-checkbox-unchecked" id="rectangleButton" onClick={this.addRecClick.bind(this)}
+                            type="button" title="Draw rectangle"></button>
+                    }
+                    {this.props.circle &&
+                        <button className="action-button esri-icon-radio-unchecked" id="circleButton" onClick={this.addCircleClick.bind(this)}
+                            type="button" title="Draw circle"></button>
+                    }
+                </span>
+            }
+            <button className="action-button esri-icon-trash" id="resetBtn" type="button" onClick={this.reset.bind(this)}
+                title="Clear graphics"></button>
+        </div>;
     }
 
 
     render() {
-        return null;
+
+        //return (<h2>Test</h2>);
+        if (this.top_right_node) {
+            ReactDOM.render(
+                this.widgetRender(),
+                this.top_right_node
+            );
+        }
+
+        return (<span></span>);
     }
 
     addGraphic(event) {

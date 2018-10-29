@@ -4,7 +4,6 @@ import ArcticMap from './lib/ArcticMap'
 import ArcticMapLayer from './lib/ArcticMapLayer'
 import ArcticMapEdit from './lib/ArcticMapEdit'
 
-import WebMap from 'react-arcgis'
 
 ReactDOM.render(<div style={{ width: '100vw', height: '100vh' }}>
     <ArcticMap>
@@ -16,7 +15,13 @@ ReactDOM.render(<div style={{ width: '100vw', height: '100vh' }}>
             src="https://gis.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/" />
            
 
-        <ArcticMapEdit />
+ <ArcticMapLayer
+            type="dynamic"
+            src="https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer" />
+        
+
+
+        <ArcticMapEdit single point line polygon  />
 
     </ArcticMap>
 </div>, document.getElementById("root"));

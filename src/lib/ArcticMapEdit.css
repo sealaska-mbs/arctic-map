@@ -3,10 +3,11 @@
     background: #fff;
    
    
-    padding: 4px;
+    padding: 0px;
   }
 
   .action-button {
+    display: block;
     font-size: 16px;
     background-color: transparent;
     border: 1px solid #D3D3D3;

@@ -10,10 +10,12 @@ class ArcticMap extends React.Component {
         super(props);
         this.state = {
             map: null,
-            view: null
+            view: null,
+            hideBasemapButton: false
         };
 
-        this.handleMapLoad = this.handleMapLoad.bind(this)
+        this.handleMapLoad = this.handleMapLoad.bind(this);
+        this.handleMapClick = this.handleMapClick.bind(this);
     }
 
 
@@ -24,13 +26,27 @@ class ArcticMap extends React.Component {
 
     render() {
         return <Map class="full-screen-map"
-            mapProperties={{ basemap: 'hybrid' }} onLoad={this.handleMapLoad} >
+            mapProperties={{ basemap: 'hybrid' }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
             {this.props.children}
             <div id="bottombar">
-                <button className="action-button esri-icon-layers" id="pointButton" 
-                    type="button" title="Map Layers"></button>
+                {this.state.hideBasemapButton === false &&
+                    <button className="action-button esri-icon-layers" id="pointButton"
+                        type="button" title="Map Layers" onClick={this.handleShowBasemaps.bind(this)}></button>
+                }
             </div>
         </Map>;
+    }
+
+
+    handleShowBasemaps(event) {
+        this.state.view.ui.add(this.basemapGallery, {
+            position: "bottom-right"
+        });
+        this.setState({ hideBasemapButton: true })
+    }
+
+    handleMapClick(event) {
+        console.log(event);
     }
 
     handleMapLoad(map, view) {
@@ -67,6 +83,13 @@ class ArcticMap extends React.Component {
                 }
             });
 
+
+            view.on('click', (event) => {
+                console.log(event);
+                // need to work on identify and add to a single popup
+                // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
+            });
+
             // Add widget to the top right corner of the view
             self.state.view.ui.add(layerList, "top-left");
 
@@ -76,32 +99,34 @@ class ArcticMap extends React.Component {
             });
 
             self.state.view.ui.add(locateBtn, {
-                position: "top-left"
+                position: "top-right"
             });
 
-            var basemapGallery = new BasemapGallery({
+            this.basemapGallery = new BasemapGallery({
                 view: self.state.view
             });
+            this.basemapGallery.on("selection-change",function(){
+                console.log('Basemap Changed');
+            });
+           
 
             // Add the widget to the top-right corner of the view
-            //   self.state.view.ui.add(basemapGallery, {
-            //     position: "top-right"
-            //   });
+
 
             var homeBtn = new Home({
                 view: view
-              });
-        
-              // Add the home button to the top left corner of the view
-              view.ui.add(homeBtn, "top-left");
+            });
 
-              view.ui.remove('zoom');
+            // Add the home button to the top left corner of the view
+            view.ui.add(homeBtn, "top-right");
 
-              var zoom = new Zoom({
+            view.ui.remove('zoom');
+
+            var zoom = new Zoom({
                 view: self.state.view
-              });
+            });
 
-              view.ui.add(zoom,  "top-left");
+            view.ui.add(zoom, "top-right");
 
         });
 
