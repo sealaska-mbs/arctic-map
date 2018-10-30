@@ -139,7 +139,7 @@ class ArcticMap extends React.Component {
                         title: "Select"
                     }];
                     graphicTemplate.actions.items[0].visible = self.refs.editor !== undefined;// graphic.attributes.website ? true : false;
-                    self.state.view.goTo(graphic);
+                    //self.state.view.goTo(graphic);
                 }
             });
             view.popup.viewModel.on("trigger-action", function (event) {
