@@ -964,7 +964,7 @@ var ArcticMapLayer = function (_React$Component) {
                                 symbol: markerSymbol,
                                 attributes: obj.properties,
                                 popupTemplate: popupTemplate,
-                                extent: new Extent().centerAt(point)
+                                extent: Extent.centerAt(point)
                             });
 
                             // Add the graphic to the view
@@ -1000,7 +1000,7 @@ var ArcticMapLayer = function (_React$Component) {
         key: 'zoomto',
         value: function zoomto() {
             if (this.layerRef.graphics) {
-                this.state.view.goTo(this.layerRef.graphics.items);
+                this.state.view.goTo(this.layerRef.graphics);
             }
         }
     }, {
