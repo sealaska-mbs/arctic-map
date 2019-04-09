@@ -1,5 +1,5 @@
 import React from "react";
-
+import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 
 import {
     loadModules
@@ -27,15 +27,25 @@ class ArcticMapLayer extends React.Component {
             "esri/layers/FeatureLayer",
             "esri/layers/MapImageLayer",
             "esri/layers/ImageryLayer",
+            "esri/layers/GeoJSONLayer",
+            "esri/layers/GraphicsLayer",
             "esri/tasks/IdentifyTask",
-            "esri/tasks/support/IdentifyParameters"
+            "esri/tasks/support/IdentifyParameters",
+            "esri/geometry/Point",
+            "esri/symbols/SimpleMarkerSymbol",
+            "esri/geometry/Extent"
         ]).then(([
             Graphic,
             FeatureLayer,
             MapImageLayer,
             ImageryLayer,
+            GeoJSONLayer,
+            GraphicsLayer,
             IdentifyTask,
-            IdentifyParameters
+            IdentifyParameters,
+            Point,
+            SimpleMarkerSymbol,
+            Extent
         ]) => {
             // Create a polygon geometry
 
@@ -97,23 +107,115 @@ class ArcticMapLayer extends React.Component {
 
             }
 
+            if (self.props.type === "geojson") {
+
+                var geojsonLayer = new GraphicsLayer({ title: 'GeoJSON Layer', listMode: "hide" });
+                // var geojsonLayer = new GeoJSONLayer({
+                //     //source: self.props.src,
+                //     //copyright: "USGS Earthquakes",
+                //     //popupTemplate: template
+                //   });
+                var dataarr = [];
+
+                if (typeof self.props.src == 'object') {
+                    if (self.props.src.features) {
+                        dataarr = self.props.src.features;
+                    }
+                    else {
+                        dataarr = self.props.src;
+                    }
+                }
+
+
+                dataarr.forEach(obj => {
+                    var esrijson = geojsonToArcGIS(obj);
+                    if (obj.geometry.type == "Point") {
+
+                        var popupTemplate = {
+                            title: "{Name}",
+                            content: self.props.template,
+                          };
+
+
+                        var point = new Point({
+                            longitude: obj.geometry.coordinates[1],
+                            latitude: obj.geometry.coordinates[0],
+                            
+                          });
+                        
+                          // Create a symbol for drawing the point
+                          var markerSymbol = new SimpleMarkerSymbol({
+                            color: [226, 119, 40],
+                            outline: {
+                              color: [255, 255, 255],
+                              width: 1
+                            }
+                          });
+                        
+                          // Create a graphic and add the geometry and symbol to it
+                          var pointGraphic = new Graphic({
+                            geometry: point,
+                            symbol: markerSymbol,
+                            attributes : obj.properties,
+                            popupTemplate: popupTemplate,
+                            extent : Extent.centerAt(point)
+                          });
+                        
+                          // Add the graphic to the view
+                          geojsonLayer.graphics.add(pointGraphic);
+                    }
+
+
+                })
+
+
+                self.layerRef = geojsonLayer;
+                self.state.map.add(geojsonLayer);
+                // var imagelayer = new ImageryLayer({
+                //     url: self.props.src,
+                //     format: "jpgpng" // server exports in either jpg or png format
+                // });
+                // self.layerRef = imagelayer;
+                // self.state.map.add(imagelayer);
+
+            }
+
+
+            self.layerRef.when(function(){
+            setTimeout(() => {
+                var evt = new Event('ready', { bubbles: true });
+                Object.defineProperty(evt, 'target', { value: self, enumerable: true });
+        
+                if (self.props.onready) {
+                  self.props.onready(evt);
+                }
+              }, 500)
+            });
+
             //this.state.view.graphics.add(graphic);
         }); //.catch ((err) => console.error(err));
     }
 
-    renderPopup(feature){
-        if(!true){
+    zoomto(){
+        if(this.layerRef.graphics){
+        this.state.view.goTo(this.layerRef.graphics);
+        }
+       
+    }
+
+    renderPopup(feature) {
+        if (!true) {
 
         }
-        else{
+        else {
             console.log(feature);
             var popupText = "";
             var atts = Object.getOwnPropertyNames(feature.attributes);
-            atts.forEach(att =>{
+            atts.forEach(att => {
                 popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`
             });
 
-        return popupText;
+            return popupText;
         }
     }
 
@@ -123,6 +225,7 @@ class ArcticMapLayer extends React.Component {
 
     identify(event, callback) {
         console.log(this.layerRef);
+        if (!this.params) { callback(null); return; }
         //console.log("Identify");
         this.params.geometry = event.mapPoint;
         this.params.mapExtent = this.state.view.extent;

@@ -1,0 +1,10 @@
+.lldsearchbar {
+    background: #fff;
+
+    vertical-align: top; 
+  }
+
+
+  .lldsearchbar div{
+    display: inline;
+  }

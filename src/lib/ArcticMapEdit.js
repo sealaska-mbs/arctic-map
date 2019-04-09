@@ -9,11 +9,13 @@ import {
     loadModules
 } from 'react-arcgis';
 
+
 class ArcticMapEdit extends React.Component {
 
     constructor(props) {
         super(props);
-
+        console.log("Loading MapEdit");
+        props.map.editor = this;
         this.state = {
             map: props.map,
             view: props.view,
@@ -28,14 +30,19 @@ class ArcticMapEdit extends React.Component {
     }
 
     componentWillMount() {
+
+
+
         var self = this;
         loadModules(["esri/Graphic",
             "esri/layers/GraphicsLayer",
             "esri/widgets/Sketch/SketchViewModel",
+            "esri/geometry/Geometry"
         ]).then(([
             Graphic,
             GraphicsLayer,
-            SketchViewModel
+            SketchViewModel,
+            Geometry
         ]) => {
             const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
             self.setState({ tempGraphicsLayer });
@@ -78,20 +85,45 @@ class ArcticMapEdit extends React.Component {
 
             self.setUpClickHandler.bind(this);
 
-            sketchViewModel.on("create-complete", (event) => {
-                const graphic = new Graphic({
-                    geometry: event.geometry,
-                    symbol: sketchViewModel.graphic.symbol
-                });
-                tempGraphicsLayer.add(graphic);
-                if (this.props.single) {
-                    console.log("Added one feature");
-                    this.setState({ hideEditors: true });
+            sketchViewModel.on("create", (event) => {
+
+                if (event.state === 'complete') {
+                    const graphic = new Graphic({
+                        geometry: event.graphic.geometry,
+                        symbol: event.graphic.symbol
+                    });
+                    tempGraphicsLayer.add(event.graphic);
+                    if (this.props.single) {
+                        console.log("Added one feature");
+                        this.setState({ hideEditors: true });
+                    }
+
+                    self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
+                    //this.geojson = event.geometry;
+
+                    self.firenewfeature();
                 }
+            });
 
-                this.setState({ geojson: arcgisToGeoJSON(event.geometry.toJSON()), editing: false });
-                //this.geojson = event.geometry;
 
+            sketchViewModel.on("update", (event) => {
+                self.setState({ editing: true });
+                if (event.state === 'complete' || event.state === 'cancel') {
+                    // const graphic = new Graphic({
+                    //     geometry: event.graphic.geometry,
+                    //     symbol: event.graphic.symbol
+                    // });
+                    //tempGraphicsLayer.add(event.graphic);
+                    // if (this.props.single) {
+                    //     console.log("Added one feature");
+                    //     this.setState({ hideEditors: true });
+                    // }
+
+                    self.setState({ geojson: arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON(), });
+                    //this.geojson = event.geometry;
+
+                    self.firenewfeature();
+                }
             });
 
             // Listen the sketchViewModel's update-complete and update-cancel events
@@ -101,14 +133,16 @@ class ArcticMapEdit extends React.Component {
 
                 // set the editGraphic to null update is complete or cancelled.
                 self.state.editGraphic = null;
-            });
-            sketchViewModel.on("update-cancel", (event) => {
-                event.graphic.geometry = event.geometry;
-                tempGraphicsLayer.add(event.graphic);
 
-                // set the editGraphic to null update is complete or cancelled.
-                self.state.editGraphic = null;
+
             });
+            // sketchViewModel.on("update-cancel", (event) => {
+            //     event.graphic.geometry = event.geometry;
+            //     tempGraphicsLayer.add(event.graphic);
+
+            //     // set the editGraphic to null update is complete or cancelled.
+            //     self.state.editGraphic = null;
+            // });
 
 
             this.top_right_node = document.createElement("div");
@@ -118,17 +152,31 @@ class ArcticMapEdit extends React.Component {
 
 
             // scoped methods
-            self.setEditFeature = (feature) => {
+            self.setEditFeature = (feature, nofire) => {
+                if (nofire === null) {
+                    nofire = false;
+                }
+
 
                 this.state.sketchViewModel.reset();
                 this.state.tempGraphicsLayer.removeAll();
                 this.setState({ hideEditors: false, geojson: null });
+         
+
+                var graphic = null;
+                if (!feature.geometry.toJSON && feature.symbol) {
+                    graphic = Graphic.fromJSON(feature);
+          
+                }
+                else {
 
 
-                const graphic = new Graphic({
-                    geometry: feature.geometry,
-                    symbol: this.state.sketchViewModel.polygonSymbol
-                });
+
+                    graphic = new Graphic({
+                        geometry: feature.geometry,
+                        symbol: this.state.sketchViewModel.polygonSymbol
+                    });
+                }
 
                 //console.log(feature);
                 this.state.tempGraphicsLayer.add(graphic);
@@ -140,34 +188,76 @@ class ArcticMapEdit extends React.Component {
                 self.state.view.goTo(graphic);
 
 
-                this.setState({ geojson: arcgisToGeoJSON(feature.geometry.toJSON()) });
+                var geometry = feature.geometry;
+                if(!geometry.toJSON){
+                    geometry = Geometry.fromJSON(geometry);
+                }
+
+                this.setState({ geojson: arcgisToGeoJSON(geometry.toJSON()), datajson: graphic.toJSON(), });
+
+                if (nofire === true) {
+
+                }
+                else {
+                    self.firenewfeature();
+                }
+
             };
+
+
             self.setEditFeature = self.setEditFeature.bind(self);
 
 
+
+            self.setGeoJson = (geojson) => {
+                //var esrijson = geojsonToArcGIS(geojson);
+
+
+            }
+            self.setGeoJson = self.setGeoJson.bind(self);
+
+
         }); //.catch ((err) => console.error(err));
+
+
+    }
+
+
+    firenewfeature() {
+        var self = this;
+        var evt = new Event('newfeature', { bubbles: true });
+        Object.defineProperty(evt, 'target', { value: this, enumerable: true });
+        evt.data = self.state.datajson;
+
+        if (self.props.onnewfeature) {
+            self.props.onnewfeature(evt);
+        }
+
+        setTimeout(() => {
+            self.setState({ editing: false });
+        }, 200);
     }
 
     addPointClick() {
-        this.state.sketchViewModel.create("point", {mode: "click"});
-        this.setState({editing : true});
+        this.state.sketchViewModel.create("point", { mode: "click" });
+        this.setState({ editing: true });
     }
 
     addLineClick() {
-        this.state.sketchViewModel.create("polyline", {mode: "click"});
-        this.setState({editing : true});
+        this.state.sketchViewModel.create("polyline", { mode: "click" });
+        this.setState({ editing: true });
     }
     addPolyClick() {
-        this.state.sketchViewModel.create("polygon", {mode: "click"});
-        this.setState({editing : true});
+        this.state.sketchViewModel.create("polygon", { mode: "click" });
+        this.setState({ editing: true });
     }
     addRecClick() {
-        this.state.sketchViewModel.create("rectangle", {mode: "click"});
-        this.setState({editing : true});
+        this.state.sketchViewModel.create("rectangle", { mode: "click" });
+        this.setState({ editing: true });
     }
     addCircleClick() {
-        this.state.sketchViewModel.create("circle", {mode: "click"});
-        this.setState({editing : true});
+        this.state.sketchViewModel.create("circle", { mode: "click" });
+        this.setState({ editing: true });
     }
 
 
@@ -184,28 +274,28 @@ class ArcticMapEdit extends React.Component {
             {this.state.hideEditors === false &&
                 <span>
                     {this.props.point &&
-                        <button className="action-button esri-icon-blank-map-pin" id="pointButton" onClick={this.addPointClick.bind(this)}
+                        <button className="action-button esri-icon-blank-map-pin" style={{ padding: '6px' }} id="pointButton" onClick={this.addPointClick.bind(this)}
                             type="button" title="Draw point"></button>
                     }
                     {this.props.line &&
-                        <button className="action-button esri-icon-polyline" id="polylineButton" type="button" onClick={this.addLineClick.bind(this)}
+                        <button className="action-button esri-icon-polyline" style={{ padding: '6px' }} id="polylineButton" type="button" onClick={this.addLineClick.bind(this)}
                             title="Draw polyline"></button>
                     }
                     {this.props.polygon &&
-                        <button className="action-button esri-icon-polygon" id="polygonButton" type="button" onClick={this.addPolyClick.bind(this)}
+                        <button className="action-button esri-icon-polygon" style={{ padding: '6px' }} id="polygonButton" type="button" onClick={this.addPolyClick.bind(this)}
                             title="Draw polygon"></button>
                     }
                     {this.props.square &&
-                        <button className="action-button esri-icon-checkbox-unchecked" id="rectangleButton" onClick={this.addRecClick.bind(this)}
+                        <button className="action-button esri-icon-checkbox-unchecked" style={{ padding: '6px' }} id="rectangleButton" onClick={this.addRecClick.bind(this)}
                             type="button" title="Draw rectangle"></button>
                     }
                     {this.props.circle &&
-                        <button className="action-button esri-icon-radio-unchecked" id="circleButton" onClick={this.addCircleClick.bind(this)}
+                        <button className="action-button esri-icon-radio-unchecked" style={{ padding: '6px' }} id="circleButton" onClick={this.addCircleClick.bind(this)}
                             type="button" title="Draw circle"></button>
                     }
                 </span>
             }
-            <button className="action-button esri-icon-trash" id="resetBtn" type="button" onClick={this.reset.bind(this)}
+            <button className="action-button esri-icon-trash" style={{ padding: '6px' }} id="resetBtn" type="button" onClick={this.reset.bind(this)}
                 title="Clear graphics"></button>
         </div>;
     }
