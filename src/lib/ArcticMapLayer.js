@@ -158,7 +158,7 @@ class ArcticMapLayer extends React.Component {
                             symbol: markerSymbol,
                             attributes : obj.properties,
                             popupTemplate: popupTemplate,
-                            extent : Extent.centerAt(point)
+                           // extent : new Extent().centerAt(point)
                           });
                         
                           // Add the graphic to the view
@@ -198,7 +198,7 @@ class ArcticMapLayer extends React.Component {
 
     zoomto(){
         if(this.layerRef.graphics){
-        this.state.view.goTo(this.layerRef.graphics);
+        this.state.view.goTo(this.layerRef.graphics.items);
         }
        
     }
