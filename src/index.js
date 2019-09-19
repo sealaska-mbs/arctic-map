@@ -20,3 +20,9 @@ export {
 } from './lib/ArcticMapLLDSearch'
 
 
+export {
+  default as ArcticMapLayerPopup
+} from './lib/ArcticMapLayerPopup'
+
+
+

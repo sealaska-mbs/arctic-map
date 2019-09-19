@@ -1,3 +1,6 @@
+// WY060140N0660W0SN180ANENE
+
+
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -23,6 +26,8 @@ class ArcticMapLLDSearch extends React.Component {
 
 
 
+
+
     componentWillMount() {
         var self = this;
         loadModules(['esri/Graphic',
@@ -32,7 +37,11 @@ class ArcticMapLLDSearch extends React.Component {
             "esri/tasks/IdentifyTask",
             "esri/tasks/support/IdentifyParameters",
             'esri/geometry/Geometry',
-            'esri/geometry/Polygon'
+            'esri/geometry/Polygon',
+            "esri/widgets/Search/SearchSource",
+            "esri/request",
+            "esri/geometry/geometryEngine",
+            "esri/geometry/Point"
         ]).then(([
             Graphic,
             FeatureLayer,
@@ -41,7 +50,11 @@ class ArcticMapLLDSearch extends React.Component {
             IdentifyTask,
             IdentifyParameters,
             Geometry,
-            Polygon
+            Polygon,
+            SearchSource,
+            esriRequest,
+            geometryEngine,
+            Point
         ]) => {
 
 
@@ -59,12 +72,63 @@ class ArcticMapLLDSearch extends React.Component {
             });
 
 
-            ReactDOM.render(
-                self.widgetRender(),
-                self.top_right_node
-            );
+
+            // ReactDOM.render(
+            //     self.widgetRender(),
+            //     self.top_right_node
+            // );
 
 
+            var url = "https://api-adresse.data.gouv.fr/";
+
+            self.search = () => {
+                return new SearchSource({
+                    name: 'Leagal Land Description',
+                    placeholder: "example: NV 21 T38N R56E SEC 10 ALIQ SESW",
+                   
+                    getSuggestions: function (params) {
+                 
+
+                        return fetch(`https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${params.suggestTerm.replace(/ /g, "+")}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
+                       
+                            return data.features.map(function (feature) {
+                                return {
+                                    key: "name",
+                                    text: feature.attributes.landdescription,
+                                    sourceIndex: params.sourceIndex
+                                };
+                            });
+                        });
+
+
+                    },
+                
+                    getResults: function (params) {
+                     
+
+
+                        return fetch(`https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${params.suggestResult.text.replace(/ /g, "+")}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
+                            console.log(data);
+                            return data.features.map(function (feature) {
+
+
+                                var outfeature = Graphic.fromJSON(feature);
+                                
+                          
+
+                                return {
+                                    key: "name",
+                                    text: feature.attributes.landdescription,
+                                    sourceIndex: params.sourceIndex,
+                                    feature: outfeature,
+
+                                    name: feature.attributes.landdescription
+                                };
+                            });
+                        });
+                    }
+                });
+            }
 
 
         });
@@ -105,7 +169,7 @@ class ArcticMapLLDSearch extends React.Component {
                     location: event.mapPoint
                 })
 
-          
+
 
 
             }

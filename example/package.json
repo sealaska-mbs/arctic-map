@@ -9,7 +9,7 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "^1.1.4",
-    "arctic-map": "file:.."
+    "arctic-map": "file:./../"
   },
   "scripts": {
     "start": "react-scripts start",

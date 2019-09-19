@@ -14,7 +14,7 @@ class ArcticMapEdit extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Loading MapEdit");
+
         props.map.editor = this;
         this.state = {
             map: props.map,
@@ -94,14 +94,21 @@ class ArcticMapEdit extends React.Component {
                     });
                     tempGraphicsLayer.add(event.graphic);
                     if (this.props.single) {
-                        console.log("Added one feature");
+
                         this.setState({ hideEditors: true });
                     }
 
-                    self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
                     //this.geojson = event.geometry;
 
+
                     self.firenewfeature();
+                    setTimeout(() => {
+
+                        self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
+
+                    }, 1000);
+
+
                 }
             });
 
@@ -118,11 +125,12 @@ class ArcticMapEdit extends React.Component {
                     //     console.log("Added one feature");
                     //     this.setState({ hideEditors: true });
                     // }
-
-                    self.setState({ geojson: arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON(), });
-                    //this.geojson = event.geometry;
-
                     self.firenewfeature();
+                    setTimeout(() => {
+                        self.setState({ geojson: arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON(), });
+                        //this.geojson = event.geometry;
+                    }, 1000);
+
                 }
             });
 
@@ -157,16 +165,20 @@ class ArcticMapEdit extends React.Component {
                     nofire = false;
                 }
 
+                if (!feature.geometry.type) {
+                    feature.geometry = new Geometry(feature.geometry);
+                    feature.geometry.type = "polygon";
+                }
 
                 this.state.sketchViewModel.reset();
                 this.state.tempGraphicsLayer.removeAll();
                 this.setState({ hideEditors: false, geojson: null });
-         
+
 
                 var graphic = null;
                 if (!feature.geometry.toJSON && feature.symbol) {
                     graphic = Graphic.fromJSON(feature);
-          
+
                 }
                 else {
 
@@ -176,12 +188,17 @@ class ArcticMapEdit extends React.Component {
                         geometry: feature.geometry,
                         symbol: this.state.sketchViewModel.polygonSymbol
                     });
+
+                }
+
+                if (graphic.geometry === null) {
+                    graphic.geometry = feature.geometry;
                 }
 
                 //console.log(feature);
                 this.state.tempGraphicsLayer.add(graphic);
                 if (this.props.single) {
-                    console.log("Added one feature");
+
                     this.setState({ hideEditors: true });
                 }
 
@@ -189,7 +206,7 @@ class ArcticMapEdit extends React.Component {
 
 
                 var geometry = feature.geometry;
-                if(!geometry.toJSON){
+                if (geometry && !geometry.toJSON) {
                     geometry = Geometry.fromJSON(geometry);
                 }
 

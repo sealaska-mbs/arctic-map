@@ -15,6 +15,7 @@ class ArcticMap extends React.Component {
       loading: false,
       lat: props.lat,
       lng: props.lng,
+      basemap: props.basemap || "hybrid",
     }
 
     this.handleMapLoad = this.handleMapLoad.bind(this)
@@ -30,6 +31,9 @@ class ArcticMap extends React.Component {
     var self = this
     var index = 0
     this.layers = []
+
+    self.childrenElements = [];
+
     var children = React.Children.map(this.props.children, function (child) {
       if (child.type.name === 'ArcticMapLayer') {
         return React.cloneElement(child, {
@@ -39,16 +43,22 @@ class ArcticMap extends React.Component {
         // console.log(self.refs);
         return React.cloneElement(child, {
           // ref: 'editor'
+
         })
 
-      } else if (child.type.name === 'ArcticMapLLDSearch') {
+      }
 
-        return React.cloneElement(child, {
-        })
+      // else if (child.type.name === 'ArcticMapLLDSearch') {
 
-      } else {
+      //   return React.cloneElement(child, {
+      //   })
+
+      // } 
+
+      else {
         return React.cloneElement(child, {
-          ref: 'child-' + (index++)
+          //ref: 'child-' + (index++)
+          ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
         })
       }
     })
@@ -59,26 +69,31 @@ class ArcticMap extends React.Component {
       children = (<div />)
     }
 
+
+
+
+
     // console.log(this.props.children);
     // this.props.children.forEach((child) =>{
     //         child.ref = (c) => {this.layers.push(c) };
     // });
 
     return <Map class='full-screen-map'
-      mapProperties={{ basemap: 'hybrid' }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
+      mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
       {children}
-      <div id='bottombar'>
+      <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}>
         {this.state.hideBasemapButton === false &&
           <button className='action-button esri-icon-layers' id='pointButton'
             type='button' title='Map Layers' onClick={this.handleShowBasemaps.bind(this)} />
         }
       </div>
 
-      <div id='bottomleftbar'>
+      {/*  <div id='bottomleftbar'>
         {this.state.loading === true &&
-          <p>Loading...</p>
+         <p>Loading...</p>
         }
       </div>
+      */}
     </Map>
   }
 
@@ -178,7 +193,14 @@ class ArcticMap extends React.Component {
         if (event.action.id === 'select-item') {
           // do something
           // console.log(event.target.selectedFeature);
-          self.state.map.editor.setEditFeature(event.target.selectedFeature)
+          // if (view.popup.currentSearchResultFeature) {
+          //   self.state.map.editor.setEditFeature(view.popup.currentSearchResultFeature);
+          //   //view.popup.currentSearchResultFeature = null;
+          // }
+          // else {
+
+            self.state.map.editor.setEditFeature(event.target.selectedFeature);
+          //}
         }
       })
 
@@ -188,22 +210,39 @@ class ArcticMap extends React.Component {
         setTimeout(() => {
 
           if (self.state.map.editor && self.state.map.editor.state.editing === true) {
-            return
+            return;
           }
           // console.log(event);
           // need to work on identify and add to a single popup
           // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
 
           var identresults = []
-          document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
+          //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
           this.setState({ loading: true })
-          
 
-          async.eachSeries(self.layers, (layer, cb) => {
+
+
+          var identLayers = self.layers.filter(layer => {
+            var mapzoom = view.zoom;
+
+            if (layer.props.identMaxZoom !== undefined) {
+              if (Number.parseInt(layer.props.identMaxZoom) > mapzoom
+              ) {
+                return layer;
+              }
+            }
+            else {
+              return layer;
+            }
+
+
+
+          });
+          async.eachSeries(identLayers, (layer, cb) => {
             layer.identify(event, (results) => {
-              if(results){
-              results.layer = layer
-              identresults.push(results)
+              if (results) {
+                results.layer = layer
+                identresults.push(results)
               }
               cb()
             })
@@ -216,8 +255,9 @@ class ArcticMap extends React.Component {
               return ir.results
             }) || [].reduce(function (a, b) { return a.concat(b) })
 
-            console.log(results)
-            results.sort((r1, r2) => {
+            results = results.flat();
+
+            results = results.sort((r1, r2) => {
               return r1.acres > r2.acres
               //r.feature.attributes.Shape_Area
             })
@@ -237,7 +277,7 @@ class ArcticMap extends React.Component {
 
               feature.popupTemplate = { // autocasts as new PopupTemplate()
                 title: layerName,
-                content: result.layer.renderPopup(feature),
+                content: result.layer.renderPopup(feature, result),
                 actions: [{ title: "Select", id: "select-action" }]
               }
 
@@ -248,14 +288,16 @@ class ArcticMap extends React.Component {
 
             if (popupresults.length > 0) {
               view.popup.close();
+              view.popup.currentSearchResultFeature = null;
               self.state.view.popup.open({
                 features: popupresults,
                 location: event.mapPoint
               })
+              popupresults[0].setCurrentPopup();
 
               self.state.view.popup.on('trigger-action', (e) => {
                 if (e.action.id === 'select-action') {
-                  console.log("Fire Select");
+
                 }
               });
 
@@ -288,8 +330,17 @@ class ArcticMap extends React.Component {
       this.basemapGallery = new BasemapGallery({
         view: self.state.view
       })
-      this.basemapGallery.on('selection-change', function () {
-        console.log('Basemap Changed')
+
+      var handle = this.basemapGallery.watch('activeBasemap', function (newValue, oldValue, property, object) {
+        self.state.view.ui.remove(self.basemapGallery)
+        self.setState({ hideBasemapButton: false })
+      });
+
+
+      map.on("basemap-change", function (a) {
+        //this.basemapGallery.on('click', function () {
+
+        alert("BM CHanegd")
       })
 
 
@@ -314,13 +365,43 @@ class ArcticMap extends React.Component {
 
       if (self.props.search) {
 
+        // find search elemets
+        var searchitems = self.childrenElements.filter(ele => {
+
+          if (ele.constructor.name.toLowerCase().includes('search')) {
+            return ele;
+          }
+
+        });
+        console.log(searchitems);
+
+        var searchsources = searchitems.map(i => i.search());
+
+
+
+
+
+
         var searchWidget = new Search({
           view: view,
-
+          sources: searchsources,
+          includeDefaultSources: true
         });
 
         searchWidget.on("search-complete", function (event) {
+          console.log("Serach Complete")
           console.log(event);
+        });
+
+        searchWidget.on('select-result', function (evt) {
+          console.info(evt);
+          view.popup.currentSearchResultFeature = evt.result.feature;
+          // view.popup.open({
+          //  location: evt.result.feature.geometry,  // location of the click on the view
+          //  feature: evt.result.feature,
+          //  title: "Search Result",  // title displayed in the popup
+          //  content: evt.result.name, // content displayed in the popup
+          // });
         });
 
         view.ui.add(searchWidget, {

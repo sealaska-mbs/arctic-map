@@ -140,7 +140,8 @@ var ArcticMap$1 = function (_React$Component) {
       hideBasemapButton: false,
       loading: false,
       lat: props.lat,
-      lng: props.lng
+      lng: props.lng,
+      basemap: props.basemap || "hybrid"
     };
 
     _this.handleMapLoad = _this.handleMapLoad.bind(_this);
@@ -158,6 +159,9 @@ var ArcticMap$1 = function (_React$Component) {
       var self = this;
       var index = 0;
       this.layers = [];
+
+      self.childrenElements = [];
+
       var children = React.Children.map(this.props.children, function (child) {
         if (child.type.name === 'ArcticMapLayer') {
           return React.cloneElement(child, {
@@ -171,15 +175,27 @@ var ArcticMap$1 = function (_React$Component) {
           // console.log(self.refs);
           return React.cloneElement(child, {
             // ref: 'editor'
-          });
-        } else if (child.type.name === 'ArcticMapLLDSearch') {
 
-          return React.cloneElement(child, {});
-        } else {
-          return React.cloneElement(child, {
-            ref: 'child-' + index++
           });
         }
+
+        // else if (child.type.name === 'ArcticMapLLDSearch') {
+
+        //   return React.cloneElement(child, {
+        //   })
+
+        // } 
+
+        else {
+            return React.cloneElement(child, {
+              //ref: 'child-' + (index++)
+              ref: function ref(c) {
+                if (c) {
+                  self.childrenElements.push(c);
+                }return 'child-' + index++;
+              }
+            });
+          }
       });
 
       if (children) {
@@ -198,22 +214,13 @@ var ArcticMap$1 = function (_React$Component) {
       return React.createElement(
         Map,
         { 'class': 'full-screen-map',
-          mapProperties: { basemap: 'hybrid' }, onLoad: this.handleMapLoad, onClick: this.handleMapClick },
+          mapProperties: { basemap: this.state.basemap }, onLoad: this.handleMapLoad, onClick: this.handleMapClick },
         children,
         React.createElement(
           'div',
-          { id: 'bottombar' },
+          { id: 'bottombar', style: { position: 'absolute', right: '10px', bottom: '20px' } },
           this.state.hideBasemapButton === false && React.createElement('button', { className: 'action-button esri-icon-layers', id: 'pointButton',
             type: 'button', title: 'Map Layers', onClick: this.handleShowBasemaps.bind(this) })
-        ),
-        React.createElement(
-          'div',
-          { id: 'bottomleftbar' },
-          this.state.loading === true && React.createElement(
-            'p',
-            null,
-            'Loading...'
-          )
         )
       );
     }
@@ -306,7 +313,14 @@ var ArcticMap$1 = function (_React$Component) {
           if (event.action.id === 'select-item') {
             // do something
             // console.log(event.target.selectedFeature);
+            // if (view.popup.currentSearchResultFeature) {
+            //   self.state.map.editor.setEditFeature(view.popup.currentSearchResultFeature);
+            //   //view.popup.currentSearchResultFeature = null;
+            // }
+            // else {
+
             self.state.map.editor.setEditFeature(event.target.selectedFeature);
+            //}
           }
         });
 
@@ -323,10 +337,21 @@ var ArcticMap$1 = function (_React$Component) {
             // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
 
             var identresults = [];
-            document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
+            //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
             _this2.setState({ loading: true });
 
-            async.eachSeries(self.layers, function (layer, cb) {
+            var identLayers = self.layers.filter(function (layer) {
+              var mapzoom = view.zoom;
+
+              if (layer.props.identMaxZoom !== undefined) {
+                if (Number.parseInt(layer.props.identMaxZoom) > mapzoom) {
+                  return layer;
+                }
+              } else {
+                return layer;
+              }
+            });
+            async.eachSeries(identLayers, function (layer, cb) {
               layer.identify(event, function (results) {
                 if (results) {
                   results.layer = layer;
@@ -345,8 +370,9 @@ var ArcticMap$1 = function (_React$Component) {
                 return a.concat(b);
               });
 
-              console.log(results);
-              results.sort(function (r1, r2) {
+              results = results.flat();
+
+              results = results.sort(function (r1, r2) {
                 return r1.acres > r2.acres;
                 //r.feature.attributes.Shape_Area
               });
@@ -362,7 +388,7 @@ var ArcticMap$1 = function (_React$Component) {
 
                 feature.popupTemplate = { // autocasts as new PopupTemplate()
                   title: layerName,
-                  content: result.layer.renderPopup(feature),
+                  content: result.layer.renderPopup(feature, result),
                   actions: [{ title: "Select", id: "select-action" }]
                 };
 
@@ -371,15 +397,15 @@ var ArcticMap$1 = function (_React$Component) {
 
               if (popupresults.length > 0) {
                 view.popup.close();
+                view.popup.currentSearchResultFeature = null;
                 self.state.view.popup.open({
                   features: popupresults,
                   location: event.mapPoint
                 });
+                popupresults[0].setCurrentPopup();
 
                 self.state.view.popup.on('trigger-action', function (e) {
-                  if (e.action.id === 'select-action') {
-                    console.log("Fire Select");
-                  }
+                  if (e.action.id === 'select-action') ;
                 });
               }
               _this2.setState({ loading: false });
@@ -406,8 +432,16 @@ var ArcticMap$1 = function (_React$Component) {
         _this2.basemapGallery = new BasemapGallery({
           view: self.state.view
         });
-        _this2.basemapGallery.on('selection-change', function () {
-          console.log('Basemap Changed');
+
+        var handle = _this2.basemapGallery.watch('activeBasemap', function (newValue, oldValue, property, object) {
+          self.state.view.ui.remove(self.basemapGallery);
+          self.setState({ hideBasemapButton: false });
+        });
+
+        map.on("basemap-change", function (a) {
+          //this.basemapGallery.on('click', function () {
+
+          alert("BM CHanegd");
         });
 
         // Add the widget to the top-right corner of the view
@@ -430,13 +464,39 @@ var ArcticMap$1 = function (_React$Component) {
 
         if (self.props.search) {
 
-          var searchWidget = new Search({
-            view: view
+          // find search elemets
+          var searchitems = self.childrenElements.filter(function (ele) {
 
+            if (ele.constructor.name.toLowerCase().includes('search')) {
+              return ele;
+            }
+          });
+          console.log(searchitems);
+
+          var searchsources = searchitems.map(function (i) {
+            return i.search();
+          });
+
+          var searchWidget = new Search({
+            view: view,
+            sources: searchsources,
+            includeDefaultSources: true
           });
 
           searchWidget.on("search-complete", function (event) {
+            console.log("Serach Complete");
             console.log(event);
+          });
+
+          searchWidget.on('select-result', function (evt) {
+            console.info(evt);
+            view.popup.currentSearchResultFeature = evt.result.feature;
+            // view.popup.open({
+            //  location: evt.result.feature.geometry,  // location of the click on the view
+            //  feature: evt.result.feature,
+            //  title: "Search Result",  // title displayed in the popup
+            //  content: evt.result.name, // content displayed in the popup
+            // });
           });
 
           view.ui.add(searchWidget, {
@@ -478,7 +538,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
         var _this = possibleConstructorReturn(this, (ArcticMapEdit.__proto__ || Object.getPrototypeOf(ArcticMapEdit)).call(this, props));
 
-        console.log("Loading MapEdit");
         props.map.editor = _this;
         _this.state = {
             map: props.map,
@@ -556,14 +615,18 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         });
                         tempGraphicsLayer.add(event.graphic);
                         if (_this2.props.single) {
-                            console.log("Added one feature");
+
                             _this2.setState({ hideEditors: true });
                         }
 
-                        self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
                         //this.geojson = event.geometry;
 
+
                         self.firenewfeature();
+                        setTimeout(function () {
+
+                            self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
+                        }, 1000);
                     }
                 });
 
@@ -579,11 +642,11 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         //     console.log("Added one feature");
                         //     this.setState({ hideEditors: true });
                         // }
-
-                        self.setState({ geojson: arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON() });
-                        //this.geojson = event.geometry;
-
                         self.firenewfeature();
+                        setTimeout(function () {
+                            self.setState({ geojson: arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON() });
+                            //this.geojson = event.geometry;
+                        }, 1000);
                     }
                 });
 
@@ -615,6 +678,11 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         nofire = false;
                     }
 
+                    if (!feature.geometry.type) {
+                        feature.geometry = new Geometry(feature.geometry);
+                        feature.geometry.type = "polygon";
+                    }
+
                     _this2.state.sketchViewModel.reset();
                     _this2.state.tempGraphicsLayer.removeAll();
                     _this2.setState({ hideEditors: false, geojson: null });
@@ -630,17 +698,21 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         });
                     }
 
+                    if (graphic.geometry === null) {
+                        graphic.geometry = feature.geometry;
+                    }
+
                     //console.log(feature);
                     _this2.state.tempGraphicsLayer.add(graphic);
                     if (_this2.props.single) {
-                        console.log("Added one feature");
+
                         _this2.setState({ hideEditors: true });
                     }
 
                     self.state.view.goTo(graphic);
 
                     var geometry = feature.geometry;
-                    if (!geometry.toJSON) {
+                    if (geometry && !geometry.toJSON) {
                         geometry = Geometry.fromJSON(geometry);
                     }
 
@@ -840,6 +912,8 @@ var ArcticMapLayer = function (_React$Component) {
     }, {
         key: 'componentWillMount',
         value: function componentWillMount() {
+            var _this2 = this;
+
             var self = this;
             loadModules(['esri/Graphic', "esri/layers/FeatureLayer", "esri/layers/MapImageLayer", "esri/layers/ImageryLayer", "esri/layers/GeoJSONLayer", "esri/layers/GraphicsLayer", "esri/tasks/IdentifyTask", "esri/tasks/support/IdentifyParameters", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol", "esri/geometry/Extent"]).then(function (_ref) {
                 var _ref2 = slicedToArray(_ref, 11),
@@ -857,6 +931,17 @@ var ArcticMapLayer = function (_React$Component) {
 
                 // Create a polygon geometry
 
+
+                var children = React.Children.map(_this2.props.children, function (child) {
+                    if (child.type.name === 'ArcticMapLayerPopup') {
+                        return child;
+                        // return React.cloneElement(child, {
+                        //     // ref: 'editor'
+                        //   })
+                    }
+                });
+
+                self.layerRenderers = children;
 
                 // this.setState({ graphic });
 
@@ -876,7 +961,6 @@ var ArcticMapLayer = function (_React$Component) {
                         url: self.props.src
                     });
                     maplayer.when(function () {
-                        // console.log(maplayer);
 
                         var layerids = [];
                         maplayer.allSublayers.items.forEach(function (sublayer) {
@@ -999,17 +1083,31 @@ var ArcticMapLayer = function (_React$Component) {
         }
     }, {
         key: 'renderPopup',
-        value: function renderPopup(feature) {
-            {
-                console.log(feature);
-                var popupText = "";
-                var atts = Object.getOwnPropertyNames(feature.attributes);
-                atts.forEach(function (att) {
-                    popupText += '<b>' + att + '</b> : ' + feature.attributes[att] + '<br/>';
+        value: function renderPopup(feature, result) {
+
+            if (result.layerId != undefined && this.layerRenderers) {
+                var popuprender = this.layerRenderers.find(function (l) {
+                    return l.props.layerid === result.layerId.toString();
                 });
 
-                return popupText;
+                if (popuprender && popuprender.props.popup != undefined) {
+                    var ele = popuprender.props.popup(feature, result);
+
+                    if (ele) {
+                        var workingdiv = document.createElement('div');
+                        var html = ReactDOM.render(ele, workingdiv);
+                        return workingdiv;
+                    }
+                }
             }
+
+            var popupText = "";
+            var atts = Object.getOwnPropertyNames(feature.attributes);
+            atts.forEach(function (att) {
+                popupText += '<b>' + att + '</b> : ' + feature.attributes[att] + '<br/>';
+            });
+
+            return popupText;
         }
     }, {
         key: 'render',
@@ -1019,16 +1117,16 @@ var ArcticMapLayer = function (_React$Component) {
     }, {
         key: 'identify',
         value: function identify(event, callback) {
-            console.log(this.layerRef);
+
             if (!this.params) {
                 callback(null);return;
             }
-            //console.log("Identify");
+
             this.params.geometry = event.mapPoint;
             this.params.mapExtent = this.state.view.extent;
             //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
-                //console.log(response);
+
                 callback(response);
             });
         }
@@ -1039,6 +1137,8 @@ var ArcticMapLayer = function (_React$Component) {
 var css$2 = ".ArcticMapLLDSearch_lldsearchbar__1eLzA {\r\n    background: #fff;\r\n\r\n    vertical-align: top; \r\n  }\r\n\r\n\r\n  .ArcticMapLLDSearch_lldsearchbar__1eLzA div{\r\n    display: inline;\r\n  }";
 var style = { "lldsearchbar": "ArcticMapLLDSearch_lldsearchbar__1eLzA" };
 styleInject(css$2);
+
+// WY060140N0660W0SN180ANENE
 
 var ArcticMapLLDSearch = function (_React$Component) {
     inherits(ArcticMapLLDSearch, _React$Component);
@@ -1062,8 +1162,8 @@ var ArcticMapLLDSearch = function (_React$Component) {
         key: "componentWillMount",
         value: function componentWillMount() {
             var self = this;
-            loadModules(['esri/Graphic', "esri/layers/FeatureLayer", "esri/layers/MapImageLayer", "esri/layers/ImageryLayer", "esri/tasks/IdentifyTask", "esri/tasks/support/IdentifyParameters", 'esri/geometry/Geometry', 'esri/geometry/Polygon']).then(function (_ref) {
-                var _ref2 = slicedToArray(_ref, 8),
+            loadModules(['esri/Graphic', "esri/layers/FeatureLayer", "esri/layers/MapImageLayer", "esri/layers/ImageryLayer", "esri/tasks/IdentifyTask", "esri/tasks/support/IdentifyParameters", 'esri/geometry/Geometry', 'esri/geometry/Polygon', "esri/widgets/Search/SearchSource", "esri/request", "esri/geometry/geometryEngine", "esri/geometry/Point"]).then(function (_ref) {
+                var _ref2 = slicedToArray(_ref, 12),
                     Graphic = _ref2[0],
                     FeatureLayer = _ref2[1],
                     MapImageLayer = _ref2[2],
@@ -1071,7 +1171,11 @@ var ArcticMapLLDSearch = function (_React$Component) {
                     IdentifyTask = _ref2[4],
                     IdentifyParameters = _ref2[5],
                     Geometry = _ref2[6],
-                    Polygon = _ref2[7];
+                    Polygon = _ref2[7],
+                    SearchSource = _ref2[8],
+                    esriRequest = _ref2[9],
+                    geometryEngine = _ref2[10],
+                    Point = _ref2[11];
 
                 //var elestring = this.createElementFromHTML( `<input type="text" placeholder="Find address or place" aria-label="Search" autocomplete="off" tabindex="0" class="esri-input esri-search__input" aria-autocomplete="list" aria-haspopup="true" aria-owns="1687b00a338-widget-1-suggest-menu" role="textbox" data-node-ref="_inputNode" title="Find address or place">`);
 
@@ -1086,7 +1190,50 @@ var ArcticMapLLDSearch = function (_React$Component) {
                     index: 0
                 });
 
-                ReactDOM.render(self.widgetRender(), self.top_right_node);
+                self.search = function () {
+                    return new SearchSource({
+                        name: 'Leagal Land Description',
+                        placeholder: "example: NV 21 T38N R56E SEC 10 ALIQ SESW",
+
+                        getSuggestions: function getSuggestions(params) {
+
+                            return fetch("https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=" + params.suggestTerm.replace(/ /g, "+") + "+&returnalllevels=&f=json").then(function (r) {
+                                return r.json();
+                            }).then(function (data) {
+
+                                return data.features.map(function (feature) {
+                                    return {
+                                        key: "name",
+                                        text: feature.attributes.landdescription,
+                                        sourceIndex: params.sourceIndex
+                                    };
+                                });
+                            });
+                        },
+
+                        getResults: function getResults(params) {
+
+                            return fetch("https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=" + params.suggestResult.text.replace(/ /g, "+") + "+&returnalllevels=&f=json").then(function (r) {
+                                return r.json();
+                            }).then(function (data) {
+                                console.log(data);
+                                return data.features.map(function (feature) {
+
+                                    var outfeature = Graphic.fromJSON(feature);
+
+                                    return {
+                                        key: "name",
+                                        text: feature.attributes.landdescription,
+                                        sourceIndex: params.sourceIndex,
+                                        feature: outfeature,
+
+                                        name: feature.attributes.landdescription
+                                    };
+                                });
+                            });
+                        }
+                    });
+                };
             });
         }
     }, {
@@ -1157,5 +1304,30 @@ var ArcticMapLLDSearch = function (_React$Component) {
     return ArcticMapLLDSearch;
 }(React.Component);
 
-export { ArcticMap$1 as ArcticMap, ArcticMapEdit$1 as ArcticMapEdit, ArcticMapLayer, ArcticMapLLDSearch };
+var ArcticMapLayerPopup = function (_React$Component) {
+    inherits(ArcticMapLayerPopup, _React$Component);
+
+    function ArcticMapLayerPopup(props) {
+        classCallCheck(this, ArcticMapLayerPopup);
+        return possibleConstructorReturn(this, (ArcticMapLayerPopup.__proto__ || Object.getPrototypeOf(ArcticMapLayerPopup)).call(this, props));
+    }
+
+    createClass(ArcticMapLayerPopup, [{
+        key: 'render',
+        value: function render() {
+
+            return React.createElement('span', null);
+        }
+    }, {
+        key: 'renderPopup',
+        value: function renderPopup(context) {
+            if (this.props.popup) {
+                return this.props.popup(context);
+            }
+        }
+    }]);
+    return ArcticMapLayerPopup;
+}(React.Component);
+
+export { ArcticMap$1 as ArcticMap, ArcticMapEdit$1 as ArcticMapEdit, ArcticMapLayer, ArcticMapLLDSearch, ArcticMapLayerPopup };
 //# sourceMappingURL=ArcticMap.es.js.map

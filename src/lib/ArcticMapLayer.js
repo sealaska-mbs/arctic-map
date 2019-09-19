@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from 'react-dom'
 import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 
 import {
@@ -50,6 +51,19 @@ class ArcticMapLayer extends React.Component {
             // Create a polygon geometry
 
 
+            var children = React.Children.map(this.props.children, function (child) {
+                if (child.type.name === 'ArcticMapLayerPopup') {
+                    return child;
+                    // return React.cloneElement(child, {
+                    //     // ref: 'editor'
+                    //   })
+                }
+            })
+
+
+            self.layerRenderers = children;
+
+           
 
             // this.setState({ graphic });
 
@@ -69,7 +83,7 @@ class ArcticMapLayer extends React.Component {
                     url: self.props.src
                 });
                 maplayer.when(() => {
-                    // console.log(maplayer);
+                 
 
                     var layerids = [];
                     maplayer.allSublayers.items.forEach(sublayer => {
@@ -134,35 +148,35 @@ class ArcticMapLayer extends React.Component {
                         var popupTemplate = {
                             title: "{Name}",
                             content: self.props.template,
-                          };
+                        };
 
 
                         var point = new Point({
                             longitude: obj.geometry.coordinates[1],
                             latitude: obj.geometry.coordinates[0],
-                            
-                          });
-                        
-                          // Create a symbol for drawing the point
-                          var markerSymbol = new SimpleMarkerSymbol({
+
+                        });
+
+                        // Create a symbol for drawing the point
+                        var markerSymbol = new SimpleMarkerSymbol({
                             color: [226, 119, 40],
                             outline: {
-                              color: [255, 255, 255],
-                              width: 1
+                                color: [255, 255, 255],
+                                width: 1
                             }
-                          });
-                        
-                          // Create a graphic and add the geometry and symbol to it
-                          var pointGraphic = new Graphic({
+                        });
+
+                        // Create a graphic and add the geometry and symbol to it
+                        var pointGraphic = new Graphic({
                             geometry: point,
                             symbol: markerSymbol,
-                            attributes : obj.properties,
+                            attributes: obj.properties,
                             popupTemplate: popupTemplate,
-                           // extent : new Extent().centerAt(point)
-                          });
-                        
-                          // Add the graphic to the view
-                          geojsonLayer.graphics.add(pointGraphic);
+                            // extent : new Extent().centerAt(point)
+                        });
+
+                        // Add the graphic to the view
+                        geojsonLayer.graphics.add(pointGraphic);
                     }
 
 
@@ -181,42 +195,59 @@ class ArcticMapLayer extends React.Component {
             }
 
 
-            self.layerRef.when(function(){
-            setTimeout(() => {
-                var evt = new Event('ready', { bubbles: true });
-                Object.defineProperty(evt, 'target', { value: self, enumerable: true });
-        
-                if (self.props.onready) {
-                  self.props.onready(evt);
-                }
-              }, 500)
+            self.layerRef.when(function () {
+                setTimeout(() => {
+                    var evt = new Event('ready', { bubbles: true });
+                    Object.defineProperty(evt, 'target', { value: self, enumerable: true });
+
+                    if (self.props.onready) {
+                        self.props.onready(evt);
+                    }
+                }, 500)
             });
 
             //this.state.view.graphics.add(graphic);
         }); //.catch ((err) => console.error(err));
     }
 
-    zoomto(){
-        if(this.layerRef.graphics){
-        this.state.view.goTo(this.layerRef.graphics.items);
+    zoomto() {
+        if (this.layerRef.graphics) {
+            this.state.view.goTo(this.layerRef.graphics.items);
         }
-       
+
     }
 
-    renderPopup(feature) {
-        if (!true) {
+    renderPopup(feature, result) {
+    
 
-        }
-        else {
-            console.log(feature);
-            var popupText = "";
-            var atts = Object.getOwnPropertyNames(feature.attributes);
-            atts.forEach(att => {
-                popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`
-            });
+        if (result.layerId != undefined && this.layerRenderers) {
+            var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
 
-            return popupText;
+            if (popuprender && popuprender.props.popup != undefined) {
+                var ele = popuprender.props.popup(feature, result);
+             
+
+
+                
+                if (ele) {
+                    var workingdiv = document.createElement('div');
+                    var html = ReactDOM.render(ele, workingdiv);
+                    return workingdiv;
+                }
+            }
         }
+
+
+
+
+        var popupText = "";
+        var atts = Object.getOwnPropertyNames(feature.attributes);
+        atts.forEach(att => {
+            popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`
+        });
+
+        return popupText;
+
     }
 
     render() {
@@ -224,14 +255,14 @@ class ArcticMapLayer extends React.Component {
     }
 
     identify(event, callback) {
-        console.log(this.layerRef);
+  
         if (!this.params) { callback(null); return; }
-        //console.log("Identify");
+       
         this.params.geometry = event.mapPoint;
         this.params.mapExtent = this.state.view.extent;
         //document.getElementById("viewDiv").style.cursor = "wait";
         this.identifyTask.execute(this.params).then(function (response) {
-            //console.log(response);
+         
             callback(response);
 
 
