@@ -24,5 +24,20 @@ export {
   default as ArcticMapLayerPopup
 } from './lib/ArcticMapLayerPopup'
 
+export {
+  default as ArcticMapControlArea
+} from './lib/ArcticMapControlArea'
+
+export {
+  default as ArcticMapButton
+} from './lib/ArcticMapButton'
+
+
+export {
+  default as ArcticMapPanel
+} from './lib/ArcticMapPanel'
+
+
+
 
 

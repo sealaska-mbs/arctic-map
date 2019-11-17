@@ -6,6 +6,7 @@ import { Map, loadModules } from 'react-arcgis'
 
 
 class ArcticMap extends React.Component {
+  static displayName = 'ArcticMap';
   constructor(props) {
     super(props)
     this.state = {
@@ -35,11 +36,11 @@ class ArcticMap extends React.Component {
     self.childrenElements = [];
 
     var children = React.Children.map(this.props.children, function (child) {
-      if (child.type.name === 'ArcticMapLayer') {
+      if (child.type.displayName === 'ArcticMapLayer') {
         return React.cloneElement(child, {
           ref: (c) => { if (c) { self.layers.push(c) } }
         })
-      } else if (child.type.name === 'ArcticMapEdit') {
+      } else if (child.type.displayName === 'ArcticMapEdit') {
         // console.log(self.refs);
         return React.cloneElement(child, {
           // ref: 'editor'

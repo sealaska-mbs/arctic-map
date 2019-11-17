@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { ArcticMap, ArcticMapLayer, ArcticMapEdit, ArcticMapLLDSearch, ArcticMapLayerPopup } from './ArcticMap'
+import { ArcticMap, ArcticMapLayer, ArcticMapEdit, ArcticMapLLDSearch, ArcticMapLayerPopup, ArcticMapControlArea, ArcticMapButton, ArcticMapPanel } from './ArcticMap'
 
 
 export default class App extends Component {
@@ -142,46 +142,78 @@ export default class App extends Component {
 
   }
 
+  locateExtra(){
+
+  }
+
 
   render() {
     return (
       <div style={{ width: '100vw', height: '100vh' }}>
-        <ArcticMap basemap="topo" search ref={this.am} onmapready={this.mapready.bind(this)}>
+        <ArcticMap basemap="topo" search ref={this.am} onmapready={this.mapready.bind(this)} center="54.19681834725972|-123.82131857510026|4">
+          <ArcticMapEdit single polygon onnewfeature={this.onnew} />
+
+          <ArcticMapControlArea location="top-right">
+            <ArcticMapButton esriicon="locate" onclick={this.locateExtra.bind(this)} />
+
+          </ArcticMapControlArea>
+
+
+          <ArcticMapControlArea location="top-right">
+            <ArcticMapPanel esriicon="bookmark" title="Bookmarks">
+              <h1>BLah</h1>
+            </ArcticMapPanel>
+
+          </ArcticMapControlArea>
+
+
 
           <ArcticMapLayer
             type="geojson"
             template={this.geojsontemplate} onready={this.layerready.bind(this)} />
 
-            <ArcticMapLayer identMaxZoom="13"
+          <ArcticMapLayer identMaxZoom="13"
 
             type="dynamic"
             src="https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/" />
-         
+
 
           <ArcticMapLayer
 
             type="dynamic"
             src="https://gis.test.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer" >
 
-            <ArcticMapLayerPopup layerid="0" popup={(context, all) =>{
-             
-                return( <h3>{context.attributes.NAME}</h3>);
+            <ArcticMapLayerPopup layerid="0" popup={(context, all) => {
+
+              return (<h3>{context.attributes.NAME}</h3>);
             }}>
 
             </ArcticMapLayerPopup>
 
-            <ArcticMapLayerPopup layerid="3"popup={(context, all) =>{
+            <ArcticMapLayerPopup layerid="3" popup={(context, all) => {
               console.log(context);
-                return( <h3>{context.attributes["Second Division Identifier"] }</h3>);
+              return (<h3>{context.attributes["Second Division Identifier"]}</h3>);
             }}>
 
             </ArcticMapLayerPopup>
 
           </ArcticMapLayer>
 
+          <ArcticMapLayer title="Surface Management Agency"
+                      transparency=".32"
+                      identMaxZoom="1"
+                      blockIdentSelect
+                      type="group"
+                        src="https://gis.blm.gov/arcgis/rest/services/lands/BLM_Natl_SMA_LimitedScale/MapServer/,https://gis.blm.gov/arcgis/rest/services/lands/BLM_Natl_SMA_Cached_without_PriUnk/MapServer/" >
+
+                      
+
+
+                    </ArcticMapLayer>
+
 
           {/* point line square circle  */}
-          <ArcticMapEdit single polygon onnewfeature={this.onnew} />
+
           <ArcticMapLLDSearch />
 
         </ArcticMap>

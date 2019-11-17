@@ -7,14 +7,15 @@ import {
 } from 'react-arcgis';
 
 class ArcticMapLayer extends React.Component {
-
+static displayName = "ArcticMapLayer";
     constructor(props) {
         super(props);
 
         this.state = {
             map: props.map,
             view: props.view,
-            graphic: null
+            graphic: null,
+            blockSelect: props.blockIdentSelect !== undefined
         };
     }
 
@@ -34,7 +35,8 @@ class ArcticMapLayer extends React.Component {
             "esri/tasks/support/IdentifyParameters",
             "esri/geometry/Point",
             "esri/symbols/SimpleMarkerSymbol",
-            "esri/geometry/Extent"
+            "esri/geometry/Extent",
+            "esri/layers/GroupLayer"
         ]).then(([
             Graphic,
             FeatureLayer,
@@ -46,13 +48,14 @@ class ArcticMapLayer extends React.Component {
             IdentifyParameters,
             Point,
             SimpleMarkerSymbol,
-            Extent
+            Extent,
+            GroupLayer
         ]) => {
             // Create a polygon geometry
 
 
             var children = React.Children.map(this.props.children, function (child) {
-                if (child.type.name === 'ArcticMapLayerPopup') {
+                if (child.type.displayName === 'ArcticMapLayerPopup') {
                     return child;
                     // return React.cloneElement(child, {
                     //     // ref: 'editor'
@@ -77,11 +80,55 @@ class ArcticMapLayer extends React.Component {
                 self.state.map.add(featureLayer);
             }
 
+            if (self.props.type === "group") {
+                var trans = 1;
+                if (self.props.transparency) {
+                    trans = Number.parseFloat(self.props.transparency);
+                }
+                var srcsplit = self.props.src.split(',');
+
+                var maplayer = new GroupLayer({
+                    //url: self.props.src,
+                    opacity: trans
+
+                });
+                if (self.props.title) {
+
+                    maplayer.title = self.props.title;
+                }
+
+                srcsplit.forEach(function (src) {
+                    var glayer = new MapImageLayer({
+                        url: src,
+                        opacity: trans
+
+                    });
+                    maplayer.layers.add(glayer);
+                });
+
+                self.layerRef = maplayer;
+                self.state.map.add(maplayer);
+            }
+
             if (self.props.type === "dynamic") {
 
+                var trans = 1;
+                if (self.props.transparency) {
+                    trans = Number.parseFloat(self.props.transparency);
+                }
+
                 var maplayer = new MapImageLayer({
-                    url: self.props.src
+                    url: self.props.src,
+                    opacity: trans
+
                 });
+
+                if (self.props.childsrc) ;
+
+                if (self.props.title) {
+
+                    maplayer.title = self.props.title;
+                }
                 maplayer.when(() => {
                  
 
@@ -99,6 +146,7 @@ class ArcticMapLayer extends React.Component {
                     self.params.width = self.state.view.width;
                     self.params.height = self.state.view.height;
                     self.params.returnGeometry = true;
+                    self.params.returnGeometry = self.state.blockSelect;
 
                     //  console.log(self.params);
 

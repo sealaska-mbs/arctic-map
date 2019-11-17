@@ -1,5 +1,6 @@
 import React from 'react';
 class ArcticMapLayerPopup extends React.Component {
+    static displayName = 'ArcticMapLayerPopup';
     constructor(props) {
         super(props)
     }

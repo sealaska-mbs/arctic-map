@@ -11,7 +11,7 @@ import {
 } from 'react-arcgis';
 
 class ArcticMapLLDSearch extends React.Component {
-
+static displayName = 'ArcticMapLLDSearch';
     constructor(props) {
         super(props);
 
@@ -83,7 +83,7 @@ class ArcticMapLLDSearch extends React.Component {
 
             self.search = () => {
                 return new SearchSource({
-                    name: 'Leagal Land Description',
+                    name: 'Legal Land Description',
                     placeholder: "example: NV 21 T38N R56E SEC 10 ALIQ SESW",
                    
                     getSuggestions: function (params) {

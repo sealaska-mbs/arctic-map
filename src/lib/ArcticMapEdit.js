@@ -11,7 +11,7 @@ import {
 
 
 class ArcticMapEdit extends React.Component {
-
+    static displayName = 'ArcticMapEdit';
     constructor(props) {
         super(props);
 
