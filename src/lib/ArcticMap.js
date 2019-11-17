@@ -156,7 +156,7 @@ class ArcticMap extends React.Component {
       geometryEngine
     ]) => {
 
-
+      window._map = self;
 
 
       var layerList = new LayerList({
