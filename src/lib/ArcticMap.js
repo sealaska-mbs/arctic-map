@@ -65,7 +65,7 @@ class ArcticMap extends React.Component {
     })
 
     if (children) {
-      children = children.sort(l => l.type.name === 'ArcticMapEdit').reverse()
+      children = children.sort(l => l.type.displayName === 'ArcticMapEdit').reverse()
     } else {
       children = (<div />)
     }
@@ -208,7 +208,14 @@ class ArcticMap extends React.Component {
       var popup = view.popup
 
       view.on('click', (event) => {
-        setTimeout(() => {
+        setTimeout(function () {
+
+          if (self.state.hideBasemapButton && self.state.hideBasemapButton == true) {
+            self.state.view.ui.remove(self.basemapGallery);
+            self.setState({ hideBasemapButton: false });
+            return;
+          }
+          //this.setState({ hideBasemapButton: true })
 
           if (self.state.map.editor && self.state.map.editor.state.editing === true) {
             return;
@@ -217,75 +224,75 @@ class ArcticMap extends React.Component {
           // need to work on identify and add to a single popup
           // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
 
-          var identresults = []
+          var identresults = [];
           //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
-          this.setState({ loading: true })
+          self.setState({ loading: true });
 
-
-
-          var identLayers = self.layers.filter(layer => {
+          var identLayers = self.layers.filter(function (layer) {
             var mapzoom = view.zoom;
+            console.log("Filter layers");
 
             if (layer.props.identMaxZoom !== undefined) {
-              if (Number.parseInt(layer.props.identMaxZoom) > mapzoom
-              ) {
+              if (Number.parseInt(layer.props.identMaxZoom) > mapzoom) {
                 return layer;
               }
             }
+            // else if(layer.props.identMinZoom !== undefined){
+            //   if (Number.parseInt(layer.props.identMinZoom) > mapzoom
+            //   ) {
+            //     return layer;
+            //   }
+            // }
             else {
-              return layer;
-            }
-
-
-
-          });
-          async.eachSeries(identLayers, (layer, cb) => {
-            layer.identify(event, (results) => {
-              if (results) {
-                results.layer = layer
-                identresults.push(results)
+                return layer;
               }
-              cb()
-            })
-          }, (err) => {
-            var results = identresults.map(ir => {
-              ir.results.forEach(res => {
-                res.layer = ir.layer
-                res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres')
-              })
-              return ir.results
-            }) || [].reduce(function (a, b) { return a.concat(b) })
+          });
+          async.eachSeries(identLayers, function (layer, cb) {
+            layer.identify(event, function (results) {
+              if (results) {
+                results.layer = layer;
+                identresults.push(results);
+              }
+              cb();
+            });
+          }, function (err) {
+            var results = identresults.map(function (ir) {
+              ir.results.forEach(function (res) {
+                res.layer = ir.layer;
+                res.acres = -1;
+                if (res.feature.geometry) {
+                  res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
+                }
+              });
+              return ir.results;
+            }) || [].reduce(function (a, b) {
+              return a.concat(b);
+            });
 
             results = results.flat();
 
-            results = results.sort((r1, r2) => {
-              return r1.acres > r2.acres
+            results = results.sort(function (r1, r2) {
+              return r1.acres > r2.acres;
               //r.feature.attributes.Shape_Area
-            })
-
-
+            });
 
             //results = results.reverse();
             var popupresults = results.map(function (result) {
-              var feature = result.feature
-              var layerName = result.layerName
+              var feature = result.feature;
+              var layerName = result.layerName;
 
-              feature.attributes.layerName = layerName
+              feature.attributes.layerName = layerName;
 
-
-              var displayValue = result.feature.attributes[result.displayFieldName]
-
+              var displayValue = result.feature.attributes[result.displayFieldName];
 
               feature.popupTemplate = { // autocasts as new PopupTemplate()
                 title: layerName,
                 content: result.layer.renderPopup(feature, result),
                 actions: [{ title: "Select", id: "select-action" }]
-              }
+              };
 
-
-
-              return feature
-            })
+              return feature;
+            });
 
             if (popupresults.length > 0) {
               view.popup.close();
@@ -293,25 +300,20 @@ class ArcticMap extends React.Component {
               self.state.view.popup.open({
                 features: popupresults,
                 location: event.mapPoint
-              })
+              });
               popupresults[0].setCurrentPopup();
 
-              self.state.view.popup.on('trigger-action', (e) => {
-                if (e.action.id === 'select-action') {
-
-                }
+              self.state.view.popup.on('trigger-action', function (e) {
+                if (e.action.id === 'select-action') ;
               });
-
-
             }
-            this.setState({ loading: false })
+            self.setState({ loading: false });
             document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
-          })
+          });
 
           // self.layers.forEach(layer => {
           //     layer.identify(event);
           // })
-
         }, 100);
 
       })

@@ -200,7 +200,7 @@ var ArcticMap$1 = function (_React$Component) {
 
       if (children) {
         children = children.sort(function (l) {
-          return l.type.name === 'ArcticMapEdit';
+          return l.type.displayName === 'ArcticMapEdit';
         }).reverse();
       } else {
         children = React.createElement('div', null);
@@ -279,6 +279,8 @@ var ArcticMap$1 = function (_React$Component) {
             Locator = _ref2[6],
             geometryEngine = _ref2[7];
 
+        window._map = self;
+
         var layerList = new LayerList({
           view: self.state.view,
           listItemCreatedFunction: function listItemCreatedFunction(event) {
@@ -329,6 +331,13 @@ var ArcticMap$1 = function (_React$Component) {
         view.on('click', function (event) {
           setTimeout(function () {
 
+            if (self.state.hideBasemapButton && self.state.hideBasemapButton == true) {
+              self.state.view.ui.remove(self.basemapGallery);
+              self.setState({ hideBasemapButton: false });
+              return;
+            }
+            //this.setState({ hideBasemapButton: true })
+
             if (self.state.map.editor && self.state.map.editor.state.editing === true) {
               return;
             }
@@ -338,18 +347,26 @@ var ArcticMap$1 = function (_React$Component) {
 
             var identresults = [];
             //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
-            _this2.setState({ loading: true });
+            self.setState({ loading: true });
 
             var identLayers = self.layers.filter(function (layer) {
               var mapzoom = view.zoom;
+              console.log("Filter layers");
 
               if (layer.props.identMaxZoom !== undefined) {
                 if (Number.parseInt(layer.props.identMaxZoom) > mapzoom) {
                   return layer;
                 }
-              } else {
-                return layer;
               }
+              // else if(layer.props.identMinZoom !== undefined){
+              //   if (Number.parseInt(layer.props.identMinZoom) > mapzoom
+              //   ) {
+              //     return layer;
+              //   }
+              // }
+              else {
+                  return layer;
+                }
             });
             async.eachSeries(identLayers, function (layer, cb) {
               layer.identify(event, function (results) {
@@ -363,7 +380,10 @@ var ArcticMap$1 = function (_React$Component) {
               var results = identresults.map(function (ir) {
                 ir.results.forEach(function (res) {
                   res.layer = ir.layer;
-                  res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
+                  res.acres = -1;
+                  if (res.feature.geometry) {
+                    res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
+                  }
                 });
                 return ir.results;
               }) || [].reduce(function (a, b) {
@@ -408,7 +428,7 @@ var ArcticMap$1 = function (_React$Component) {
                   if (e.action.id === 'select-action') ;
                 });
               }
-              _this2.setState({ loading: false });
+              self.setState({ loading: false });
               document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
             });
 
