@@ -308,6 +308,7 @@ static displayName = "ArcticMapLayer";
        
         this.params.geometry = event.mapPoint;
         this.params.mapExtent = this.state.view.extent;
+        this.params.returnGeometry = true;
         //document.getElementById("viewDiv").style.cursor = "wait";
         this.identifyTask.execute(this.params).then(function (response) {
          
