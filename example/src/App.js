@@ -134,6 +134,9 @@ export default class App extends Component {
   mapready(event) {
     // var geojson = {"geometry":{"spatialReference":{"latestWkid":3857,"wkid":102100},"rings":[[[-12913274.173206665,5677703.816462832],[-12925015.020184122,5885123.306559217],[-12782169.442008395,5941870.186216331],[-12586490.649598394,5709012.393390218],[-12656935.13429885,5487895.29825049],[-12913274.173206665,5677703.816462832]]]},"symbol":{"type":"esriSFS","color":[224,206,69,204],"outline":{"type":"esriSLS","color":[255,255,0,255],"width":3,"style":"esriSLSSolid"},"style":"esriSFSSolid"},"attributes":{}};
     // event.target.setJson(geojson);
+
+      event.target.setEdit({"geometry":{"spatialReference":{"latestWkid":3857,"wkid":102100},"rings":[[[-13176706.926637918,5703386.657966644],[-13147355.107776416,5744968.401353769],[-13083759.500243168,5703386.657966644],[-13078867.530432917,5659358.9296743935],[-13176706.926637918,5703386.657966644]]]},"symbol":{"type":"esriSFS","color":[224,206,69,204],"outline":{"type":"esriSLS","color":[255,255,0,255],"width":3,"style":"esriSLSSolid"},"style":"esriSFSSolid"},"attributes":{}});
+
   }
 
   layerready(event) {

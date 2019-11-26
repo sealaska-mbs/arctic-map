@@ -247,6 +247,13 @@ var ArcticMap$1 = function (_React$Component) {
       return div.firstChild;
     }
   }, {
+    key: 'setEdit',
+    value: function setEdit(json) {
+      if (this.state.map.editor) {
+        this.state.map.editor.setEditFeature(json, true);
+      }
+    }
+  }, {
     key: 'setJson',
     value: function setJson(json) {
       if (this.state.map.editor) {

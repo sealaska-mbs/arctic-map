@@ -118,6 +118,13 @@ class ArcticMap extends React.Component {
   }
 
 
+  setEdit(json){
+    if (this.state.map.editor) {
+      this.state.map.editor.setEditFeature(json, true);
+    }
+  }
+
+
   setJson(json) {
     if (this.state.map.editor) {
       this.state.map.editor.setEditFeature(json, true);

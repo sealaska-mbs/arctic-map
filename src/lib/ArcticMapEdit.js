@@ -164,6 +164,7 @@ class ArcticMapEdit extends React.Component {
                 if (nofire === null) {
                     nofire = false;
                 }
+                
 
                 if (!feature.geometry.type) {
                     feature.geometry = new Geometry(feature.geometry);
