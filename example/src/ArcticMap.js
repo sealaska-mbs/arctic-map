@@ -644,10 +644,10 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         //this.geojson = event.geometry;
 
 
-                        self.firenewfeature();
                         setTimeout(function () {
 
                             self.setState({ geojson: arcgisToGeojsonUtils.arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
+                            self.firenewfeature();
                         }, 1000);
                     }
                 });
@@ -705,7 +705,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         feature.geometry.type = "polygon";
                     }
 
-                    _this2.state.sketchViewModel.reset();
+                    _this2.state.sketchViewModel.cancel();
                     _this2.state.tempGraphicsLayer.removeAll();
                     _this2.setState({ hideEditors: false, geojson: null });
 
@@ -805,7 +805,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
     }, {
         key: "reset",
         value: function reset() {
-            this.state.sketchViewModel.reset();
+            this.state.sketchViewModel.cancel();
             this.state.tempGraphicsLayer.removeAll();
             this.setState({ hideEditors: false, geojson: null });
         }

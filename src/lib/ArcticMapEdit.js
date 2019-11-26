@@ -101,11 +101,11 @@ class ArcticMapEdit extends React.Component {
                     //this.geojson = event.geometry;
 
 
-                    self.firenewfeature();
+                   
                     setTimeout(() => {
 
                         self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
-
+                        self.firenewfeature();
                     }, 1000);
 
 
@@ -170,7 +170,7 @@ class ArcticMapEdit extends React.Component {
                     feature.geometry.type = "polygon";
                 }
 
-                this.state.sketchViewModel.reset();
+                this.state.sketchViewModel.cancel();
                 this.state.tempGraphicsLayer.removeAll();
                 this.setState({ hideEditors: false, geojson: null });
 
@@ -280,7 +280,7 @@ class ArcticMapEdit extends React.Component {
 
 
     reset() {
-        this.state.sketchViewModel.reset();
+        this.state.sketchViewModel.cancel();
         this.state.tempGraphicsLayer.removeAll();
         this.setState({ hideEditors: false, geojson: null });
 
