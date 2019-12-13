@@ -28,33 +28,23 @@ static displayName = 'ArcticMapLLDSearch';
 
 
 
-    componentWillMount() {
+    componentDidMount() {
         var self = this;
         loadModules(['esri/Graphic',
-            "esri/layers/FeatureLayer",
-            "esri/layers/MapImageLayer",
-            "esri/layers/ImageryLayer",
-            "esri/tasks/IdentifyTask",
-            "esri/tasks/support/IdentifyParameters",
+
+
             'esri/geometry/Geometry',
             'esri/geometry/Polygon',
             "esri/widgets/Search/SearchSource",
-            "esri/request",
-            "esri/geometry/geometryEngine",
-            "esri/geometry/Point"
+
         ]).then(([
             Graphic,
-            FeatureLayer,
-            MapImageLayer,
-            ImageryLayer,
-            IdentifyTask,
-            IdentifyParameters,
+
+
             Geometry,
             Polygon,
             SearchSource,
-            esriRequest,
-            geometryEngine,
-            Point
+
         ]) => {
 
 
@@ -108,7 +98,7 @@ static displayName = 'ArcticMapLLDSearch';
 
 
                         return fetch(`https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${params.suggestResult.text.replace(/ /g, "+")}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
-                            console.log(data);
+                        
                             return data.features.map(function (feature) {
 
 
@@ -135,11 +125,11 @@ static displayName = 'ArcticMapLLDSearch';
     }
 
     searchLLD(event) {
-        console.log(this.state.searchinput);
+
         var self = this;
 
         fetch(`https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${this.state.searchinput}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
-            console.log(data);
+   
 
 
             var popupresults = data.features.map(function (feature) {

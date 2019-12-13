@@ -29,7 +29,7 @@ class ArcticMapPanel extends React.Component {
       super(props)
 
       this.toggle = function () {
-          console.log('Toggle Panel')
+        
         var currvalue = this.state.open;
         this.setState({ open: !currvalue });
     };
@@ -42,9 +42,12 @@ class ArcticMapPanel extends React.Component {
     };
 
   }
+  componentDidUpdate(){
+    this.renderPanel();
+  }
 
   render(){
-      this.renderPanel();
+     
       return(<span><ArcticMapButton esriicon={this.props.esriicon} onclick={this.toggle.bind(this)} ></ArcticMapButton></span>);
   }
   renderPanel(){
@@ -76,8 +79,8 @@ class ArcticMapPanel extends React.Component {
 
         ReactDOM.render(ele, this.renderEle);
     } else {
-        var ele = React.createElement('span', null);
-        ReactDOM.render(ele, this.renderEle);
+        var eleempty = React.createElement('span', null);
+        ReactDOM.render(eleempty, this.renderEle);
     }
   }
 

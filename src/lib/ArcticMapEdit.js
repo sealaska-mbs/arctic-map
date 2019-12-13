@@ -5,6 +5,11 @@ import { arcgisToGeoJSON } from '@esri/arcgis-to-geojson-utils';
 import './ArcticMapEdit.css'
 
 
+
+
+
+
+
 import {
     loadModules
 } from 'react-arcgis';
@@ -29,7 +34,7 @@ class ArcticMapEdit extends React.Component {
         this.props.view.graphics.remove(this.state.graphic);
     }
 
-    componentWillMount() {
+    componentDidMount() {
 
 
 
@@ -37,12 +42,14 @@ class ArcticMapEdit extends React.Component {
         loadModules(["esri/Graphic",
             "esri/layers/GraphicsLayer",
             "esri/widgets/Sketch/SketchViewModel",
-            "esri/geometry/Geometry"
+            "esri/geometry/Geometry",
+            "esri/geometry/Polygon"
         ]).then(([
             Graphic,
             GraphicsLayer,
             SketchViewModel,
-            Geometry
+            Geometry,
+            Polygon
         ]) => {
             const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
             self.setState({ tempGraphicsLayer });
@@ -88,20 +95,15 @@ class ArcticMapEdit extends React.Component {
             sketchViewModel.on("create", (event) => {
 
                 if (event.state === 'complete') {
-                    const graphic = new Graphic({
-                        geometry: event.graphic.geometry,
-                        symbol: event.graphic.symbol
-                    });
+                  
                     tempGraphicsLayer.add(event.graphic);
                     if (this.props.single) {
 
                         this.setState({ hideEditors: true });
                     }
 
-                    //this.geojson = event.geometry;
 
 
-                   
                     setTimeout(() => {
 
                         self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
@@ -144,13 +146,7 @@ class ArcticMapEdit extends React.Component {
 
 
             });
-            // sketchViewModel.on("update-cancel", (event) => {
-            //     event.graphic.geometry = event.geometry;
-            //     tempGraphicsLayer.add(event.graphic);
 
-            //     // set the editGraphic to null update is complete or cancelled.
-            //     self.state.editGraphic = null;
-            // });
 
 
             this.top_right_node = document.createElement("div");
@@ -160,15 +156,22 @@ class ArcticMapEdit extends React.Component {
 
 
             // scoped methods
-            self.setEditFeature = (feature, nofire) => {
+            self.setEditFeature = (feature, nofire, type) => {
                 if (nofire === null) {
                     nofire = false;
                 }
-                
+
+                if (type === null) {
+                    type = "polygon";
+                }
+
 
                 if (!feature.geometry.type) {
-                    feature.geometry = new Geometry(feature.geometry);
-                    feature.geometry.type = "polygon";
+                    if (type === "polygon") {
+
+                        feature.geometry = new Polygon(feature.geometry);
+                        feature.geometry.type = "polygon";
+                    }
                 }
 
                 this.state.sketchViewModel.cancel();

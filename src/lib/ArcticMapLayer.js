@@ -23,32 +23,30 @@ static displayName = "ArcticMapLayer";
         this.props.view.graphics.remove(this.state.graphic);
     }
 
-    componentWillMount() {
+    componentDidMount() {
         var self = this;
         loadModules(['esri/Graphic',
             "esri/layers/FeatureLayer",
             "esri/layers/MapImageLayer",
             "esri/layers/ImageryLayer",
-            "esri/layers/GeoJSONLayer",
+
             "esri/layers/GraphicsLayer",
             "esri/tasks/IdentifyTask",
             "esri/tasks/support/IdentifyParameters",
             "esri/geometry/Point",
             "esri/symbols/SimpleMarkerSymbol",
-            "esri/geometry/Extent",
             "esri/layers/GroupLayer"
         ]).then(([
             Graphic,
             FeatureLayer,
             MapImageLayer,
             ImageryLayer,
-            GeoJSONLayer,
+
             GraphicsLayer,
             IdentifyTask,
             IdentifyParameters,
             Point,
             SimpleMarkerSymbol,
-            Extent,
             GroupLayer
         ]) => {
             // Create a polygon geometry
@@ -81,33 +79,33 @@ static displayName = "ArcticMapLayer";
             }
 
             if (self.props.type === "group") {
-                var trans = 1;
+                var gtrans = 1;
                 if (self.props.transparency) {
-                    trans = Number.parseFloat(self.props.transparency);
+                    gtrans = Number.parseFloat(self.props.transparency);
                 }
                 var srcsplit = self.props.src.split(',');
 
-                var maplayer = new GroupLayer({
+                var gmaplayer = new GroupLayer({
                     //url: self.props.src,
-                    opacity: trans
+                    opacity: gtrans
 
                 });
                 if (self.props.title) {
 
-                    maplayer.title = self.props.title;
+                    gmaplayer.title = self.props.title;
                 }
 
                 srcsplit.forEach(function (src) {
                     var glayer = new MapImageLayer({
                         url: src,
-                        opacity: trans
+                        opacity: gtrans
 
                     });
-                    maplayer.layers.add(glayer);
+                    gmaplayer.layers.add(glayer);
                 });
 
-                self.layerRef = maplayer;
-                self.state.map.add(maplayer);
+                self.layerRef = gmaplayer;
+                self.state.map.add(gmaplayer);
             }
 
             if (self.props.type === "dynamic") {
@@ -179,7 +177,7 @@ static displayName = "ArcticMapLayer";
                 //   });
                 var dataarr = [];
 
-                if (typeof self.props.src == 'object') {
+                if (typeof self.props.src === 'object') {
                     if (self.props.src.features) {
                         dataarr = self.props.src.features;
                     }
@@ -190,8 +188,8 @@ static displayName = "ArcticMapLayer";
 
 
                 dataarr.forEach(obj => {
-                    var esrijson = geojsonToArcGIS(obj);
-                    if (obj.geometry.type == "Point") {
+                    //var esrijson = geojsonToArcGIS(obj);
+                    if (obj.geometry.type === "Point") {
 
                         var popupTemplate = {
                             title: "{Name}",
@@ -268,10 +266,10 @@ static displayName = "ArcticMapLayer";
     renderPopup(feature, result) {
     
 
-        if (result.layerId != undefined && this.layerRenderers) {
+        if (result.layerId !== undefined && this.layerRenderers) {
             var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
 
-            if (popuprender && popuprender.props.popup != undefined) {
+            if (popuprender && popuprender.props.popup !== undefined) {
                 var ele = popuprender.props.popup(feature, result);
              
 
@@ -279,7 +277,7 @@ static displayName = "ArcticMapLayer";
                 
                 if (ele) {
                     var workingdiv = document.createElement('div');
-                    var html = ReactDOM.render(ele, workingdiv);
+                    ReactDOM.render(ele, workingdiv);
                     return workingdiv;
                 }
             }

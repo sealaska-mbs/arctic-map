@@ -5,11 +5,12 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@arcgis/webpack-plugin": "^4.13.0",
+    "arctic-map": "file:./../",
     "prop-types": "^15.6.2",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-scripts": "^1.1.4",
-    "arctic-map": "file:./../"
+    "react-scripts": "^1.1.4"
   },
   "scripts": {
     "start": "react-scripts start",

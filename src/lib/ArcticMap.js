@@ -24,9 +24,7 @@ class ArcticMap extends React.Component {
     this.layers = []
   }
 
-  componentWillMount() {
 
-  }
 
   render() {
     var self = this
@@ -118,7 +116,7 @@ class ArcticMap extends React.Component {
   }
 
 
-  setEdit(json){
+  setEdit(json) {
     if (this.state.map.editor) {
       this.state.map.editor.setEditFeature(json, true);
     }
@@ -150,7 +148,7 @@ class ArcticMap extends React.Component {
       'esri/widgets/Home',
       'esri/widgets/Zoom',
       'esri/widgets/Search',
-      'esri/tasks/Locator',
+      // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine'
     ]).then(([
       LayerList,
@@ -159,7 +157,7 @@ class ArcticMap extends React.Component {
       Home,
       Zoom,
       Search,
-      Locator,
+      // Locator,
       geometryEngine
     ]) => {
 
@@ -191,7 +189,7 @@ class ArcticMap extends React.Component {
             id: 'select-item',
             title: 'Select',
             image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyhpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTQgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NTQyREM3RDkwQzVGMTFFNTk4QkI4OTBEOTYzQTg5MzEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NTQyREM3REEwQzVGMTFFNTk4QkI4OTBEOTYzQTg5MzEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo1NDJEQzdENzBDNUYxMUU1OThCQjg5MEQ5NjNBODkzMSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo1NDJEQzdEODBDNUYxMUU1OThCQjg5MEQ5NjNBODkzMSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Prb3PqgAAACTSURBVHjaYvz//z8DJYCJgVJAjgsiIyMFQBjEZgQZwMjISJJmILUXynVmIdVmqGZ9qFAe0S7AonnR8uXLk5jItBmsGSUWgIriSdUMNwCoaB6QmgulidaM7AKYgjiYIcRohkdjVFQUhmIoG69mlHSAxUYGQppRAhGo6AMoYQDxRWI1Y02JSC65SEgz3IABzY0AAQYAhIhWWCl3Pj0AAAAASUVORK5CYII=",
-            
+
 
           }]
 
@@ -201,17 +199,17 @@ class ArcticMap extends React.Component {
       })
       view.popup.viewModel.on('trigger-action', function (event) {
         if (event.action.id === 'select-item') {
-         self.state.map.editor.setEditFeature(event.target.selectedFeature);
+          self.state.map.editor.setEditFeature(event.target.selectedFeature);
 
         }
       })
 
-      var popup = view.popup
+
 
       view.on('click', (event) => {
         setTimeout(function () {
 
-          if (self.state.hideBasemapButton && self.state.hideBasemapButton == true) {
+          if (self.state.hideBasemapButton && self.state.hideBasemapButton === true) {
             self.state.view.ui.remove(self.basemapGallery);
             self.setState({ hideBasemapButton: false });
             return;
@@ -231,22 +229,15 @@ class ArcticMap extends React.Component {
 
           var identLayers = self.layers.filter(function (layer) {
             var mapzoom = view.zoom;
-            console.log("Filter layers");
-
+      
             if (layer.props.identMaxZoom !== undefined) {
-              if (Number.parseInt(layer.props.identMaxZoom) > mapzoom) {
+              if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
                 return layer;
               }
             }
-            // else if(layer.props.identMinZoom !== undefined){
-            //   if (Number.parseInt(layer.props.identMinZoom) > mapzoom
-            //   ) {
-            //     return layer;
-            //   }
-            // }
-            else {
-              return layer;
-            }
+
+            return layer;
+
           });
           async.eachSeries(identLayers, function (layer, cb) {
             layer.identify(event, function (results) {
@@ -284,8 +275,7 @@ class ArcticMap extends React.Component {
 
               feature.attributes.layerName = layerName;
 
-              var displayValue = result.feature.attributes[result.displayFieldName];
-
+             
               feature.popupTemplate = { // autocasts as new PopupTemplate()
                 title: layerName,
                 content: result.layer.renderPopup(feature, result),
@@ -323,19 +313,21 @@ class ArcticMap extends React.Component {
       self.state.view.ui.add(layerList, 'top-left')
 
 
-      var locateBtn = new Locate({
-        view: self.state.view
-      })
+      if (this.props.locate) {
+        var locateBtn = new Locate({
+          view: self.state.view
+        })
 
-      self.state.view.ui.add(locateBtn, {
-        position: 'top-right'
-      })
+        self.state.view.ui.add(locateBtn, {
+          position: 'top-right'
+        })
+      }
 
       this.basemapGallery = new BasemapGallery({
         view: self.state.view
       })
 
-      var handle = this.basemapGallery.watch('activeBasemap', function (newValue, oldValue, property, object) {
+      this.basemapGallery.watch('activeBasemap', function (newValue, oldValue, property, object) {
         self.state.view.ui.remove(self.basemapGallery)
         self.setState({ hideBasemapButton: false })
       });
@@ -350,13 +342,14 @@ class ArcticMap extends React.Component {
 
       // Add the widget to the top-right corner of the view
 
+      if (this.props.home) {
+        var homeBtn = new Home({
+          view: view
+        })
 
-      var homeBtn = new Home({
-        view: view
-      })
-
-      // Add the home button to the top left corner of the view
-      view.ui.add(homeBtn, 'top-right')
+        // Add the home button to the top left corner of the view
+        view.ui.add(homeBtn, 'top-right')
+      }
 
       view.ui.remove('zoom')
 
@@ -377,8 +370,7 @@ class ArcticMap extends React.Component {
           }
 
         });
-        console.log(searchitems);
-
+     
         var searchsources = searchitems.map(i => {
           if (i.search) { i.search(); }
         });
@@ -395,12 +387,11 @@ class ArcticMap extends React.Component {
         });
 
         searchWidget.on("search-complete", function (event) {
-          console.log("Serach Complete")
-          console.log(event);
+     
         });
 
         searchWidget.on('select-result', function (evt) {
-          console.info(evt);
+     
           view.popup.currentSearchResultFeature = evt.result.feature;
           // view.popup.open({
           //  location: evt.result.feature.geometry,  // location of the click on the view
