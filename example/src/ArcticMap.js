@@ -147,7 +147,8 @@ var ArcticMap$1 = function (_React$Component) {
       loading: false,
       lat: props.lat,
       lng: props.lng,
-      basemap: props.basemap || "hybrid"
+      basemap: props.basemap || "hybrid",
+      sr: Number.parseInt(props.sr || "102100")
     };
 
     _this.handleMapLoad = _this.handleMapLoad.bind(_this);
@@ -251,9 +252,17 @@ var ArcticMap$1 = function (_React$Component) {
     }
   }, {
     key: 'setEdit',
-    value: function setEdit(json) {
+    value: function setEdit(json, nofire, type) {
+      if (nofire === null) {
+        nofire = false;
+      }
+
+      if (type === null) {
+        type = "polygon";
+      }
+
       if (this.state.map.editor) {
-        this.state.map.editor.setEditFeature(json, true);
+        this.state.map.editor.setEditFeature(json, nofire, type);
       }
     }
   }, {
@@ -268,20 +277,14 @@ var ArcticMap$1 = function (_React$Component) {
     value: function handleMapLoad(map, view) {
       var _this2 = this;
 
-      // var featureLayer = new FeatureLayer({
-      //     url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Landscape_Trees/FeatureServer/0"
-      // });
-
-      // map.add(featureLayer);
-
       this.setState({ map: map, view: view });
 
       var self = this;
 
       reactArcgis.loadModules(['esri/widgets/LayerList', 'esri/widgets/Locate', 'esri/widgets/BasemapGallery', 'esri/widgets/Home', 'esri/widgets/Zoom', 'esri/widgets/Search',
       // 'esri/tasks/Locator',
-      'esri/geometry/geometryEngine']).then(function (_ref) {
-        var _ref2 = slicedToArray(_ref, 7),
+      'esri/geometry/geometryEngine', "esri/geometry/Polygon"]).then(function (_ref) {
+        var _ref2 = slicedToArray(_ref, 8),
             LayerList = _ref2[0],
             Locate = _ref2[1],
             BasemapGallery = _ref2[2],
@@ -290,9 +293,14 @@ var ArcticMap$1 = function (_React$Component) {
             Search = _ref2[5],
 
         // Locator,
-        geometryEngine = _ref2[6];
+        geometryEngine = _ref2[6],
+            Polygon = _ref2[7];
 
         window._map = self;
+
+        //   self.state.view.spatialReference = {
+        //     wkid: self.state.sr,
+        //  };
 
         var layerList = new LayerList({
           view: self.state.view,
@@ -332,103 +340,103 @@ var ArcticMap$1 = function (_React$Component) {
         });
 
         view.on('click', function (event) {
-          setTimeout(function () {
+          // setTimeout(function () {
 
-            if (self.state.hideBasemapButton && self.state.hideBasemapButton === true) {
-              self.state.view.ui.remove(self.basemapGallery);
-              self.setState({ hideBasemapButton: false });
-              return;
-            }
-            //this.setState({ hideBasemapButton: true })
+          if (self.state.hideBasemapButton && self.state.hideBasemapButton === true) {
+            self.state.view.ui.remove(self.basemapGallery);
+            self.setState({ hideBasemapButton: false });
+            return;
+          }
+          //this.setState({ hideBasemapButton: true })
 
-            if (self.state.map.editor && self.state.map.editor.state.editing === true) {
-              return;
-            }
-            // console.log(event);
-            // need to work on identify and add to a single popup
-            // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
+          if (self.state.map.editor && self.state.map.editor.state.editing === true) {
+            return;
+          }
+          // console.log(event);
+          // need to work on identify and add to a single popup
+          // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
 
-            var identresults = [];
-            //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
-            self.setState({ loading: true });
+          var identresults = [];
+          //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
+          self.setState({ loading: true });
 
-            var identLayers = self.layers.filter(function (layer) {
-              var mapzoom = view.zoom;
+          var identLayers = self.layers.filter(function (layer) {
+            var mapzoom = view.zoom;
 
-              if (layer.props.identMaxZoom !== undefined) {
-                if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
-                  return layer;
-                }
+            if (layer.props.identMaxZoom !== undefined) {
+              if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
+                return layer;
               }
+            }
 
-              return layer;
+            return layer;
+          });
+          async.eachSeries(identLayers, function (layer, cb) {
+            layer.identify(event, function (results) {
+              if (results) {
+                results.layer = layer;
+                identresults.push(results);
+              }
+              cb();
             });
-            async.eachSeries(identLayers, function (layer, cb) {
-              layer.identify(event, function (results) {
-                if (results) {
-                  results.layer = layer;
-                  identresults.push(results);
+          }, function (err) {
+            var results = identresults.map(function (ir) {
+              ir.results.forEach(function (res) {
+                res.layer = ir.layer;
+                res.acres = -1;
+                if (res.feature.geometry) {
+                  res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
                 }
-                cb();
               });
-            }, function (err) {
-              var results = identresults.map(function (ir) {
-                ir.results.forEach(function (res) {
-                  res.layer = ir.layer;
-                  res.acres = -1;
-                  if (res.feature.geometry) {
-                    res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
-                  }
-                });
-                return ir.results;
-              }) || [].reduce(function (a, b) {
-                return a.concat(b);
-              });
-
-              results = results.flat();
-
-              results = results.sort(function (r1, r2) {
-                return r1.acres > r2.acres;
-                //r.feature.attributes.Shape_Area
-              });
-
-              //results = results.reverse();
-              var popupresults = results.map(function (result) {
-                var feature = result.feature;
-                var layerName = result.layerName;
-
-                feature.attributes.layerName = layerName;
-
-                feature.popupTemplate = { // autocasts as new PopupTemplate()
-                  title: layerName,
-                  content: result.layer.renderPopup(feature, result),
-                  actions: [{ title: "Select", id: "select-action" }]
-                };
-
-                return feature;
-              });
-
-              if (popupresults.length > 0) {
-                view.popup.close();
-                view.popup.currentSearchResultFeature = null;
-                self.state.view.popup.open({
-                  features: popupresults,
-                  location: event.mapPoint
-                });
-                popupresults[0].setCurrentPopup();
-
-                self.state.view.popup.on('trigger-action', function (e) {
-                  if (e.action.id === 'select-action') ;
-                });
-              }
-              self.setState({ loading: false });
-              document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+              return ir.results;
+            }) || [].reduce(function (a, b) {
+              return a.concat(b);
             });
 
-            // self.layers.forEach(layer => {
-            //     layer.identify(event);
-            // })
-          }, 100);
+            results = results.flat();
+
+            results = results.sort(function (r1, r2) {
+              return r1.acres > r2.acres;
+              //r.feature.attributes.Shape_Area
+            });
+
+            //results = results.reverse();
+            var popupresults = results.map(function (result) {
+              var feature = result.feature;
+              var layerName = result.layerName;
+
+              feature.attributes.layerName = layerName;
+
+              feature.popupTemplate = { // autocasts as new PopupTemplate()
+                title: layerName,
+                content: result.layer.renderPopup(feature, result),
+                actions: [{ title: "Select", id: "select-action" }]
+              };
+
+              return feature;
+            });
+
+            if (popupresults.length > 0) {
+              view.popup.close();
+              view.popup.currentSearchResultFeature = null;
+              self.state.view.popup.open({
+                features: popupresults,
+                location: event.mapPoint
+              });
+              popupresults[0].setCurrentPopup();
+
+              self.state.view.popup.on('trigger-action', function (e) {
+                if (e.action.id === 'select-action') ;
+              });
+            }
+            self.setState({ loading: false });
+            document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+          });
+
+          // self.layers.forEach(layer => {
+          //     layer.identify(event);
+          // })
+          //}, 100);
         });
 
         // Add widget to the top right corner of the view
@@ -627,7 +635,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
                     if (event.state === 'complete') {
 
-                        tempGraphicsLayer.add(event.graphic);
+                        tempGraphicsLayer.graphics = [event.graphic];
                         if (_this2.props.single) {
 
                             _this2.setState({ hideEditors: true });
@@ -653,10 +661,11 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         //     console.log("Added one feature");
                         //     this.setState({ hideEditors: true });
                         // }
-                        self.firenewfeature();
+
                         setTimeout(function () {
                             self.setState({ geojson: arcgisToGeojsonUtils.arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON() });
                             //this.geojson = event.geometry;
+                            self.firenewfeature();
                         }, 1000);
                     }
                 });
@@ -664,16 +673,22 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 // Listen the sketchViewModel's update-complete and update-cancel events
                 sketchViewModel.on("update-complete", function (event) {
                     event.graphic.geometry = event.geometry;
-                    tempGraphicsLayer.add(event.graphic);
+                    tempGraphicsLayer.graphics = [event.graphic];
+                    //tempGraphicsLayer.add(event.graphic);
 
                     // set the editGraphic to null update is complete or cancelled.
                     self.state.editGraphic = null;
+
+                    console.log("UPDATED");
                 });
 
                 _this2.top_right_node = document.createElement("div");
                 self.state.view.ui.add(_this2.top_right_node, "top-right");
 
                 self.setState({ loaded: true });
+
+                //self.setUpClickHandler();
+
 
                 // scoped methods
                 self.setEditFeature = function (feature, nofire, type) {
@@ -713,7 +728,8 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     }
 
                     //console.log(feature);
-                    _this2.state.tempGraphicsLayer.add(graphic);
+                    //this.state.tempGraphicsLayer.add(graphic);
+                    _this2.state.tempGraphicsLayer.graphics = [graphic];
                     if (_this2.props.single) {
 
                         _this2.setState({ hideEditors: true });
@@ -864,19 +880,29 @@ var ArcticMapEdit$1 = function (_React$Component) {
         value: function setUpClickHandler() {
             var self = this;
             self.state.view.on("click", function (event) {
+                event.stopPropagation();
+                console.log("HERE!!");
                 self.state.view.hitTest(event).then(function (response) {
                     var results = response.results;
                     // Found a valid graphic
                     if (results.length && results[results.length - 1].graphic) {
                         // Check if we're already editing a graphic
-                        if (!self.state.editGraphic) {
-                            // Save a reference to the graphic we intend to update
-                            self.state.editGraphic = results[results.length - 1].graphic;
-                            // Remove the graphic from the GraphicsLayer
-                            // Sketch will handle displaying the graphic while being updated
-                            self.state.tempGraphicsLayer.remove(self.state.editGraphic);
-                            self.state.sketchViewModel.update(self.state.editGraphic);
-                        }
+                        // if (!self.state.editGraphic) {
+                        // Save a reference to the graphic we intend to update
+                        self.state.editGraphic = results[results.length - 1].graphic;
+                        // Remove the graphic from the GraphicsLayer
+                        // Sketch will handle displaying the graphic while being updated
+                        // self.state.tempGraphicsLayer.spatialReference = self.state.editGraphic.geometry.spatialReference;
+                        // self.state.view.spatialReference = self.state.editGraphic.geometry.spatialReference;
+                        //self.state.tempGraphicsLayer.remove(self.state.editGraphic);
+                        self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
+                        //self.state.sketchViewModel.updateGraphics = [self.state.editGraphic];
+
+                        self.state.sketchViewModel.update([self.state.editGraphic]);
+
+                        //self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
+
+                        //}
                     }
                 });
             });

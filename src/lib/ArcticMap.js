@@ -17,6 +17,7 @@ class ArcticMap extends React.Component {
       lat: props.lat,
       lng: props.lng,
       basemap: props.basemap || "hybrid",
+      sr: Number.parseInt( props.sr || "102100"),
     }
 
     this.handleMapLoad = this.handleMapLoad.bind(this)
@@ -116,9 +117,19 @@ class ArcticMap extends React.Component {
   }
 
 
-  setEdit(json) {
+  setEdit(json, nofire, type) {
+    if (nofire === null) {
+      nofire = false;
+  }
+
+  if (type === null) {
+      type = "polygon";
+  }
+
+ 
+
     if (this.state.map.editor) {
-      this.state.map.editor.setEditFeature(json, true);
+      this.state.map.editor.setEditFeature(json, nofire, type);
     }
   }
 
@@ -131,11 +142,7 @@ class ArcticMap extends React.Component {
 
 
   handleMapLoad(map, view) {
-    // var featureLayer = new FeatureLayer({
-    //     url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Landscape_Trees/FeatureServer/0"
-    // });
 
-    // map.add(featureLayer);
 
     this.setState({ map, view })
 
@@ -149,7 +156,8 @@ class ArcticMap extends React.Component {
       'esri/widgets/Zoom',
       'esri/widgets/Search',
       // 'esri/tasks/Locator',
-      'esri/geometry/geometryEngine'
+      'esri/geometry/geometryEngine',
+      "esri/geometry/Polygon"
     ]).then(([
       LayerList,
       Locate,
@@ -158,11 +166,15 @@ class ArcticMap extends React.Component {
       Zoom,
       Search,
       // Locator,
-      geometryEngine
+      geometryEngine,
+      Polygon
     ]) => {
 
       window._map = self;
 
+    //   self.state.view.spatialReference = {
+    //     wkid: self.state.sr,
+    //  };
 
       var layerList = new LayerList({
         view: self.state.view,
@@ -207,7 +219,7 @@ class ArcticMap extends React.Component {
 
 
       view.on('click', (event) => {
-        setTimeout(function () {
+       // setTimeout(function () {
 
           if (self.state.hideBasemapButton && self.state.hideBasemapButton === true) {
             self.state.view.ui.remove(self.basemapGallery);
@@ -305,7 +317,7 @@ class ArcticMap extends React.Component {
           // self.layers.forEach(layer => {
           //     layer.identify(event);
           // })
-        }, 100);
+       //}, 100);
 
       })
 

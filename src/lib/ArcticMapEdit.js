@@ -96,7 +96,7 @@ class ArcticMapEdit extends React.Component {
 
                 if (event.state === 'complete') {
                   
-                    tempGraphicsLayer.add(event.graphic);
+                    tempGraphicsLayer.graphics = [event.graphic];
                     if (this.props.single) {
 
                         this.setState({ hideEditors: true });
@@ -127,10 +127,11 @@ class ArcticMapEdit extends React.Component {
                     //     console.log("Added one feature");
                     //     this.setState({ hideEditors: true });
                     // }
-                    self.firenewfeature();
+                    
                     setTimeout(() => {
                         self.setState({ geojson: arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON(), });
                         //this.geojson = event.geometry;
+                        self.firenewfeature();
                     }, 1000);
 
                 }
@@ -139,11 +140,13 @@ class ArcticMapEdit extends React.Component {
             // Listen the sketchViewModel's update-complete and update-cancel events
             sketchViewModel.on("update-complete", (event) => {
                 event.graphic.geometry = event.geometry;
-                tempGraphicsLayer.add(event.graphic);
+                tempGraphicsLayer.graphics = [event.graphic];
+                //tempGraphicsLayer.add(event.graphic);
 
                 // set the editGraphic to null update is complete or cancelled.
                 self.state.editGraphic = null;
 
+                console.log("UPDATED");
 
             });
 
@@ -154,6 +157,8 @@ class ArcticMapEdit extends React.Component {
 
             self.setState({ loaded: true })
 
+            //self.setUpClickHandler();
+       
 
             // scoped methods
             self.setEditFeature = (feature, nofire, type) => {
@@ -200,7 +205,8 @@ class ArcticMapEdit extends React.Component {
                 }
 
                 //console.log(feature);
-                this.state.tempGraphicsLayer.add(graphic);
+                //this.state.tempGraphicsLayer.add(graphic);
+                this.state.tempGraphicsLayer.graphics = [graphic];
                 if (this.props.single) {
 
                     this.setState({ hideEditors: true });
@@ -362,19 +368,29 @@ class ArcticMapEdit extends React.Component {
     setUpClickHandler() {
         var self = this;
         self.state.view.on("click", function (event) {
+            event.stopPropagation();
+            console.log("HERE!!")
             self.state.view.hitTest(event).then(function (response) {
                 var results = response.results;
                 // Found a valid graphic
                 if (results.length && results[results.length - 1].graphic) {
                     // Check if we're already editing a graphic
-                    if (!self.state.editGraphic) {
+                   // if (!self.state.editGraphic) {
                         // Save a reference to the graphic we intend to update
                         self.state.editGraphic = results[results.length - 1].graphic;
                         // Remove the graphic from the GraphicsLayer
                         // Sketch will handle displaying the graphic while being updated
-                        self.state.tempGraphicsLayer.remove(self.state.editGraphic);
-                        self.state.sketchViewModel.update(self.state.editGraphic);
-                    }
+                        // self.state.tempGraphicsLayer.spatialReference = self.state.editGraphic.geometry.spatialReference;
+                        // self.state.view.spatialReference = self.state.editGraphic.geometry.spatialReference;
+                        //self.state.tempGraphicsLayer.remove(self.state.editGraphic);
+                        self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
+                            //self.state.sketchViewModel.updateGraphics = [self.state.editGraphic];
+
+                            self.state.sketchViewModel.update([self.state.editGraphic]);
+                     
+                            //self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
+                            
+                    //}
                 }
             });
         });
