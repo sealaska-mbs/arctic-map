@@ -17,7 +17,7 @@ var styles = {
         position: 'realative',
         "paddingRight": "18px",
         "paddingLeft": "18px",
-        "overflowY": 'scroll',
+        "overflowY": 'auto',
         "maxHeight": '100%'
     }
 
@@ -48,7 +48,7 @@ class ArcticMapPanel extends React.Component {
 
   render(){
      
-      return(<span><ArcticMapButton esriicon={this.props.esriicon} onclick={this.toggle.bind(this)} ></ArcticMapButton></span>);
+      return(<span><ArcticMapButton esriicon={this.props.esriicon} onclick={this.toggle.bind(this)} title={this.props.title} ></ArcticMapButton></span>);
   }
   renderPanel(){
       // refactor this

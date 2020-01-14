@@ -7,7 +7,7 @@ import {
 } from 'react-arcgis';
 
 class ArcticMapLayer extends React.Component {
-static displayName = "ArcticMapLayer";
+    static displayName = "ArcticMapLayer";
     constructor(props) {
         super(props);
 
@@ -15,6 +15,7 @@ static displayName = "ArcticMapLayer";
             map: props.map,
             view: props.view,
             graphic: null,
+            title : props.title,
             blockSelect: props.blockIdentSelect !== undefined
         };
     }
@@ -64,7 +65,7 @@ static displayName = "ArcticMapLayer";
 
             self.layerRenderers = children;
 
-           
+
 
             // this.setState({ graphic });
 
@@ -121,14 +122,14 @@ static displayName = "ArcticMapLayer";
 
                 });
 
-                if (self.props.childsrc) ;
+                if (self.props.childsrc);
 
                 if (self.props.title) {
 
                     maplayer.title = self.props.title;
                 }
                 maplayer.when(() => {
-                 
+
 
                     var layerids = [];
                     maplayer.allSublayers.items.forEach(sublayer => {
@@ -184,6 +185,11 @@ static displayName = "ArcticMapLayer";
                     else {
                         dataarr = self.props.src;
                     }
+                }
+
+                if (self.props.title) {
+
+                    geojsonLayer.title = self.props.title;
                 }
 
 
@@ -264,17 +270,17 @@ static displayName = "ArcticMapLayer";
     }
 
     renderPopup(feature, result) {
-    
+
 
         if (result.layerId !== undefined && this.layerRenderers) {
             var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
 
             if (popuprender && popuprender.props.popup !== undefined) {
                 var ele = popuprender.props.popup(feature, result);
-             
 
 
-                
+
+
                 if (ele) {
                     var workingdiv = document.createElement('div');
                     ReactDOM.render(ele, workingdiv);
@@ -289,7 +295,12 @@ static displayName = "ArcticMapLayer";
         var popupText = "";
         var atts = Object.getOwnPropertyNames(feature.attributes);
         atts.forEach(att => {
-            popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`
+            if (att === 'layerName') {
+
+            }
+            else {
+                popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`;
+            }
         });
 
         return popupText;
@@ -301,19 +312,39 @@ static displayName = "ArcticMapLayer";
     }
 
     identify(event, callback) {
-  
-        if (!this.params) { callback(null); return; }
-       
-        this.params.geometry = event.mapPoint;
-        this.params.mapExtent = this.state.view.extent;
-        this.params.returnGeometry = true;
-        //document.getElementById("viewDiv").style.cursor = "wait";
-        this.identifyTask.execute(this.params).then(function (response) {
-         
-            callback(response);
+
+        var self = this;
+        if (this.props.type === "geojson") {
+
+            this.state.view.hitTest(event).then((htresponse) => {
+
+                // console.log("Identify on geojson");
+                //console.log(htresponse);
+                var mapPoint = event.mapPoint;
+                var response = {
+                    layer: self.layerRef,
+                    results: htresponse.results.map(r => { return { feature: r.graphic, layerName: self.layerRef.title }; }),
+                }
+                callback(response)
+            });
+
+        }
+        else {
 
 
-        });
+            if (!this.params) { callback(null); return; }
+
+            this.params.geometry = event.mapPoint;
+            this.params.mapExtent = this.state.view.extent;
+            this.params.returnGeometry = true;
+            //document.getElementById("viewDiv").style.cursor = "wait";
+            this.identifyTask.execute(this.params).then(function (response) {
+
+                callback(response);
+
+
+            });
+        }
 
     }
 

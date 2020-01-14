@@ -13,6 +13,7 @@ var style = {
         flexFlow: 'row nowrap',
         justifyContent: 'center',
         alignItems: 'center',
+        cursor: 'pointer',
         '&:hover': {
             backgroundColor: "#ccc"
         }
@@ -27,6 +28,7 @@ class ArcticMapButton extends React.Component {
         this.state = {
             enabled: true,
             useEsriIcon: props.esriicon !== null
+        
         }
 
         this.fireclick = function (e) {
@@ -44,7 +46,7 @@ class ArcticMapButton extends React.Component {
 
             var esriClassName = 'esri-icon esri-icon-' + this.props.esriicon;
 
-            return(<button  style={style.arcticButton} onClick={this.fireclick.bind(this)} >
+            return(<button  style={style.arcticButton} onClick={this.fireclick.bind(this)} title={this.props.title} >
                 <span style={{ height: "15px", width: "15px" }} aria-hidden className={esriClassName} ></span>
             </button>);
 

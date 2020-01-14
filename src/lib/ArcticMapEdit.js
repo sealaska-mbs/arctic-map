@@ -1,6 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { arcgisToGeoJSON } from '@esri/arcgis-to-geojson-utils';
+import ArcticMapButton from './ArcticMapButton';
+import ArcticMapPanel from './ArcticMapPanel';
+import ArcticMapLayer from './ArcticMapLayer';
 //import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 import './ArcticMapEdit.css'
 
@@ -27,8 +30,13 @@ class ArcticMapEdit extends React.Component {
             graphic: null,
             hideEditors: false,
             editing: false,
+            showUploading :false,
         };
+
+        this.uploadPanel = React.createRef();
     }
+
+    
 
     componentWillUnmount() {
         this.props.view.graphics.remove(this.state.graphic);
@@ -95,7 +103,7 @@ class ArcticMapEdit extends React.Component {
             sketchViewModel.on("create", (event) => {
 
                 if (event.state === 'complete') {
-                  
+
                     tempGraphicsLayer.graphics = [event.graphic];
                     if (this.props.single) {
 
@@ -127,7 +135,7 @@ class ArcticMapEdit extends React.Component {
                     //     console.log("Added one feature");
                     //     this.setState({ hideEditors: true });
                     // }
-                    
+
                     setTimeout(() => {
                         self.setState({ geojson: arcgisToGeoJSON(event.graphics[0].geometry.toJSON()), datajson: event.graphics[0].toJSON(), });
                         //this.geojson = event.geometry;
@@ -158,7 +166,7 @@ class ArcticMapEdit extends React.Component {
             self.setState({ loaded: true })
 
             //self.setUpClickHandler();
-       
+
 
             // scoped methods
             self.setEditFeature = (feature, nofire, type) => {
@@ -289,6 +297,146 @@ class ArcticMapEdit extends React.Component {
 
 
 
+    fileUploaded(evt) {
+        var self = this;
+        var fileName = evt.target.value.toLowerCase();
+        console.log(fileName);
+        if (fileName.indexOf(".zip" !== -1)) {
+            // console.log("addEventListener", self);
+            self.processShapeFile(fileName,  evt.target);
+        } else {
+            document.getElementById("upload-status").innerHTML +
+                '<p style="color:red">Add shapefile as .zip file</p>'
+        }
+
+
+    }
+
+    processShapeFile(fileName, form){
+
+
+        var self = this;
+        self.uploadPanel.current.toggle();
+        console.log("Process Shape File", fileName);
+        var name = fileName.split(".");
+        name = name[0].replace("c:\\fakepath\\", "");
+
+        var parms = {
+            name: name,
+            targetSR: self.state.view.extent.spatialReference,
+            maxRecordCount: 1000,
+            enforceInputFileSizeLimit: true,
+            enforceOutputJsonSizeLimit: true,
+        };
+
+        parms.generalize = true;
+        parms.maxAllowableOffset = 10;
+        parms.reducePrecision = true;
+        parms.numberOfDigitsAfterDecimal = 0;
+        var myContent = {
+            filetype: "shapefile",
+            publishParameters: JSON.stringify(parms),          
+            f: "json",
+            'content-type': 'multipart/form-data',
+        };
+
+        var portalUrl = "https://www.arcgis.com";
+
+        var query = Object.keys(myContent)
+            .map(k => escape(k) + '=' + escape(myContent[k]))
+            .join('&');
+
+
+
+        loadModules(['esri/request'])
+            .then(([request]) => {
+                request(portalUrl + "/sharing/rest/content/features/generate",
+                    {
+                        query: myContent,
+                        body : new FormData( form.form),
+                        //body: document.getElementById("uploadForm"),
+                        responseType: "json"
+                    })
+                    .then(function (response) {
+                        var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
+                        self.addShapefileToMap(response.data.featureCollection, layerName);
+                    })
+            })
+
+
+    }
+
+    addShapefileToMap(featureCollection, layerName) {
+        var self = this;
+        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer','esri/layers/support/Field','esri/PopupTemplate'])
+            .then(([Graphic, FeatureLayer, Field, PopupTemplate]) => {
+                var sourceGraphics = [];
+                var layers = featureCollection.layers.map(function (layer) {
+                
+                    var graphics = layer.featureSet.features.map(function (feature) {
+                        console.log("layer.featureSet.feature.map", feature);
+                        return Graphic.fromJSON(feature);
+                    });
+                    sourceGraphics = sourceGraphics.concat(graphics);
+                    var featureLayer = new FeatureLayer({
+                        title: "Shape File: " + layerName,
+                        //objectIDField: "FID",
+                        source: graphics,
+                        fields: layer.layerDefinition.fields.map(function (field) {
+                            return Field.fromJSON(field);
+                        })
+                    });
+                    return featureLayer;
+
+                });
+
+                // var popupTemplate = new PopupTemplate({
+                //     title: layerName,
+                //     content: [
+                //         {
+                //             type: "fields",
+                //             fieldInfos: [
+                //                 {
+                //                     fieldName: "FID",
+                //                     label: "objectIDField"
+                //                 }
+
+                //             ]
+                //         }
+                //     ]
+                // })
+                layers[0].title = layerName;
+                //layers[0].popupTemplate = popupTemplate;
+
+                self.state.map.addMany(layers);
+                
+                self.state.view.goTo(sourceGraphics);
+             
+                var props = {
+                    title: "Shape File: " + layerName,
+                    transparency: ".32",
+                    identmaxzoom: "13",
+                    blockidentselect: true,
+                    type: layers[0].type,
+                    src: "",
+                    map: self.state.map,
+                    view: self.state.view
+                };
+
+                var aml = new ArcticMapLayer(props);
+                aml.layerRef = layers[0];
+                aml.context =  self.state.map.amlayers[0].context;
+                aml.layerRef.title = props.title;
+                //aml.componentDidMount();
+                //console.log("aml", aml);
+                self.state.map.amlayers.push(aml);
+                     });
+    }
+
+
+
+
+
     reset() {
         this.state.sketchViewModel.cancel();
         this.state.tempGraphicsLayer.removeAll();
@@ -301,29 +449,47 @@ class ArcticMapEdit extends React.Component {
             {this.state.hideEditors === false &&
                 <span>
                     {this.props.point &&
-                        <button className="action-button esri-icon-blank-map-pin" style={{ padding: '6px' }} id="pointButton" onClick={this.addPointClick.bind(this)}
-                            type="button" title="Draw point"></button>
+
+                        <ArcticMapButton esriicon="blank-map-pin" onclick={this.addPointClick.bind(this)} title="Draw point" ></ArcticMapButton>
                     }
                     {this.props.line &&
-                        <button className="action-button esri-icon-polyline" style={{ padding: '6px' }} id="polylineButton" type="button" onClick={this.addLineClick.bind(this)}
-                            title="Draw polyline"></button>
+
+                        <ArcticMapButton esriicon="polyline" onclick={this.addLineClick.bind(this)} title="Draw polyline" ></ArcticMapButton>
                     }
                     {this.props.polygon &&
-                        <button className="action-button esri-icon-polygon" style={{ padding: '6px' }} id="polygonButton" type="button" onClick={this.addPolyClick.bind(this)}
-                            title="Draw polygon"></button>
+
+                        <ArcticMapButton esriicon="polygon" onclick={this.addPolyClick.bind(this)} title="Draw polygon" ></ArcticMapButton>
                     }
                     {this.props.square &&
-                        <button className="action-button esri-icon-checkbox-unchecked" style={{ padding: '6px' }} id="rectangleButton" onClick={this.addRecClick.bind(this)}
-                            type="button" title="Draw rectangle"></button>
+
+                        <ArcticMapButton esriicon="checkbox-unchecked" onclick={this.addRecClick.bind(this)} title="Draw rectangle" ></ArcticMapButton>
                     }
                     {this.props.circle &&
-                        <button className="action-button esri-icon-radio-unchecked" style={{ padding: '6px' }} id="circleButton" onClick={this.addCircleClick.bind(this)}
-                            type="button" title="Draw circle"></button>
+                        <ArcticMapButton esriicon="radio-unchecked" onclick={this.addCircleClick.bind(this)} title="Draw circle" ></ArcticMapButton>
+
                     }
+                    {this.props.upload &&
+                        <ArcticMapPanel esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
+                            <br />
+                            <form encType="multipart/form-data" method="post" id="uploadForm">
+                                <div className="field">
+                                    <label className="file-upload">
+                                        <p><strong>Select File</strong></p>
+                                        <input type="file" name="file" id="inFile" onChange={this.fileUploaded.bind(this)} />
+                                    </label>
+                                </div>
+                            </form>
+                            <br />
+                            <span id="upload-status"></span>
+
+                        </ArcticMapPanel>}
                 </span>
             }
-            <button className="action-button esri-icon-trash" style={{ padding: '6px' }} id="resetBtn" type="button" onClick={this.reset.bind(this)}
-                title="Clear graphics"></button>
+            <ArcticMapButton esriicon="trash" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
+
+
+
+
         </div>;
     }
 
@@ -342,7 +508,12 @@ class ArcticMapEdit extends React.Component {
         //return (<h2>Test</h2>);
 
 
-        return (<span></span>);
+        return (<span>
+
+
+
+
+        </span>);
     }
 
     addGraphic(event) {
@@ -375,21 +546,21 @@ class ArcticMapEdit extends React.Component {
                 // Found a valid graphic
                 if (results.length && results[results.length - 1].graphic) {
                     // Check if we're already editing a graphic
-                   // if (!self.state.editGraphic) {
-                        // Save a reference to the graphic we intend to update
-                        self.state.editGraphic = results[results.length - 1].graphic;
-                        // Remove the graphic from the GraphicsLayer
-                        // Sketch will handle displaying the graphic while being updated
-                        // self.state.tempGraphicsLayer.spatialReference = self.state.editGraphic.geometry.spatialReference;
-                        // self.state.view.spatialReference = self.state.editGraphic.geometry.spatialReference;
-                        //self.state.tempGraphicsLayer.remove(self.state.editGraphic);
-                        self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
-                            //self.state.sketchViewModel.updateGraphics = [self.state.editGraphic];
+                    // if (!self.state.editGraphic) {
+                    // Save a reference to the graphic we intend to update
+                    self.state.editGraphic = results[results.length - 1].graphic;
+                    // Remove the graphic from the GraphicsLayer
+                    // Sketch will handle displaying the graphic while being updated
+                    // self.state.tempGraphicsLayer.spatialReference = self.state.editGraphic.geometry.spatialReference;
+                    // self.state.view.spatialReference = self.state.editGraphic.geometry.spatialReference;
+                    //self.state.tempGraphicsLayer.remove(self.state.editGraphic);
+                    self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
+                    //self.state.sketchViewModel.updateGraphics = [self.state.editGraphic];
 
-                            self.state.sketchViewModel.update([self.state.editGraphic]);
-                     
-                            //self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
-                            
+                    self.state.sketchViewModel.update([self.state.editGraphic]);
+
+                    //self.state.tempGraphicsLayer.graphics = [self.state.editGraphic];
+
                     //}
                 }
             });

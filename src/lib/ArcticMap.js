@@ -17,7 +17,7 @@ class ArcticMap extends React.Component {
       lat: props.lat,
       lng: props.lng,
       basemap: props.basemap || "hybrid",
-      sr: Number.parseInt( props.sr || "102100"),
+      sr: Number.parseInt(props.sr || "102100"),
     }
 
     this.handleMapLoad = this.handleMapLoad.bind(this)
@@ -70,8 +70,9 @@ class ArcticMap extends React.Component {
     }
 
 
-
-
+    if (self.state.map) {
+      self.state.map.amlayers = self.layers;
+    }
 
     // console.log(this.props.children);
     // this.props.children.forEach((child) =>{
@@ -120,13 +121,13 @@ class ArcticMap extends React.Component {
   setEdit(json, nofire, type) {
     if (nofire === null) {
       nofire = false;
-  }
+    }
 
-  if (type === null) {
+    if (type === null) {
       type = "polygon";
-  }
+    }
 
- 
+
 
     if (this.state.map.editor) {
       this.state.map.editor.setEditFeature(json, nofire, type);
@@ -157,7 +158,8 @@ class ArcticMap extends React.Component {
       'esri/widgets/Search',
       // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
-      "esri/geometry/Polygon"
+      "esri/geometry/Polygon",
+      "esri/request"
     ]).then(([
       LayerList,
       Locate,
@@ -167,14 +169,16 @@ class ArcticMap extends React.Component {
       Search,
       // Locator,
       geometryEngine,
-      Polygon
+      Polygon,
+      Request
     ]) => {
-
+      window._request = Request;
       window._map = self;
+      self.request = Request;
 
-    //   self.state.view.spatialReference = {
-    //     wkid: self.state.sr,
-    //  };
+      //   self.state.view.spatialReference = {
+      //     wkid: self.state.sr,
+      //  };
 
       var layerList = new LayerList({
         view: self.state.view,
@@ -186,6 +190,8 @@ class ArcticMap extends React.Component {
           }
         }
       })
+
+
 
       view.popup.dockEnabled = true
       view.popup.dockOptions.position = 'bottom-left'
@@ -212,112 +218,112 @@ class ArcticMap extends React.Component {
       view.popup.viewModel.on('trigger-action', function (event) {
         if (event.action.id === 'select-item') {
           self.state.map.editor.setEditFeature(event.target.selectedFeature);
-
+          view.popup.close();
         }
       })
 
 
 
       view.on('click', (event) => {
-       // setTimeout(function () {
+        // setTimeout(function () {
 
-          if (self.state.hideBasemapButton && self.state.hideBasemapButton === true) {
-            self.state.view.ui.remove(self.basemapGallery);
-            self.setState({ hideBasemapButton: false });
-            return;
-          }
-          //this.setState({ hideBasemapButton: true })
+        if (self.state.hideBasemapButton && self.state.hideBasemapButton === true) {
+          self.state.view.ui.remove(self.basemapGallery);
+          self.setState({ hideBasemapButton: false });
+          return;
+        }
+        //this.setState({ hideBasemapButton: true })
 
-          if (self.state.map.editor && self.state.map.editor.state.editing === true) {
-            return;
-          }
-          // console.log(event);
-          // need to work on identify and add to a single popup
-          // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
+        if (self.state.map.editor && self.state.map.editor.state.editing === true) {
+          return;
+        }
+        // console.log(event);
+        // need to work on identify and add to a single popup
+        // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
 
-          var identresults = [];
-          //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
-          self.setState({ loading: true });
+        var identresults = [];
+        //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'wait';
+        self.setState({ loading: true });
 
-          var identLayers = self.layers.filter(function (layer) {
-            var mapzoom = view.zoom;
-      
-            if (layer.props.identMaxZoom !== undefined) {
-              if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
-                return layer;
-              }
+        var identLayers = self.layers.filter(function (layer) {
+          var mapzoom = view.zoom;
+
+          if (layer.props.identMaxZoom !== undefined) {
+            if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
+              return layer;
             }
+          }
 
-            return layer;
+          return layer;
 
+        });
+        async.eachSeries(identLayers, function (layer, cb) {
+          layer.identify(event, function (results) {
+            if (results) {
+              results.layer = layer;
+              identresults.push(results);
+            }
+            cb();
           });
-          async.eachSeries(identLayers, function (layer, cb) {
-            layer.identify(event, function (results) {
-              if (results) {
-                results.layer = layer;
-                identresults.push(results);
+        }, function (err) {
+          var results = identresults.map(function (ir) {
+            ir.results.forEach(function (res) {
+              res.layer = ir.layer;
+              res.acres = -1;
+              if (res.feature.geometry) {
+                res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
               }
-              cb();
             });
-          }, function (err) {
-            var results = identresults.map(function (ir) {
-              ir.results.forEach(function (res) {
-                res.layer = ir.layer;
-                res.acres = -1;
-                if (res.feature.geometry) {
-                  res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
-                }
-              });
-              return ir.results;
-            }) || [].reduce(function (a, b) {
-              return a.concat(b);
-            });
-
-            results = results.flat();
-
-            results = results.sort(function (r1, r2) {
-              return r1.acres > r2.acres;
-              //r.feature.attributes.Shape_Area
-            });
-
-            //results = results.reverse();
-            var popupresults = results.map(function (result) {
-              var feature = result.feature;
-              var layerName = result.layerName;
-
-              feature.attributes.layerName = layerName;
-
-             
-              feature.popupTemplate = { // autocasts as new PopupTemplate()
-                title: layerName,
-                content: result.layer.renderPopup(feature, result),
-                actions: [{ title: "Select", id: "select-action" }]
-              };
-
-              return feature;
-            });
-
-            if (popupresults.length > 0) {
-              view.popup.close();
-              view.popup.currentSearchResultFeature = null;
-              self.state.view.popup.open({
-                features: popupresults,
-                location: event.mapPoint
-              });
-              popupresults[0].setCurrentPopup();
-
-              self.state.view.popup.on('trigger-action', function (e) {
-                if (e.action.id === 'select-action');
-              });
-            }
-            self.setState({ loading: false });
-            document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+            return ir.results;
+          }) || [].reduce(function (a, b) {
+            return a.concat(b);
           });
 
-          // self.layers.forEach(layer => {
-          //     layer.identify(event);
-          // })
-       //}, 100);
+          results = results.flat();
+
+          results = results.sort(function (r1, r2) {
+            return r1.acres > r2.acres;
+            //r.feature.attributes.Shape_Area
+          });
+
+          //results = results.reverse();
+          var popupresults = results.map(function (result) {
+            var feature = result.feature;
+            var layerName = result.layerName;
+
+            feature.attributes.layerName = layerName;
+
+
+            feature.popupTemplate = { // autocasts as new PopupTemplate()
+              title: layerName,
+              content: result.layer.renderPopup(feature, result),
+              actions: [{ title: "Select", id: "select-action" }]
+            };
+
+            return feature;
+          });
+
+          if (popupresults.length > 0) {
+            view.popup.close();
+            view.popup.currentSearchResultFeature = null;
+            self.state.view.popup.open({
+              features: popupresults,
+              location: event.mapPoint
+            });
+            popupresults[0].setCurrentPopup();
+
+            self.state.view.popup.on('trigger-action', function (e) {
+              if (e.action.id === 'select-action');
+            });
+          }
+          self.setState({ loading: false });
+          document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+        });
+
+        // self.layers.forEach(layer => {
+        //     layer.identify(event);
+        // })
+        //}, 100);
 
       })
 
@@ -382,7 +388,7 @@ class ArcticMap extends React.Component {
           }
 
         });
-     
+
         var searchsources = searchitems.map(i => {
           if (i.search) { i.search(); }
         });
@@ -399,12 +405,13 @@ class ArcticMap extends React.Component {
         });
 
         searchWidget.on("search-complete", function (event) {
-     
+
         });
 
         searchWidget.on('select-result', function (evt) {
-     
+
           view.popup.currentSearchResultFeature = evt.result.feature;
+          view.popup.close();
           // view.popup.open({
           //  location: evt.result.feature.geometry,  // location of the click on the view
           //  feature: evt.result.feature,
