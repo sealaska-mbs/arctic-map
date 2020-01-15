@@ -210,10 +210,6 @@ var ArcticMap$1 = function (_React$Component) {
         children = React.createElement('div', null);
       }
 
-      if (self.state.map) {
-        self.state.map.amlayers = self.layers;
-      }
-
       // console.log(this.props.children);
       // this.props.children.forEach((child) =>{
       //         child.ref = (c) => {this.layers.push(c) };
@@ -284,6 +280,7 @@ var ArcticMap$1 = function (_React$Component) {
       this.setState({ map: map, view: view });
 
       var self = this;
+      self.state.map.amlayers = [];
 
       reactArcgis.loadModules(['esri/widgets/LayerList', 'esri/widgets/Locate', 'esri/widgets/BasemapGallery', 'esri/widgets/Home', 'esri/widgets/Zoom', 'esri/widgets/Search',
       // 'esri/tasks/Locator',
@@ -379,6 +376,9 @@ var ArcticMap$1 = function (_React$Component) {
 
             return layer;
           });
+
+          identLayers = identLayers.concat(self.state.map.amlayers);
+
           async.eachSeries(identLayers, function (layer, cb) {
             layer.identify(event, function (results) {
               if (results) {
@@ -1402,7 +1402,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     transparency: ".32",
                     identmaxzoom: "13",
                     blockidentselect: true,
-                    type: layers[0].type,
+                    type: "geojson",
                     src: "",
                     map: self.state.map,
                     view: self.state.view
@@ -1410,11 +1410,14 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
                 var aml = new ArcticMapLayer(props);
                 aml.layerRef = layers[0];
-                aml.context = self.state.map.amlayers[0].context;
+                aml.context = window._map.layers[0].context;
                 aml.layerRef.title = props.title;
                 //aml.componentDidMount();
                 //console.log("aml", aml);
                 self.state.map.amlayers.push(aml);
+                //window._map.props.childern.push(aml);
+
+                //self.setState({ fileLayer:  aml });
             });
         }
     }, {
@@ -1485,7 +1488,11 @@ var ArcticMapEdit$1 = function (_React$Component) {
             //return (<h2>Test</h2>);
 
 
-            return React.createElement("span", null);
+            return React.createElement(
+                "span",
+                null,
+                this.state.fileLayer
+            );
         }
     }, {
         key: "addGraphic",

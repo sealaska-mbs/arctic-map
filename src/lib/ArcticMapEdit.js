@@ -30,13 +30,13 @@ class ArcticMapEdit extends React.Component {
             graphic: null,
             hideEditors: false,
             editing: false,
-            showUploading :false,
+            showUploading: false,
         };
 
         this.uploadPanel = React.createRef();
     }
 
-    
+
 
     componentWillUnmount() {
         this.props.view.graphics.remove(this.state.graphic);
@@ -303,7 +303,7 @@ class ArcticMapEdit extends React.Component {
         console.log(fileName);
         if (fileName.indexOf(".zip" !== -1)) {
             // console.log("addEventListener", self);
-            self.processShapeFile(fileName,  evt.target);
+            self.processShapeFile(fileName, evt.target);
         } else {
             document.getElementById("upload-status").innerHTML +
                 '<p style="color:red">Add shapefile as .zip file</p>'
@@ -312,7 +312,7 @@ class ArcticMapEdit extends React.Component {
 
     }
 
-    processShapeFile(fileName, form){
+    processShapeFile(fileName, form) {
 
 
         var self = this;
@@ -335,7 +335,7 @@ class ArcticMapEdit extends React.Component {
         parms.numberOfDigitsAfterDecimal = 0;
         var myContent = {
             filetype: "shapefile",
-            publishParameters: JSON.stringify(parms),          
+            publishParameters: JSON.stringify(parms),
             f: "json",
             'content-type': 'multipart/form-data',
         };
@@ -353,7 +353,7 @@ class ArcticMapEdit extends React.Component {
                 request(portalUrl + "/sharing/rest/content/features/generate",
                     {
                         query: myContent,
-                        body : new FormData( form.form),
+                        body: new FormData(form.form),
                         //body: document.getElementById("uploadForm"),
                         responseType: "json"
                     })
@@ -368,11 +368,11 @@ class ArcticMapEdit extends React.Component {
 
     addShapefileToMap(featureCollection, layerName) {
         var self = this;
-        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer','esri/layers/support/Field','esri/PopupTemplate'])
+        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate'])
             .then(([Graphic, FeatureLayer, Field, PopupTemplate]) => {
                 var sourceGraphics = [];
                 var layers = featureCollection.layers.map(function (layer) {
-                
+
                     var graphics = layer.featureSet.features.map(function (feature) {
                         console.log("layer.featureSet.feature.map", feature);
                         return Graphic.fromJSON(feature);
@@ -409,15 +409,15 @@ class ArcticMapEdit extends React.Component {
                 //layers[0].popupTemplate = popupTemplate;
 
                 self.state.map.addMany(layers);
-                
+
                 self.state.view.goTo(sourceGraphics);
-             
+
                 var props = {
                     title: "Shape File: " + layerName,
                     transparency: ".32",
                     identmaxzoom: "13",
                     blockidentselect: true,
-                    type: layers[0].type,
+                    type: "geojson",
                     src: "",
                     map: self.state.map,
                     view: self.state.view
@@ -425,12 +425,16 @@ class ArcticMapEdit extends React.Component {
 
                 var aml = new ArcticMapLayer(props);
                 aml.layerRef = layers[0];
-                aml.context =  self.state.map.amlayers[0].context;
+                aml.context = window._map.layers[0].context;
                 aml.layerRef.title = props.title;
                 //aml.componentDidMount();
                 //console.log("aml", aml);
                 self.state.map.amlayers.push(aml);
-                     });
+                //window._map.props.childern.push(aml);
+              
+                //self.setState({ fileLayer:  aml });
+
+            });
     }
 
 
@@ -509,7 +513,7 @@ class ArcticMapEdit extends React.Component {
 
 
         return (<span>
-
+          {this.state.fileLayer}
 
 
 

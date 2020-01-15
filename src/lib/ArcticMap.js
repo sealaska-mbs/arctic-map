@@ -70,9 +70,7 @@ class ArcticMap extends React.Component {
     }
 
 
-    if (self.state.map) {
-      self.state.map.amlayers = self.layers;
-    }
+  
 
     // console.log(this.props.children);
     // this.props.children.forEach((child) =>{
@@ -148,6 +146,7 @@ class ArcticMap extends React.Component {
     this.setState({ map, view })
 
     var self = this
+    self.state.map.amlayers = [];
 
     loadModules([
       'esri/widgets/LayerList',
@@ -257,6 +256,9 @@ class ArcticMap extends React.Component {
           return layer;
 
         });
+
+        identLayers = identLayers.concat(self.state.map.amlayers);
+
         async.eachSeries(identLayers, function (layer, cb) {
           layer.identify(event, function (results) {
             if (results) {
