@@ -183,7 +183,7 @@ var self = this;
          search 
          ref={this.am} 
          onmapready={this.mapready.bind(this)} 
-         center="54.19681834725972|-123.82131857510026|4">
+         center="45.080097435155814|-89.6813039266699|3">
           <ArcticMapEdit single polygon upload onnewfeature={this.onnew} />
 
           {/* <ArcticMapControlArea location="top-right">

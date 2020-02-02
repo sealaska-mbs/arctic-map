@@ -275,11 +275,14 @@ var ArcticMap$1 = function (_React$Component) {
 
       var self = this;
       self.state.map.amlayers = [];
+      var centerSplit = this.props.center.split('|');
+      view.center = [parseFloat(centerSplit[1]), parseFloat(centerSplit[0])];
+      view.zoom = parseInt(centerSplit[2]);
 
       loadModules(['esri/widgets/LayerList', 'esri/widgets/Locate', 'esri/widgets/BasemapGallery', 'esri/widgets/Home', 'esri/widgets/Zoom', 'esri/widgets/Search',
       // 'esri/tasks/Locator',
-      'esri/geometry/geometryEngine', "esri/geometry/Polygon", "esri/request"]).then(function (_ref) {
-        var _ref2 = slicedToArray(_ref, 9),
+      'esri/geometry/geometryEngine', "esri/geometry/Polygon", "esri/request", "esri/geometry/Point"]).then(function (_ref) {
+        var _ref2 = slicedToArray(_ref, 10),
             LayerList = _ref2[0],
             Locate = _ref2[1],
             BasemapGallery = _ref2[2],
@@ -290,7 +293,8 @@ var ArcticMap$1 = function (_React$Component) {
         // Locator,
         geometryEngine = _ref2[6],
             Polygon = _ref2[7],
-            Request = _ref2[8];
+            Request = _ref2[8],
+            Point = _ref2[9];
 
         window._request = Request;
         window._map = self;
@@ -537,6 +541,9 @@ var ArcticMap$1 = function (_React$Component) {
         //         index: 0
         //       });
 
+        _this2.getEditFeature = function () {
+          _this2.state.map.editor.state.tempGraphicsLayer.graphics.items[0];
+        };
 
         setTimeout(function () {
           var evt = new Event('mapready', { bubbles: true });

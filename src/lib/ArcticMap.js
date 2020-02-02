@@ -70,7 +70,7 @@ class ArcticMap extends React.Component {
     }
 
 
-  
+
 
     // console.log(this.props.children);
     // this.props.children.forEach((child) =>{
@@ -147,6 +147,9 @@ class ArcticMap extends React.Component {
 
     var self = this
     self.state.map.amlayers = [];
+    var centerSplit = this.props.center.split('|');
+    view.center = [parseFloat(centerSplit[1]), parseFloat(centerSplit[0])];
+    view.zoom = parseInt(centerSplit[2]);
 
     loadModules([
       'esri/widgets/LayerList',
@@ -158,7 +161,8 @@ class ArcticMap extends React.Component {
       // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
       "esri/geometry/Polygon",
-      "esri/request"
+      "esri/request",
+      "esri/geometry/Point"
     ]).then(([
       LayerList,
       Locate,
@@ -169,11 +173,15 @@ class ArcticMap extends React.Component {
       // Locator,
       geometryEngine,
       Polygon,
-      Request
+      Request,
+      Point
     ]) => {
       window._request = Request;
       window._map = self;
       self.request = Request;
+
+
+
 
       //   self.state.view.spatialReference = {
       //     wkid: self.state.sr,
@@ -436,6 +444,9 @@ class ArcticMap extends React.Component {
       //         index: 0
       //       });
 
+      this.getEditFeature = () => {
+        this.state.map.editor.state.tempGraphicsLayer.graphics.items[0];
+      }
 
       setTimeout(() => {
         var evt = new Event('mapready', { bubbles: true });
