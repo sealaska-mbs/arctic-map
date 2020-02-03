@@ -38,6 +38,11 @@ export {
 } from './lib/ArcticMapPanel'
 
 
+export {
+  default as ArcticMapIdentify
+} from './lib/ArcticMapIdentify'
+
+
 
 
 

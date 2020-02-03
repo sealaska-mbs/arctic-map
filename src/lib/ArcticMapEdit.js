@@ -4,7 +4,7 @@ import { arcgisToGeoJSON } from '@esri/arcgis-to-geojson-utils';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapLayer from './ArcticMapLayer';
-//import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
+import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 import './ArcticMapEdit.css'
 
 
@@ -51,13 +51,15 @@ class ArcticMapEdit extends React.Component {
             "esri/layers/GraphicsLayer",
             "esri/widgets/Sketch/SketchViewModel",
             "esri/geometry/Geometry",
-            "esri/geometry/Polygon"
+            "esri/geometry/Polygon",
+            "esri/geometry/geometryEngine"
         ]).then(([
             Graphic,
             GraphicsLayer,
             SketchViewModel,
             Geometry,
-            Polygon
+            Polygon,
+            geometryEngine
         ]) => {
             const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
             self.setState({ tempGraphicsLayer });
@@ -169,7 +171,7 @@ class ArcticMapEdit extends React.Component {
 
 
             // scoped methods
-            self.setEditFeature = (feature, nofire, type) => {
+            self.setEditFeature = (feature, nofire, type, zoomto, addto) => {
                 if (nofire === null) {
                     nofire = false;
                 }
@@ -178,6 +180,13 @@ class ArcticMapEdit extends React.Component {
                     type = "polygon";
                 }
 
+                if (zoomto === null) {
+                    zoomto = true;
+                }
+
+                if (addto === null) {
+                    addto = false;
+                }
 
                 if (!feature.geometry.type) {
                     if (type === "polygon") {
@@ -188,7 +197,9 @@ class ArcticMapEdit extends React.Component {
                 }
 
                 this.state.sketchViewModel.cancel();
-                this.state.tempGraphicsLayer.removeAll();
+                if (!addto) {
+                    this.state.tempGraphicsLayer.removeAll();
+                }
                 this.setState({ hideEditors: false, geojson: null });
 
 
@@ -213,14 +224,31 @@ class ArcticMapEdit extends React.Component {
                 }
 
                 //console.log(feature);
-                //this.state.tempGraphicsLayer.add(graphic);
-                this.state.tempGraphicsLayer.graphics = [graphic];
+                this.state.tempGraphicsLayer.add(graphic);
+
+                if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
+
+                    var geometrys = this.state.tempGraphicsLayer.graphics.items.map(i => i.geometry);
+
+
+                    var merge = geometryEngine.union(geometrys);
+                    console.log(merge);
+                    graphic = new Graphic({
+                        geometry: merge,
+                        symbol: this.state.sketchViewModel.polygonSymbol
+                    })
+                    this.state.tempGraphicsLayer.graphics = [graphic]
+                }
+                //this.state.tempGraphicsLayer.graphics = [graphic];
                 if (this.props.single) {
 
                     this.setState({ hideEditors: true });
                 }
 
-                self.state.view.goTo(graphic);
+                if (zoomto) {
+
+                    self.state.view.goTo(graphic);
+                }
 
 
                 var geometry = feature.geometry;
@@ -301,16 +329,61 @@ class ArcticMapEdit extends React.Component {
         var self = this;
         var fileName = evt.target.value.toLowerCase();
         console.log(fileName);
-        if (fileName.indexOf(".zip" !== -1)) {
+        if (fileName.indexOf(".zip") !== -1) {
             // console.log("addEventListener", self);
             self.processShapeFile(fileName, evt.target);
-        } else {
+        }
+        if (fileName.indexOf(".geojson") !== -1) {
+            // console.log("addEventListener", self);
+
+            self.processGeojsonFile(fileName, evt.target);
+        }
+
+        else {
             document.getElementById("upload-status").innerHTML +
                 '<p style="color:red">Add shapefile as .zip file</p>'
         }
 
 
     }
+
+
+    readTextFile(file) {
+        return new Promise((res, rej) => {
+            var fr = new FileReader();
+            fr.onload = (evt) => {
+                res(evt.target.result);
+            }
+            fr.readAsText(file);
+        });
+    }
+
+
+    processGeojsonFile(fileName, form) {
+
+        var file = fileName.replace(/^.*[\\\/]/, '')
+        var self = this;
+        this.readTextFile(form.files[0]).then(text =>{
+
+            var geojson = JSON.parse(text);
+            
+var features = [];
+
+            geojson.features.forEach(f=> {
+                var esrijson = geojsonToArcGIS(f);
+            
+             
+                features.push(esrijson);
+            });
+
+            self.addGeojsonToMap(features, file);
+            self.uploadPanel.current.toggle();
+        });
+        
+     
+
+    }
+
 
     processShapeFile(fileName, form) {
 
@@ -375,7 +448,17 @@ class ArcticMapEdit extends React.Component {
 
                     var graphics = layer.featureSet.features.map(function (feature) {
                         console.log("layer.featureSet.feature.map", feature);
-                        return Graphic.fromJSON(feature);
+                        var gfx = Graphic.fromJSON(feature);
+                        gfx.symbol = {
+                            type: "simple-fill", // autocasts as new SimpleFillSymbol()
+                            color: "rgba(224, 206, 69, 0.8)",
+                            style: "solid",
+                            outline: {
+                                color: "yellow",
+                                width: 3
+                            }
+                        };
+                        return gfx;
                     });
                     sourceGraphics = sourceGraphics.concat(graphics);
                     var featureLayer = new FeatureLayer({
@@ -390,23 +473,9 @@ class ArcticMapEdit extends React.Component {
 
                 });
 
-                // var popupTemplate = new PopupTemplate({
-                //     title: layerName,
-                //     content: [
-                //         {
-                //             type: "fields",
-                //             fieldInfos: [
-                //                 {
-                //                     fieldName: "FID",
-                //                     label: "objectIDField"
-                //                 }
 
-                //             ]
-                //         }
-                //     ]
-                // })
                 layers[0].title = layerName;
-                //layers[0].popupTemplate = popupTemplate;
+
 
                 self.state.map.addMany(layers);
 
@@ -431,11 +500,84 @@ class ArcticMapEdit extends React.Component {
                 //console.log("aml", aml);
                 self.state.map.amlayers.push(aml);
                 //window._map.props.childern.push(aml);
-              
+
                 //self.setState({ fileLayer:  aml });
 
             });
     }
+
+
+    addGeojsonToMap(featureCollection, layerName) {
+        var self = this;
+        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate', "esri/renderers/SimpleRenderer"])
+            .then(([Graphic, FeatureLayer, Field, PopupTemplate, SimpleRenderer]) => {
+                var sourceGraphics = [];
+                var symbol = {
+                    type: "simple-fill", // autocasts as new SimpleFillSymbol()
+                    color: "rgba(224, 206, 69, 0.8)",
+                    style: "solid",
+                    outline: {
+                        color: "red",
+                        width: 2
+                    }
+                };
+
+                var i = 0;
+                var graphics = featureCollection.map(feature=>{
+
+                    console.log(feature);
+                    feature.attributes["OBJECTID"] = i++;
+                    var gfx = Graphic.fromJSON(feature);
+                    
+                    gfx.symbol = symbol;
+                    return gfx;
+
+                });
+           
+
+                var featureLayer = new FeatureLayer({
+                            title: "GEOJSON File: " + layerName,
+                            objectIdField : "OBJECTID",
+                            //renderer : SimpleRenderer.fromJSON(symbol) ,
+                            source: graphics,
+                            // fields: layer.layerDefinition.fields.map(function (field) {
+                            //     return Field.fromJSON(field);
+                            // })
+
+                        });
+
+                console.log(graphics);
+                self.state.map.add(featureLayer);
+                self.state.view.goTo(graphics);
+
+
+    
+
+                var props = {
+                    title: "GEOJSON File: " + layerName,
+                    transparency: ".32",
+                    identmaxzoom: "13",
+                    blockidentselect: true,
+                    type: "geojson",
+                    src: "",
+                    map: self.state.map,
+                    view: self.state.view
+                };
+
+                var aml = new ArcticMapLayer(props);
+                aml.layerRef = featureLayer;
+                aml.context = window._map.layers[0].context;
+                aml.layerRef.title = props.title;
+
+                self.state.map.amlayers.push(aml);
+
+
+
+
+
+            });
+    }
+
 
 
 
@@ -513,7 +655,7 @@ class ArcticMapEdit extends React.Component {
 
 
         return (<span>
-          {this.state.fileLayer}
+            {this.state.fileLayer}
 
 
 

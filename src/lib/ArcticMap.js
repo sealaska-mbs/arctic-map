@@ -3,6 +3,10 @@ import async from 'async';
 import './ArcticMap.css';
 
 import { Map, loadModules } from 'react-arcgis'
+import ArcticMapButton from './ArcticMapButton';
+import ArcticMapLoader from './ArcticMapLoader';
+
+
 
 
 class ArcticMap extends React.Component {
@@ -16,6 +20,7 @@ class ArcticMap extends React.Component {
       loading: false,
       lat: props.lat,
       lng: props.lng,
+      mode: props.mode || "view",
       basemap: props.basemap || "hybrid",
       sr: Number.parseInt(props.sr || "102100"),
     }
@@ -57,6 +62,7 @@ class ArcticMap extends React.Component {
 
       else {
         return React.cloneElement(child, {
+          am: self,
           //ref: 'child-' + (index++)
           ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
         })
@@ -77,29 +83,43 @@ class ArcticMap extends React.Component {
     //         child.ref = (c) => {this.layers.push(c) };
     // });
 
-    return <Map class='full-screen-map'
-      mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
-      {children}
-      <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}>
-        {this.state.hideBasemapButton === false &&
-          <button className='action-button esri-icon-layers' id='pointButton'
-            type='button' title='Map Layers' onClick={this.handleShowBasemaps.bind(this)} />
-        }
-      </div>
 
-      {/*  <div id='bottomleftbar'>
+
+
+    return (
+
+      <Map class='full-screen-map'
+        mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
+        {children}
+        <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}>
+          {this.state.hideBasemapButton === false &&
+            <ArcticMapButton esriicon='basemap' title='Map Layers' onclick={this.handleShowBasemaps.bind(this)} />
+
+
+          }
+        </div>
+
+
+        <ArcticMapLoader loading={this.state.loading} />
+
+
+
+        {/*  <div id='bottomleftbar'>
         {this.state.loading === true &&
          <p>Loading...</p>
         }
       </div>
       */}
-    </Map>
+      </Map>
+
+    );
   }
 
   handleShowBasemaps(event) {
     this.state.view.ui.add(this.basemapGallery, {
       position: 'bottom-right'
     })
+
     this.setState({ hideBasemapButton: true })
   }
 
@@ -132,6 +152,21 @@ class ArcticMap extends React.Component {
     }
   }
 
+  setMode(val) {
+    this.setState({ mode: val });
+    if (val == "identify") {
+      this.state.view.cursor = "help";
+    }
+    if (val == "view") {
+      this.state.view.cursor = "grab";
+    }
+    if (val == "select") {
+      this.state.view.cursor = "auto";
+    }
+    if (val == "edit") {
+      this.state.view.cursor = "crosshairs";
+    }
+  }
 
   setJson(json) {
     if (this.state.map.editor) {
@@ -183,6 +218,22 @@ class ArcticMap extends React.Component {
 
 
 
+
+      if (self.state.mode == "identify") {
+        self.state.view.cursor = "help";
+      }
+      if (self.state.mode == "view") {
+        self.state.view.cursor = "grab";
+      }
+      if (self.state.mode == "edit") {
+        self.state.view.cursor = "crosshairs";
+      }
+
+      if (self.state.mode == "select") {
+        self.state.view.cursor = "auto";
+      }
+
+
       //   self.state.view.spatialReference = {
       //     wkid: self.state.sr,
       //  };
@@ -224,7 +275,7 @@ class ArcticMap extends React.Component {
       })
       view.popup.viewModel.on('trigger-action', function (event) {
         if (event.action.id === 'select-item') {
-          self.state.map.editor.setEditFeature(event.target.selectedFeature);
+          self.state.map.editor.setEditFeature(event.target.selectedFeature, null, null, false, true);
           view.popup.close();
         }
       })
@@ -232,18 +283,31 @@ class ArcticMap extends React.Component {
 
 
       view.on('click', (event) => {
-        // setTimeout(function () {
+
+
+        //hide stuff
+
 
         if (self.state.hideBasemapButton && self.state.hideBasemapButton === true) {
           self.state.view.ui.remove(self.basemapGallery);
           self.setState({ hideBasemapButton: false });
           return;
         }
-        //this.setState({ hideBasemapButton: true })
+
+
+        if (self.state.mode == "view") { return; }
 
         if (self.state.map.editor && self.state.map.editor.state.editing === true) {
           return;
         }
+
+        var currentmode= self.state.mode;
+        if(currentmode !== 'select'){
+          self.setMode("view");
+        }
+       
+
+
         // console.log(event);
         // need to work on identify and add to a single popup
         // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
@@ -288,46 +352,63 @@ class ArcticMap extends React.Component {
           }) || [].reduce(function (a, b) {
             return a.concat(b);
           });
+          self.setState({ loading: false });
+
+
 
           results = results.flat();
 
           results = results.sort(function (r1, r2) {
-            return r1.acres > r2.acres;
+            if( r1.acres > r2.acres){
+              return 1;
+            }
+            return -1
             //r.feature.attributes.Shape_Area
           });
 
-          //results = results.reverse();
-          var popupresults = results.map(function (result) {
-            var feature = result.feature;
-            var layerName = result.layerName;
+      
+          if (currentmode == "identify") {
 
-            feature.attributes.layerName = layerName;
+            //results = results.reverse();
+            var popupresults = results.map(function (result) {
+              var feature = result.feature;
+              var layerName = result.layerName;
+
+              feature.attributes.layerName = layerName;
 
 
-            feature.popupTemplate = { // autocasts as new PopupTemplate()
-              title: layerName,
-              content: result.layer.renderPopup(feature, result),
-              actions: [{ title: "Select", id: "select-action" }]
-            };
+              feature.popupTemplate = { // autocasts as new PopupTemplate()
+                title: layerName,
+                content: result.layer.renderPopup(feature, result),
+                actions: [{ title: "Select", id: "select-action" }]
+              };
 
-            return feature;
-          });
-
-          if (popupresults.length > 0) {
-            view.popup.close();
-            view.popup.currentSearchResultFeature = null;
-            self.state.view.popup.open({
-              features: popupresults,
-              location: event.mapPoint
+              return feature;
             });
-            popupresults[0].setCurrentPopup();
 
-            self.state.view.popup.on('trigger-action', function (e) {
-              if (e.action.id === 'select-action');
-            });
+            if (popupresults.length > 0) {
+              view.popup.close();
+              view.popup.currentSearchResultFeature = null;
+              self.state.view.popup.open({
+                features: popupresults,
+                location: event.mapPoint
+              });
+              popupresults[0].setCurrentPopup();
+
+              self.state.view.popup.on('trigger-action', function (e) {
+                if (e.action.id === 'select-action');
+              });
+            }
+            self.setState({ loading: false });
           }
-          self.setState({ loading: false });
-          document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+
+          if (currentmode == "select") {
+            console.log(results);
+            self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
+          }
+
+          
+          //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
         });
 
         // self.layers.forEach(layer => {
