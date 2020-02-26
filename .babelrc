@@ -1,9 +1,11 @@
 {
   "presets": [
     ["env", {
-      "modules": false
+      "modules": false,
+      "blacklist": ["useStrict"]
     }],
     "stage-0",
     "react"
+    
   ]
 }

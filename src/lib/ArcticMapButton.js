@@ -50,10 +50,16 @@ class ArcticMapButton extends React.Component {
             }
         };
 
+        if(this.props.padtop){
+            style.arcticButton.marginTop = '10px';
+        }
+        if(this.props.padbottom){
+            style.arcticButton.marginBOttom = '10px';
+        }
         
 
         if (this.state.useEsriIcon) {
-            if (this.props.showactive && this.props.showactive == true) {
+            if (this.props.showactive && this.props.showactive === true) {
                 style.arcticButton.backgroundColor = "#d4d1d1";
             }
             else{

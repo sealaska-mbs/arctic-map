@@ -5,8 +5,23 @@ import './ArcticMap.css';
 import { Map, loadModules } from 'react-arcgis'
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapLoader from './ArcticMapLoader';
+import ArcticMapPanel from './ArcticMapPanel';
 
-
+var style = document.createElement('style');
+style.id = "esri-overrides"
+style.innerHTML =
+	'.esri-ui-bottom-right {' +
+		'flex-flow: column;' +
+  '}' +
+  '.esri-ui-bottom-right .esri-component {' +
+    'margin-top: 10px;' +
+  '}' +
+  '.esri-layer-list { background-color: transparent; padding: 1px; }' +
+  '.esri-layer-list__item--has-children .esri-layer-list__item { box-shadow: none; }' +
+  '.esri-layer-list__item--has-children { border-bottom: none; box-shadow: 0px 0px 3px 0px black; border-radius: 4px; margin-bottom: 10px;  }' +
+  '.esri-basemap-gallery { position: absolute; bottom: 0; right: 0; }'
+  ;
+  document.head.appendChild(style);
 
 
 class ArcticMap extends React.Component {
@@ -32,12 +47,18 @@ class ArcticMap extends React.Component {
 
 
 
+
   render() {
     var self = this
     var index = 0
     this.layers = []
 
     self.childrenElements = [];
+
+
+  
+  
+
 
     var children = React.Children.map(this.props.children, function (child) {
       if (child.type.displayName === 'ArcticMapLayer') {
@@ -47,6 +68,7 @@ class ArcticMap extends React.Component {
       } else if (child.type.displayName === 'ArcticMapEdit') {
         // console.log(self.refs);
         return React.cloneElement(child, {
+          am : self,
           // ref: 'editor'
 
         })
@@ -63,6 +85,9 @@ class ArcticMap extends React.Component {
       else {
         return React.cloneElement(child, {
           am: self,
+         
+          map : self.state.map,
+          view : self.state.view,
           //ref: 'child-' + (index++)
           ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
         })
@@ -71,6 +96,7 @@ class ArcticMap extends React.Component {
 
     if (children) {
       children = children.sort(l => l.type.displayName === 'ArcticMapEdit').reverse()
+
     } else {
       children = (<div />)
     }
@@ -91,13 +117,12 @@ class ArcticMap extends React.Component {
       <Map class='full-screen-map'
         mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
         {children}
+ 
         <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}>
-          {this.state.hideBasemapButton === false &&
-            <ArcticMapButton esriicon='basemap' title='Map Layers' onclick={this.handleShowBasemaps.bind(this)} />
 
-
-          }
         </div>
+
+
 
 
         <ArcticMapLoader loading={this.state.loading} />
@@ -154,16 +179,16 @@ class ArcticMap extends React.Component {
 
   setMode(val) {
     this.setState({ mode: val });
-    if (val == "identify") {
+    if (val === "identify") {
       this.state.view.cursor = "help";
     }
-    if (val == "view") {
+    if (val === "view") {
       this.state.view.cursor = "grab";
     }
-    if (val == "select") {
+    if (val === "select") {
       this.state.view.cursor = "auto";
     }
-    if (val == "edit") {
+    if (val === "edit") {
       this.state.view.cursor = "crosshairs";
     }
   }
@@ -187,29 +212,29 @@ class ArcticMap extends React.Component {
     view.zoom = parseInt(centerSplit[2]);
 
     loadModules([
-      'esri/widgets/LayerList',
+    
       'esri/widgets/Locate',
       'esri/widgets/BasemapGallery',
       'esri/widgets/Home',
-      'esri/widgets/Zoom',
+    
       'esri/widgets/Search',
       // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
-      "esri/geometry/Polygon",
+    
       "esri/request",
-      "esri/geometry/Point"
+    
     ]).then(([
-      LayerList,
+    
       Locate,
       BasemapGallery,
       Home,
-      Zoom,
+   
       Search,
       // Locator,
       geometryEngine,
-      Polygon,
+  
       Request,
-      Point
+   
     ]) => {
       window._request = Request;
       window._map = self;
@@ -219,17 +244,17 @@ class ArcticMap extends React.Component {
 
 
 
-      if (self.state.mode == "identify") {
+      if (self.state.mode === "identify") {
         self.state.view.cursor = "help";
       }
-      if (self.state.mode == "view") {
+      if (self.state.mode === "view") {
         self.state.view.cursor = "grab";
       }
-      if (self.state.mode == "edit") {
+      if (self.state.mode === "edit") {
         self.state.view.cursor = "crosshairs";
       }
 
-      if (self.state.mode == "select") {
+      if (self.state.mode === "select") {
         self.state.view.cursor = "auto";
       }
 
@@ -238,16 +263,16 @@ class ArcticMap extends React.Component {
       //     wkid: self.state.sr,
       //  };
 
-      var layerList = new LayerList({
-        view: self.state.view,
-        listItemCreatedFunction: function (event) {
-          const item = event.item
-          item.panel = {
-            content: 'legend',
-            open: false
-          }
-        }
-      })
+      // var layerList = new LayerList({
+      //   view: self.state.view,
+      //   listItemCreatedFunction: function (event) {
+      //     const item = event.item
+      //     item.panel = {
+      //       content: 'legend',
+      //       open: false
+      //     }
+      //   }
+      // })
 
 
 
@@ -295,17 +320,17 @@ class ArcticMap extends React.Component {
         }
 
 
-        if (self.state.mode == "view") { return; }
+        if (self.state.mode === "view") { return; }
 
         if (self.state.map.editor && self.state.map.editor.state.editing === true) {
           return;
         }
 
-        var currentmode= self.state.mode;
-        if(currentmode !== 'select'){
+        var currentmode = self.state.mode;
+        if (currentmode !== 'select') {
           self.setMode("view");
         }
-       
+
 
 
         // console.log(event);
@@ -322,6 +347,9 @@ class ArcticMap extends React.Component {
           if (layer.props.identMaxZoom !== undefined) {
             if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
               return layer;
+            }
+            else {
+              return;
             }
           }
 
@@ -359,15 +387,15 @@ class ArcticMap extends React.Component {
           results = results.flat();
 
           results = results.sort(function (r1, r2) {
-            if( r1.acres > r2.acres){
+            if (r1.acres > r2.acres) {
               return 1;
             }
             return -1
             //r.feature.attributes.Shape_Area
           });
 
-      
-          if (currentmode == "identify") {
+
+          if (currentmode === "identify") {
 
             //results = results.reverse();
             var popupresults = results.map(function (result) {
@@ -402,12 +430,12 @@ class ArcticMap extends React.Component {
             self.setState({ loading: false });
           }
 
-          if (currentmode == "select") {
+          if (currentmode === "select") {
             console.log(results);
             self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
           }
 
-          
+
           //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
         });
 
@@ -419,7 +447,7 @@ class ArcticMap extends React.Component {
       })
 
       // Add widget to the top right corner of the view
-      self.state.view.ui.add(layerList, 'top-left')
+     // self.state.view.ui.add(layerList, 'top-left')
 
 
       if (this.props.locate) {
@@ -462,11 +490,11 @@ class ArcticMap extends React.Component {
 
       view.ui.remove('zoom')
 
-      var zoom = new Zoom({
-        view: self.state.view
-      })
+      // var zoom = new Zoom({
+      //   view: self.state.view
+      // })
 
-      view.ui.add(zoom, 'top-right')
+      // view.ui.add(zoom, 'bottom-right')
 
 
       if (self.props.search) {

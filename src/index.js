@@ -43,6 +43,18 @@ export {
 } from './lib/ArcticMapIdentify'
 
 
+export {
+  default as ArcticMapBaseControl
+} from './lib/ArcticMapBaseControl'
+
+
+export {
+  default as ArcticMapLayerRenderer
+} from './lib/ArcticMapLayerRenderer'
+
+
+
+
 
 
 

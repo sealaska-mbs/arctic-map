@@ -1,6 +1,18 @@
 import React, { Component } from 'react'
 
-import { ArcticMapIdentify, ArcticMap, ArcticMapLayer, ArcticMapEdit, ArcticMapLLDSearch, ArcticMapLayerPopup, ArcticMapControlArea, ArcticMapButton, ArcticMapPanel } from './ArcticMap'
+import {
+  ArcticMapIdentify,
+  ArcticMap,
+  ArcticMapLayer,
+  ArcticMapEdit,
+  ArcticMapLLDSearch,
+  ArcticMapLayerPopup,
+  ArcticMapControlArea,
+  ArcticMapButton,
+  ArcticMapPanel,
+  ArcticMapBaseControl,
+  ArcticMapLayerRenderer
+} from './ArcticMap'
 
 
 export default class App extends Component {
@@ -133,6 +145,122 @@ export default class App extends Component {
 
   mapready(event) {
 
+
+    var blmRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [254, 218, 58, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0, 0],
+              "width": 0
+          }
+      }
+  }
+  var npsRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [177, 158, 204, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0, 0],
+              "width": 0
+          }
+      }
+  }
+  var usfsRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [180, 226, 170, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0, 0],
+              "width": 0
+          }
+      }
+  }
+  var usfwRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [67, 180, 126, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0, 0],
+              "width": 0
+          }
+      }
+  }
+  var usbrRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [255, 255, 143, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0, 0],
+              "width": 0
+          }
+      }
+  }
+  var biaRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [252, 145, 39, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0, 0],
+              "width": 0
+          }
+      }
+  }
+  var ofRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [215, 168, 114, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0 ,0],
+              "width": 0
+          }
+      }
+  }
+  var stateRenderer = {
+      "type": "simple",
+      "symbol": {
+          "type": "simple-fill",
+          "color": [143, 214, 230, 255],
+          "outline": {
+              "style": "solid",
+              "color": [0, 0, 0, 0],
+              "width": 0
+          }
+      }
+  }
+  this.am.current.state.map.layers.items.map(function (item) {
+      if (item.type === "test") {
+          item.layers.items.map(function (groupItem) {
+
+              groupItem.allSublayers._items.map(function (sublayersItem) {
+                  sublayersItem.title === "Bureau of Land Management (BLM)" && sublayersItem.renderer === null ? sublayersItem.renderer = blmRenderer : sublayersItem.renderer = sublayersItem.renderer;
+                  sublayersItem.title === "National Park Service (NPS)" && sublayersItem.renderer === null ? sublayersItem.renderer = npsRenderer : sublayersItem.renderer = sublayersItem.renderer;
+                  sublayersItem.title === "US Forest Service (USFS)" && sublayersItem.renderer === null ? sublayersItem.renderer = usfsRenderer : sublayersItem.renderer = sublayersItem.renderer;
+                  sublayersItem.title === "US Fish and Wildlife (USFW)" && sublayersItem.renderer === null ? sublayersItem.renderer = usfwRenderer : sublayersItem.renderer = sublayersItem.renderer;
+                  sublayersItem.title === "Bureau of Reclamation (USBR)" && sublayersItem.renderer === null ? sublayersItem.renderer = usbrRenderer : sublayersItem.renderer = sublayersItem.renderer;
+                  sublayersItem.title === "Bureau of Indian Affairs (BIA)" && sublayersItem.renderer === null ? sublayersItem.renderer = biaRenderer : sublayersItem.renderer = sublayersItem.renderer;
+                  sublayersItem.title === "Other Federal" && sublayersItem.renderer === null ? sublayersItem.renderer = ofRenderer : sublayersItem.renderer = sublayersItem.renderer;
+                  sublayersItem.title === "State" && sublayersItem.renderer === null ? sublayersItem.renderer = stateRenderer : sublayersItem.renderer = sublayersItem.renderer;
+
+              })
+          })
+      }
+  });
+
     //console.log(event.target);
 
     // var geojson = {"geometry":{"spatialReference":{"latestWkid":3857,"wkid":102100},"rings":[[[-12913274.173206665,5677703.816462832],[-12925015.020184122,5885123.306559217],[-12782169.442008395,5941870.186216331],[-12586490.649598394,5709012.393390218],[-12656935.13429885,5487895.29825049],[-12913274.173206665,5677703.816462832]]]},"symbol":{"type":"esriSFS","color":[224,206,69,204],"outline":{"type":"esriSLS","color":[255,255,0,255],"width":3,"style":"esriSLSSolid"},"style":"esriSFSSolid"},"attributes":{}};
@@ -172,19 +300,38 @@ export default class App extends Component {
 
   }
 
+  resetmap(){
+    console.log('REset map')
+  }
+
 
   render() {
     return (
       <div style={{ width: '100vw', height: '100vh' }}>
-        <ArcticMap locate
+        <ArcticMap 
           toolsserver="https://arcgis.mlrsdev.com/server"
           sr="4269"
           basemap="topo"
           search
           ref={this.am}
           onmapready={this.mapready.bind(this)}
-          center="45.080097435155814|-89.6813039266699|3">
-          <ArcticMapEdit single polygon upload onnewfeature={this.onnew} />
+          center="41.58340455185586|-107.37666601773141|12"
+          //center="40.080097435155814|-96.6813039266699|5"
+          >
+          <ArcticMapEdit upload onnewfeature={this.onnew} >
+
+          {/* <ArcticMapControlArea location="top-right">
+          <ArcticMapButton esriicon="locate"/>
+          </ArcticMapControlArea>  */}
+
+          <ArcticMapPanel esriicon="map-pin" title="Polygon Staking" onclick={this.locateExtra.bind(this)} >
+            <p>ksdjaslkjdlksajdlk
+              salkdjkalsjdlksa
+              asjlkdjaskljdlkas
+              ajslkdjaslkjdlsak
+            </p>
+            </ArcticMapPanel>
+            </ArcticMapEdit>
 
           <ArcticMapControlArea location="top-right">
             <ArcticMapIdentify />
@@ -213,13 +360,30 @@ export default class App extends Component {
           <ArcticMapLayer identMaxZoom="13"
 
             type="dynamic"
-            src="https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/" />
+            src="https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/" >
+                <ArcticMapLayerRenderer layer="BLM Administrative Unit District Boundary"
+                 style={{
+                          type: "simple",
+                          symbol: {
+                            type: "simple-fill", 
+                            style: "none",
+                            outline: {
+                                color: "yellow",
+                                width: 3
+                            }
+                        }
+                      }}/>
+            </ArcticMapLayer>
 
 
           <ArcticMapLayer
 
             type="dynamic"
             src="https://gis.test.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer" >
+
+            
+
+             
 
             <ArcticMapLayerPopup layerid="0" popup={(context, all) => {
 
@@ -229,7 +393,7 @@ export default class App extends Component {
             </ArcticMapLayerPopup>
 
             <ArcticMapLayerPopup layerid="3" popup={(context, all) => {
-           
+
               return (<h3>{context.attributes["Second Division Identifier"]}</h3>);
             }}>
 
@@ -244,13 +408,138 @@ export default class App extends Component {
             type="group"
             src="https://gis.blm.gov/arcgis/rest/services/lands/BLM_Natl_SMA_LimitedScale/MapServer/,https://gis.blm.gov/arcgis/rest/services/lands/BLM_Natl_SMA_Cached_without_PriUnk/MapServer/" >
 
+<ArcticMapLayerRenderer layer="Bureau of Land Management (BLM)"
+                 style={ {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [254, 218, 58, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0, 0],
+                          "width": 0
+                      }
+                  }
+              }}/>
 
+<ArcticMapLayerRenderer layer="National Park Service (NPS)"
+                 style={ {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [177, 158, 204, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0, 0],
+                          "width": 0
+                      }
+                  }
+              }}/>
+
+
+      
+
+
+          <ArcticMapLayerRenderer layer="US Forest Service (USFS)"
+                 style={ {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [180, 226, 170, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0, 0],
+                          "width": 0
+                      }
+                  }
+              }}/>
+
+<ArcticMapLayerRenderer layer="US Fish and Wildlife (USFW)"
+                 style={ {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [67, 180, 126, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0, 0],
+                          "width": 0
+                      }
+                  }
+              }}/>
+
+<ArcticMapLayerRenderer layer="Bureau of Reclamation (USBR)"
+                 style={  {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [255, 255, 143, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0, 0],
+                          "width": 0
+                      }
+                  }
+              }}/>
+              <ArcticMapLayerRenderer layer="Bureau of Indian Affairs (BIA)"
+                 style={  {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [252, 145, 39, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0, 0],
+                          "width": 0
+                      }
+                  }
+              }}/>
+
+
+<ArcticMapLayerRenderer layer="Other Federal"
+                 style={  {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [215, 168, 114, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0 ,0],
+                          "width": 0
+                      }
+                  }
+              }}/>
+
+<ArcticMapLayerRenderer layer="State"
+                 style={ {
+                  "type": "simple",
+                  "symbol": {
+                      "type": "simple-fill",
+                      "color": [143, 214, 230, 255],
+                      "outline": {
+                          "style": "solid",
+                          "color": [0, 0, 0, 0],
+                          "width": 0
+                      }
+                  }
+              }}/>
 
 
           </ArcticMapLayer>
 
 
+
           {/* point line square circle  */}
+       
+         
+          <ArcticMapBaseControl reset={this.resetmap} />
+          <ArcticMapControlArea location="bottom-right">
+            <ArcticMapButton esriicon="locate" onclick={this.locateExtra.bind(this)} />
+          </ArcticMapControlArea>
+          <ArcticMapControlArea location="bottom-right">
+            <ArcticMapPanel esriicon="printer" onclick={this.locateExtra.bind(this)} />
+          </ArcticMapControlArea>
+            
 
           <ArcticMapLLDSearch />
 
