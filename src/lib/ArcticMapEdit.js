@@ -44,7 +44,7 @@ class ArcticMapEdit extends React.Component {
 
     componentDidMount() {
 
-
+     
 
         var self = this;
         loadModules(["esri/Graphic",
@@ -156,7 +156,7 @@ class ArcticMapEdit extends React.Component {
                 // set the editGraphic to null update is complete or cancelled.
                 self.state.editGraphic = null;
 
-                console.log("UPDATED");
+            
 
             });
 
@@ -223,7 +223,7 @@ class ArcticMapEdit extends React.Component {
                     graphic.geometry = feature.geometry;
                 }
 
-                //console.log(feature);
+            
                 this.state.tempGraphicsLayer.add(graphic);
 
                 if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
@@ -232,7 +232,7 @@ class ArcticMapEdit extends React.Component {
 
 
                     var merge = geometryEngine.union(geometrys);
-                    console.log(merge);
+                 
                     graphic = new Graphic({
                         geometry: merge,
                         symbol: this.state.sketchViewModel.polygonSymbol
@@ -328,6 +328,7 @@ class ArcticMapEdit extends React.Component {
     fileUploaded(evt) {
         var self = this;
         var fileName = evt.target.value.toLowerCase();
+       
         if (fileName.indexOf(".zip") !== -1) {
             // console.log("addEventListener", self);
             self.processShapeFile(fileName, evt.target);
@@ -682,6 +683,7 @@ class ArcticMapEdit extends React.Component {
 
         var self = this;
         self.uploadPanel.current.toggle();
+        //console.log("Process Shape File", fileName);
         var name = fileName.split(".");
         name = name[0].replace("c:\\fakepath\\", "");
 
@@ -738,6 +740,7 @@ class ArcticMapEdit extends React.Component {
                 var layers = featureCollection.layers.map(function (layer) {
 
                     var graphics = layer.featureSet.features.map(function (feature) {
+                        //console.log("layer.featureSet.feature.map", feature);
                         var gfx = Graphic.fromJSON(feature);
                         gfx.symbol = {
                             type: "simple-fill", // autocasts as new SimpleFillSymbol()
@@ -815,6 +818,7 @@ class ArcticMapEdit extends React.Component {
                 var i = 0;
                 var graphics = featureCollection.map(feature=>{
 
+                    //console.log(feature);
                     feature.attributes["OBJECTID"] = i++;
                     var gfx = Graphic.fromJSON(feature);
                     
@@ -835,6 +839,7 @@ class ArcticMapEdit extends React.Component {
 
                         });
 
+               
                 self.state.map.add(featureLayer);
                 self.state.view.goTo(graphics);
 
@@ -878,10 +883,41 @@ class ArcticMapEdit extends React.Component {
 
     }
 
+    setmaptoselect() {
+
+        if (this.props.am.state.mode === "select") {
+          this.props.am.setMode("view");
+          this.setState({ mode: "view" });
+        }
+        else {
+    
+          this.props.am.setMode("select");
+          this.setState({ mode: "select" });
+        }
+      }
+
     widgetRender() {
+
+        var self = this;
+        var children = React.Children.map(this.props.children, function (child) {
+       
+              return React.cloneElement(child, {
+            
+               
+                map : self.state.map,
+                view : self.state.view,
+                //ref: 'child-' + (index++)
+               
+              })
+            
+          })
+
+
         return <div id="topbar">
             {this.state.hideEditors === false &&
                 <span>
+                    {children}
+                        <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} /> 
                     {this.props.point &&
 
                         <ArcticMapButton esriicon="blank-map-pin" onclick={this.addPointClick.bind(this)} title="Draw point" ></ArcticMapButton>
@@ -919,7 +955,7 @@ class ArcticMapEdit extends React.Component {
                         </ArcticMapPanel>}
                 </span>
             }
-            <ArcticMapButton esriicon="trash" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
+            <ArcticMapButton esriicon="refresh" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
 
 
 
@@ -974,7 +1010,7 @@ class ArcticMapEdit extends React.Component {
         var self = this;
         self.state.view.on("click", function (event) {
             event.stopPropagation();
-            console.log("HERE!!")
+           
             self.state.view.hitTest(event).then(function (response) {
                 var results = response.results;
                 // Found a valid graphic

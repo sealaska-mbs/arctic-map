@@ -19,18 +19,7 @@ class ArcticMapIdentify extends React.Component {
 
   }
 
-  setmaptoselect() {
 
-    if (this.props.am.state.mode === "select") {
-      this.props.am.setMode("view");
-      this.setState({ mode: "view" });
-    }
-    else {
-
-      this.props.am.setMode("select");
-      this.setState({ mode: "select" });
-    }
-  }
 
   render() {
 
@@ -40,8 +29,7 @@ class ArcticMapIdentify extends React.Component {
       <span>
 
         <ArcticMapButton showactive={this.props.am.state.mode === "identify"} esriicon='question' title='Identify' onclick={this.setmaptoidentify.bind(this)} />
-        <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} />
-      </span>
+          </span>
 
 
     )

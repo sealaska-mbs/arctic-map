@@ -15,7 +15,7 @@ class ArcticMapLayer extends React.Component {
             map: props.map,
             view: props.view,
             graphic: null,
-            title : props.title,
+            title: props.title,
             blockSelect: props.blockIdentSelect !== undefined
         };
     }
@@ -36,7 +36,8 @@ class ArcticMapLayer extends React.Component {
             "esri/tasks/support/IdentifyParameters",
             "esri/geometry/Point",
             "esri/symbols/SimpleMarkerSymbol",
-            "esri/layers/GroupLayer"
+            "esri/layers/GroupLayer",
+            "esri/renderers/Renderer"
         ]).then(([
             Graphic,
             FeatureLayer,
@@ -48,7 +49,8 @@ class ArcticMapLayer extends React.Component {
             IdentifyParameters,
             Point,
             SimpleMarkerSymbol,
-            GroupLayer
+            GroupLayer,
+            Renderer
         ]) => {
             // Create a polygon geometry
 
@@ -64,6 +66,26 @@ class ArcticMapLayer extends React.Component {
 
 
             self.layerRenderers = children;
+
+
+
+
+            var childrenEles = [];
+            if (self.props.children) {
+                if (Array.isArray(self.props.children)) {
+                    childrenEles = self.props.children;
+                }
+                else {
+                    childrenEles.push(self.props.children);
+                }
+            }
+
+            var renderers = childrenEles.filter(child => {
+                if (child.type.displayName === 'ArcticMapLayerRenderer') {
+                    return child;
+                }
+            });
+
 
 
 
@@ -103,6 +125,45 @@ class ArcticMapLayer extends React.Component {
 
                     });
                     gmaplayer.layers.add(glayer);
+
+
+                    glayer.when(() => {
+
+
+                        var layerids = [];
+                        //console.log("Maplayer: ", maplayer);
+                        glayer.allSublayers.items.forEach(sublayer => {
+                            layerids.push(sublayer.id);
+                            //console.log("Sublayer:", sublayer);
+
+                            var renderer = renderers.find(r => {
+                                if (r.props.layer === sublayer.title || r.props.layer === `${sublayer.id}`) {
+                                    return r;
+                                }
+                            });
+                            if (renderer !== undefined) {
+                                //console.log("Sublayer renderer:", renderer.props.style);
+                                sublayer.renderer = renderer.props.style;
+                            }
+                            //sublayer.renderer = Renderer.fromJSON(renderer);
+
+                        });
+                        layerids.reverse();
+
+                        self.identifyTask = new IdentifyTask(self.props.src);
+                        self.params = new IdentifyParameters();
+                        self.params.tolerance = 3;
+                        self.params.layerIds = layerids;
+                        self.params.layerOption = "visible";
+                        self.params.width = self.state.view.width;
+                        self.params.height = self.state.view.height;
+                        self.params.returnGeometry = true;
+                        self.params.returnGeometry = self.state.blockSelect;
+
+                        //  console.log(self.params);
+
+                    });
+
                 });
 
                 self.layerRef = gmaplayer;
@@ -116,6 +177,12 @@ class ArcticMapLayer extends React.Component {
                     trans = Number.parseFloat(self.props.transparency);
                 }
 
+
+
+
+
+
+
                 var maplayer = new MapImageLayer({
                     url: self.props.src,
                     opacity: trans
@@ -128,12 +195,31 @@ class ArcticMapLayer extends React.Component {
 
                     maplayer.title = self.props.title;
                 }
+
+                maplayer.on("layerview-create", function (event) {
+                    // console.lof("Layerview:" , event)
+                });
+
                 maplayer.when(() => {
 
 
                     var layerids = [];
+                    //console.log("Maplayer: ", maplayer);
                     maplayer.allSublayers.items.forEach(sublayer => {
                         layerids.push(sublayer.id);
+                        //console.log("Sublayer:", sublayer);
+
+                        var renderer = renderers.find(r => {
+                            if (r.props.layer === sublayer.title || r.props.layer === `${sublayer.id}`) {
+                                return r;
+                            }
+                        });
+                        if (renderer !== undefined) {
+                            //console.log("Sublayer renderer:", renderer.props.style);
+                            sublayer.renderer = renderer.props.style;
+                        }
+                        //sublayer.renderer = Renderer.fromJSON(renderer);
+
                     });
                     layerids.reverse();
 
