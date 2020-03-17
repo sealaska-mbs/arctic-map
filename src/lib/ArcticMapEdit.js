@@ -434,11 +434,12 @@ class ArcticMapEdit extends React.Component {
 
             }
             for (var j = 0; j < placemarks.length; j++) {
+                console.log("features", placemarks[j]);
                 gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
             }
             
             var features = [];
-
+            
             gj.features.forEach(f=> {
                 var esrijson = geojsonToArcGIS(f);
             
@@ -467,7 +468,7 @@ class ArcticMapEdit extends React.Component {
         lineStyle = this.get1(root, 'LineStyle'),
         polyStyle = this.get1(root, 'PolyStyle'),
         visibility = this.get1(root, 'visibility');
-
+        
         if (!geomsAndTimes.geoms.length) return [];
         if (name) properties.name = name;
         if (address) properties.address = address;    
@@ -537,13 +538,16 @@ class ArcticMapEdit extends React.Component {
                     properties[simpleDatas[i].getAttribute('name')] = this.nodeVal(simpleDatas[i]);
                 }
             }
+            
             if (visibility) {
                 properties.visibility = this.nodeVal(visibility);
             }
+            
             if (geomsAndTimes.coordTimes.length) {
                 properties.coordTimes = (geomsAndTimes.coordTimes.length === 1) ?
                     geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
             }
+            
             var feature = {
                 type: 'Feature',
                 geometry: (geomsAndTimes.geoms.length === 1) ? geomsAndTimes.geoms[0] : {
@@ -555,11 +559,25 @@ class ArcticMapEdit extends React.Component {
             if (this.attr(root, 'id')) feature.id = this.attr(root, 'id');
             return [feature];
 
+        } else {
+            
+            var feature = {
+                type: 'Feature',
+                geometry: (geomsAndTimes.geoms.length === 1) ? geomsAndTimes.geoms[0] : {
+                    type: 'GeometryCollection',
+                    geometries: geomsAndTimes.geoms
+                },
+                properties: properties
+            };
+            if (this.attr(root, 'id')) feature.id = this.attr(root, 'id');
+            return [feature];
+            
         }
       
     }
 
     getGeometry(root) {
+        
         var geotypes = ['Polygon', 'LineString', 'Point', 'Track', 'gx:Track'];
         var geomNode, geomNodes, i, j, k, geoms = [], coordTimes = [];
         if (this.get1(root, 'MultiGeometry')) { return this.getGeometry(this.get1(root, 'MultiGeometry')); }
@@ -584,7 +602,7 @@ class ArcticMapEdit extends React.Component {
                         var rings = this.get(geomNode, 'LinearRing'),
                             coords = [];
                         for (k = 0; k < rings.length; k++) {
-                            console.log("rings[k]", rings[k]);
+                            
                             coords.push(this.coord(this.nodeVal(this.get1(rings[k], 'coordinates'))));
                         }
                         geoms.push({
@@ -658,7 +676,7 @@ class ArcticMapEdit extends React.Component {
         for (var i = 0; i < coords.length; i++) {
             o.push(this.coord1(coords[i]));
         }
-        console.log("coord o", o);
+        
         return o;
     }
     gxCoord(v) { return this.numarray(v.split(' ')); }
