@@ -45,7 +45,7 @@ class ArcticMapEdit extends React.Component {
 
     componentDidMount() {
 
-     
+
 
         var self = this;
         loadModules(["esri/Graphic",
@@ -71,6 +71,9 @@ class ArcticMapEdit extends React.Component {
             const sketchViewModel = new SketchViewModel({
                 view: self.state.view,
                 layer: tempGraphicsLayer,
+                defaultUpdateOptions :{
+                   // toggleToolOnClick : false
+                },
                 pointSymbol: {
                     type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
                     style: "circle",
@@ -128,6 +131,9 @@ class ArcticMapEdit extends React.Component {
 
             sketchViewModel.on("update", (event) => {
                 self.setState({ editing: true });
+                if(event.state === 'start' && self.state.mode === 'select'){
+                    return false;
+                }
                 if (event.state === 'complete' || event.state === 'cancel') {
                     // const graphic = new Graphic({
                     //     geometry: event.graphic.geometry,
@@ -157,7 +163,7 @@ class ArcticMapEdit extends React.Component {
                 // set the editGraphic to null update is complete or cancelled.
                 self.state.editGraphic = null;
 
-            
+
 
             });
 
@@ -172,7 +178,7 @@ class ArcticMapEdit extends React.Component {
 
 
             // scoped methods
-            self.setEditFeature = (feature, nofire, type, zoomto, addto) => {
+            self.setEditFeature = (feature, nofire, type, zoomto, addto, trim) => {
                 if (nofire === null) {
                     nofire = false;
                 }
@@ -187,6 +193,9 @@ class ArcticMapEdit extends React.Component {
 
                 if (addto === null) {
                     addto = false;
+                }
+                if (trim === null) {
+                    trim = false;
                 }
 
                 if (!feature.geometry.type) {
@@ -224,21 +233,38 @@ class ArcticMapEdit extends React.Component {
                     graphic.geometry = feature.geometry;
                 }
 
-            
-                this.state.tempGraphicsLayer.add(graphic);
 
-                if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
+                if (trim) {
+                    if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
 
-                    var geometrys = this.state.tempGraphicsLayer.graphics.items.map(i => i.geometry);
+                        var geometrys = this.state.tempGraphicsLayer.graphics.items.map(i => i.geometry);
+
+                        var merge = geometryEngine.union(geometrys);
+                        merge = geometryEngine.difference(merge, graphic.geometry);
+                        graphic = new Graphic({
+                            geometry: merge,
+                            symbol: this.state.sketchViewModel.polygonSymbol
+                        })
+                        this.state.tempGraphicsLayer.graphics = [graphic]
+
+                    }
+                }
+                else {
+                    this.state.tempGraphicsLayer.add(graphic);
+
+                    if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
+
+                        var geometrys = this.state.tempGraphicsLayer.graphics.items.map(i => i.geometry);
 
 
-                    var merge = geometryEngine.union(geometrys);
-                 
-                    graphic = new Graphic({
-                        geometry: merge,
-                        symbol: this.state.sketchViewModel.polygonSymbol
-                    })
-                    this.state.tempGraphicsLayer.graphics = [graphic]
+                        var merge = geometryEngine.union(geometrys);
+
+                        graphic = new Graphic({
+                            geometry: merge,
+                            symbol: this.state.sketchViewModel.polygonSymbol
+                        })
+                        this.state.tempGraphicsLayer.graphics = [graphic]
+                    }
                 }
                 //this.state.tempGraphicsLayer.graphics = [graphic];
                 if (this.props.single) {
@@ -329,7 +355,7 @@ class ArcticMapEdit extends React.Component {
     fileUploaded(evt) {
         var self = this;
         var fileName = evt.target.value.toLowerCase();
-       
+
         if (fileName.indexOf(".zip") !== -1) {
             // console.log("addEventListener", self);
             self.processShapeFile(fileName, evt.target);
@@ -380,16 +406,16 @@ class ArcticMapEdit extends React.Component {
     processKMLFile(fileName, form) {
         var file = fileName.replace(/^.*[\\\/]/, '')
         var self = this;
-        
 
 
-        this.readTextFile(form.files[0]).then(text =>{
+
+        this.readTextFile(form.files[0]).then(text => {
             var parser = new DOMParser();
             var gj = self.fc()
             var xmlDoc = parser.parseFromString(text, "text/xml");
-            var placemarks = self.get(xmlDoc,"Placemark");
-            var styles = self.get(xmlDoc,"Style");
-            var styleMaps = self.get(xmlDoc,"StyleMap");
+            var placemarks = self.get(xmlDoc, "Placemark");
+            var styles = self.get(xmlDoc, "Style");
+            var styleMaps = self.get(xmlDoc, "StyleMap");
             var styleIndex = {};
             var styleByHash = {};
             var styleMapIndex = {};
@@ -412,13 +438,13 @@ class ArcticMapEdit extends React.Component {
                 console.log("features", placemarks[j]);
                 gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
             }
-            
+
             var features = [];
-            
-            gj.features.forEach(f=> {
+
+            gj.features.forEach(f => {
                 var esrijson = geojsonToArcGIS(f);
-            
-             
+
+
                 features.push(esrijson);
             });
             self.addGeojsonToMap(features, file);
@@ -426,28 +452,28 @@ class ArcticMapEdit extends React.Component {
 
         });
 
-    
+
     }
     getPlacemark(root) {
         var geomsAndTimes = this.getGeometry(root), i, properties = {},
-        name = this.nodeVal(this.get1(root, 'name')),
-        address = this.nodeVal(this.get1(root, 'address')),
-        styleUrl = this.nodeVal(this.get1(root, 'styleUrl')),
-        styleIndex = {},
-        styleMapIndex = {},
-        styleByHash = {},
-        description = this.nodeVal(this.get1(root, 'description')),
-        timeSpan = this.get1(root, 'TimeSpan'),
-        timeStamp = this.get1(root, 'TimeStamp'),
-        extendedData = this.get1(root, 'ExtendedData'),
-        lineStyle = this.get1(root, 'LineStyle'),
-        polyStyle = this.get1(root, 'PolyStyle'),
-        visibility = this.get1(root, 'visibility');
-        
+            name = this.nodeVal(this.get1(root, 'name')),
+            address = this.nodeVal(this.get1(root, 'address')),
+            styleUrl = this.nodeVal(this.get1(root, 'styleUrl')),
+            styleIndex = {},
+            styleMapIndex = {},
+            styleByHash = {},
+            description = this.nodeVal(this.get1(root, 'description')),
+            timeSpan = this.get1(root, 'TimeSpan'),
+            timeStamp = this.get1(root, 'TimeStamp'),
+            extendedData = this.get1(root, 'ExtendedData'),
+            lineStyle = this.get1(root, 'LineStyle'),
+            polyStyle = this.get1(root, 'PolyStyle'),
+            visibility = this.get1(root, 'visibility');
+
         if (!geomsAndTimes.geoms.length) return [];
         if (name) properties.name = name;
-        if (address) properties.address = address;    
-        
+        if (address) properties.address = address;
+
         if (styleUrl) {
             if (styleUrl[0] !== '#') {
                 styleUrl = '#' + styleUrl;
@@ -513,16 +539,16 @@ class ArcticMapEdit extends React.Component {
                     properties[simpleDatas[i].getAttribute('name')] = this.nodeVal(simpleDatas[i]);
                 }
             }
-            
+
             if (visibility) {
                 properties.visibility = this.nodeVal(visibility);
             }
-            
+
             if (geomsAndTimes.coordTimes.length) {
                 properties.coordTimes = (geomsAndTimes.coordTimes.length === 1) ?
                     geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
             }
-            
+
             var feature = {
                 type: 'Feature',
                 geometry: (geomsAndTimes.geoms.length === 1) ? geomsAndTimes.geoms[0] : {
@@ -535,7 +561,7 @@ class ArcticMapEdit extends React.Component {
             return [feature];
 
         } else {
-            
+
             var feature = {
                 type: 'Feature',
                 geometry: (geomsAndTimes.geoms.length === 1) ? geomsAndTimes.geoms[0] : {
@@ -546,13 +572,13 @@ class ArcticMapEdit extends React.Component {
             };
             if (this.attr(root, 'id')) feature.id = this.attr(root, 'id');
             return [feature];
-            
+
         }
-      
+
     }
 
     getGeometry(root) {
-        
+
         var geotypes = ['Polygon', 'LineString', 'Point', 'Track', 'gx:Track'];
         var geomNode, geomNodes, i, j, k, geoms = [], coordTimes = [];
         if (this.get1(root, 'MultiGeometry')) { return this.getGeometry(this.get1(root, 'MultiGeometry')); }
@@ -577,7 +603,7 @@ class ArcticMapEdit extends React.Component {
                         var rings = this.get(geomNode, 'LinearRing'),
                             coords = [];
                         for (k = 0; k < rings.length; k++) {
-                            
+
                             coords.push(this.coord(this.nodeVal(this.get1(rings[k], 'coordinates'))));
                         }
                         geoms.push({
@@ -595,7 +621,7 @@ class ArcticMapEdit extends React.Component {
                     }
                 }
             }
-            
+
             return {
                 geoms: geoms,
                 coordTimes: coordTimes
@@ -619,7 +645,7 @@ class ArcticMapEdit extends React.Component {
         if (typeof XMLSerializer !== 'undefined') {
             /* istanbul ignore next */
             serializer = new XMLSerializer();
-        } 
+        }
         if (str.xml !== undefined) return str.xml;
         return serializer.serializeToString(str);
     }
@@ -635,28 +661,29 @@ class ArcticMapEdit extends React.Component {
     get(x, y) { return x.getElementsByTagName(y); }
     attr(x, y) { return x.getAttribute(y); }
     attrf(x, y) { return parseFloat(this.attr(x, y)); }
-    get1(x, y) { 
-        var n = this.get(x, y); 
-        return n.length ? n[0] : null; }
+    get1(x, y) {
+        var n = this.get(x, y);
+        return n.length ? n[0] : null;
+    }
     norm(el) { if (el.normalize) { el.normalize(); } return el; }
-    coord1(v) { 
+    coord1(v) {
         var removeSpace = /\s*/g;
-        return this.numarray(v.replace(removeSpace, '').split(',')); 
+        return this.numarray(v.replace(removeSpace, '').split(','));
     }
     coord(v) {
         var trimSpace = /^\s*|\s*$/g;
         var splitSpace = /\s+/;
-        var coords = v.replace(trimSpace, '').split(splitSpace),o = [];
-        
+        var coords = v.replace(trimSpace, '').split(splitSpace), o = [];
+
         for (var i = 0; i < coords.length; i++) {
             o.push(this.coord1(coords[i]));
         }
-        
+
         return o;
     }
     gxCoord(v) { return this.numarray(v.split(' ')); }
     numarray(x) {
-        
+
         for (var j = 0, o = []; j < x.length; j++) { o[j] = parseFloat(x[j]); }
         return o;
     }
@@ -676,23 +703,23 @@ class ArcticMapEdit extends React.Component {
 
         var file = fileName.replace(/^.*[\\\/]/, '')
         var self = this;
-        this.readTextFile(form.files[0]).then(text =>{
+        this.readTextFile(form.files[0]).then(text => {
 
             var geojson = JSON.parse(text);
             var features = [];
 
-            geojson.features.forEach(f=> {
+            geojson.features.forEach(f => {
                 var esrijson = geojsonToArcGIS(f);
-            
-             
+
+
                 features.push(esrijson);
             });
 
             self.addGeojsonToMap(features, file);
             self.uploadPanel.current.toggle();
         });
-        
-     
+
+
 
     }
 
@@ -835,35 +862,35 @@ class ArcticMapEdit extends React.Component {
                 };
 
                 var i = 0;
-                var graphics = featureCollection.map(feature=>{
+                var graphics = featureCollection.map(feature => {
 
                     //console.log(feature);
                     feature.attributes["OBJECTID"] = i++;
                     var gfx = Graphic.fromJSON(feature);
-                    
+
                     gfx.symbol = symbol;
                     return gfx;
 
                 });
-           
+
 
                 var featureLayer = new FeatureLayer({
-                            title: "GEOJSON File: " + layerName,
-                            objectIdField : "OBJECTID",
-                            //renderer : SimpleRenderer.fromJSON(symbol) ,
-                            source: graphics,
-                            // fields: layer.layerDefinition.fields.map(function (field) {
-                            //     return Field.fromJSON(field);
-                            // })
+                    title: "GEOJSON File: " + layerName,
+                    objectIdField: "OBJECTID",
+                    //renderer : SimpleRenderer.fromJSON(symbol) ,
+                    source: graphics,
+                    // fields: layer.layerDefinition.fields.map(function (field) {
+                    //     return Field.fromJSON(field);
+                    // })
 
-                        });
+                });
 
-               
+
                 self.state.map.add(featureLayer);
                 self.state.view.goTo(graphics);
 
 
-    
+
 
                 var props = {
                     title: "GEOJSON File: " + layerName,
@@ -905,42 +932,42 @@ class ArcticMapEdit extends React.Component {
     setmaptoselect() {
 
         if (this.props.am.state.mode === "select") {
-          this.props.am.setMode("view");
-          this.setState({ mode: "view" });
+            this.props.am.setMode("view");
+            this.setState({ mode: "view" });
         }
         else {
-    
-          this.props.am.setMode("select");
-          this.setState({ mode: "select" });
+
+            this.props.am.setMode("select");
+            this.setState({ mode: "select" });
         }
-      }
+    }
 
     widgetRender() {
 
         var self = this;
         var children = React.Children.map(this.props.children, function (child) {
-       
-              return React.cloneElement(child, {
-            
-               
-                map : self.state.map,
-                view : self.state.view,
-                //ref: 'child-' + (index++)
-               
-              })
-            
-          })
 
-          if(this.state.hidden === true){
-              return <div id="topbar"></div>;
-          }
+            return React.cloneElement(child, {
+
+
+                map: self.state.map,
+                view: self.state.view,
+                //ref: 'child-' + (index++)
+
+            })
+
+        })
+
+        if (this.state.hidden === true) {
+            return <div id="topbar"></div>;
+        }
 
         return <div id="topbar">
-        
+
             {this.state.hideEditors === false &&
                 <span>
                     {children}
-                        <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} /> 
+                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} />
                     {this.props.point &&
 
                         <ArcticMapButton esriicon="blank-map-pin" onclick={this.addPointClick.bind(this)} title="Draw point" ></ArcticMapButton>
@@ -1032,11 +1059,11 @@ class ArcticMapEdit extends React.Component {
         var self = this;
         self.state.view.on("click", function (event) {
             event.stopPropagation();
-           
+
             self.state.view.hitTest(event).then(function (response) {
                 var results = response.results;
                 // Found a valid graphic
-                if (results.length && results[results.length - 1].graphic) {
+                if (results.length && results[results.length - 1].graphic && self.map.mode != 'identify') {
                     // Check if we're already editing a graphic
                     // if (!self.state.editGraphic) {
                     // Save a reference to the graphic we intend to update

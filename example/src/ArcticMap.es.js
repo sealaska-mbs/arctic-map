@@ -550,6 +550,7 @@ var ArcticMap$1 = function (_React$Component) {
       var centerSplit = this.props.center.split('|');
       view.center = [parseFloat(centerSplit[1]), parseFloat(centerSplit[0])];
       view.zoom = parseInt(centerSplit[2]);
+      self.cntrlIsPressed = false;
 
       loadModules(['esri/widgets/Locate', 'esri/widgets/BasemapGallery', 'esri/widgets/Home', 'esri/widgets/Search',
       // 'esri/tasks/Locator',
@@ -625,7 +626,17 @@ var ArcticMap$1 = function (_React$Component) {
           }
         });
 
+        window.addEventListener("keydown", function (event) {
+          if (event.which == "17") self.cntrlIsPressed = true;
+        });
+
+        window.addEventListener("keyup", function (event) {
+          self.cntrlIsPressed = false;
+        });
+
         view.on('click', function (event) {
+
+          console.log(event);
 
           //hide stuff
 
@@ -741,8 +752,14 @@ var ArcticMap$1 = function (_React$Component) {
             }
 
             if (currentmode === "select") {
-              console.log(results);
-              self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
+              if (self.cntrlIsPressed === true) {
+                console.log(results);
+                console.log("Trim Smallest Result");
+                self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true, true);
+              } else {
+                console.log(results);
+                self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
+              }
             }
 
             //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
@@ -1315,6 +1332,9 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 var sketchViewModel = new SketchViewModel({
                     view: self.state.view,
                     layer: tempGraphicsLayer,
+                    defaultUpdateOptions: {
+                        // toggleToolOnClick : false
+                    },
                     pointSymbol: {
                         type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
                         style: "circle",
@@ -1366,6 +1386,9 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
                 sketchViewModel.on("update", function (event) {
                     self.setState({ editing: true });
+                    if (event.state === 'start' && self.state.mode === 'select') {
+                        return false;
+                    }
                     if (event.state === 'complete' || event.state === 'cancel') {
                         // const graphic = new Graphic({
                         //     geometry: event.graphic.geometry,
@@ -1404,7 +1427,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
 
                 // scoped methods
-                self.setEditFeature = function (feature, nofire, type, zoomto, addto) {
+                self.setEditFeature = function (feature, nofire, type, zoomto, addto, trim) {
                     if (nofire === null) {
                         nofire = false;
                     }
@@ -1419,6 +1442,9 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
                     if (addto === null) {
                         addto = false;
+                    }
+                    if (trim === null) {
+                        trim = false;
                     }
 
                     if (!feature.geometry.type) {
@@ -1450,21 +1476,38 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         graphic.geometry = feature.geometry;
                     }
 
-                    _this2.state.tempGraphicsLayer.add(graphic);
+                    if (trim) {
+                        if (_this2.state.tempGraphicsLayer.graphics.items.length > 0) {
 
-                    if (_this2.state.tempGraphicsLayer.graphics.items.length > 0) {
+                            var geometrys = _this2.state.tempGraphicsLayer.graphics.items.map(function (i) {
+                                return i.geometry;
+                            });
 
-                        var geometrys = _this2.state.tempGraphicsLayer.graphics.items.map(function (i) {
-                            return i.geometry;
-                        });
+                            var merge = geometryEngine.union(geometrys);
+                            merge = geometryEngine.difference(merge, graphic.geometry);
+                            graphic = new Graphic({
+                                geometry: merge,
+                                symbol: _this2.state.sketchViewModel.polygonSymbol
+                            });
+                            _this2.state.tempGraphicsLayer.graphics = [graphic];
+                        }
+                    } else {
+                        _this2.state.tempGraphicsLayer.add(graphic);
 
-                        var merge = geometryEngine.union(geometrys);
+                        if (_this2.state.tempGraphicsLayer.graphics.items.length > 0) {
 
-                        graphic = new Graphic({
-                            geometry: merge,
-                            symbol: _this2.state.sketchViewModel.polygonSymbol
-                        });
-                        _this2.state.tempGraphicsLayer.graphics = [graphic];
+                            var geometrys = _this2.state.tempGraphicsLayer.graphics.items.map(function (i) {
+                                return i.geometry;
+                            });
+
+                            var merge = geometryEngine.union(geometrys);
+
+                            graphic = new Graphic({
+                                geometry: merge,
+                                symbol: _this2.state.sketchViewModel.polygonSymbol
+                            });
+                            _this2.state.tempGraphicsLayer.graphics = [graphic];
+                        }
                     }
                     //this.state.tempGraphicsLayer.graphics = [graphic];
                     if (_this2.props.single) {
@@ -2283,7 +2326,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 self.state.view.hitTest(event).then(function (response) {
                     var results = response.results;
                     // Found a valid graphic
-                    if (results.length && results[results.length - 1].graphic) {
+                    if (results.length && results[results.length - 1].graphic && self.map.mode != 'identify') {
                         // Check if we're already editing a graphic
                         // if (!self.state.editGraphic) {
                         // Save a reference to the graphic we intend to update

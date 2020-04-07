@@ -10,18 +10,18 @@ import ArcticMapPanel from './ArcticMapPanel';
 var style = document.createElement('style');
 style.id = "esri-overrides"
 style.innerHTML =
-	'.esri-ui-bottom-right {' +
-		'flex-flow: column;' +
+  '.esri-ui-bottom-right {' +
+  'flex-flow: column;' +
   '}' +
   '.esri-ui-bottom-right .esri-component {' +
-    'margin-top: 10px;' +
+  'margin-top: 10px;' +
   '}' +
   '.esri-layer-list { background-color: transparent; padding: 1px; }' +
   '.esri-layer-list__item--has-children .esri-layer-list__item { box-shadow: none; }' +
   '.esri-layer-list__item--has-children { border-bottom: none; box-shadow: 0px 0px 3px 0px black; border-radius: 4px; margin-bottom: 10px;  }' +
   '.esri-basemap-gallery { position: absolute; bottom: 0; right: 0; }'
   ;
-  document.head.appendChild(style);
+document.head.appendChild(style);
 
 
 class ArcticMap extends React.Component {
@@ -56,8 +56,8 @@ class ArcticMap extends React.Component {
     self.childrenElements = [];
 
 
-  
-  
+
+
 
 
     var children = React.Children.map(this.props.children, function (child) {
@@ -68,7 +68,7 @@ class ArcticMap extends React.Component {
       } else if (child.type.displayName === 'ArcticMapEdit') {
         // console.log(self.refs);
         return React.cloneElement(child, {
-          am : self,
+          am: self,
           // ref: 'editor'
 
         })
@@ -85,9 +85,9 @@ class ArcticMap extends React.Component {
       else {
         return React.cloneElement(child, {
           am: self,
-         
-          map : self.state.map,
-          view : self.state.view,
+
+          map: self.state.map,
+          view: self.state.view,
           //ref: 'child-' + (index++)
           ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
         })
@@ -117,7 +117,7 @@ class ArcticMap extends React.Component {
       <Map class='full-screen-map'
         mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
         {children}
- 
+
         <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}>
 
         </div>
@@ -210,31 +210,32 @@ class ArcticMap extends React.Component {
     var centerSplit = this.props.center.split('|');
     view.center = [parseFloat(centerSplit[1]), parseFloat(centerSplit[0])];
     view.zoom = parseInt(centerSplit[2]);
+    self.cntrlIsPressed = false;
 
     loadModules([
-    
+
       'esri/widgets/Locate',
       'esri/widgets/BasemapGallery',
       'esri/widgets/Home',
-    
+
       'esri/widgets/Search',
       // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
-    
+
       "esri/request",
-    
+
     ]).then(([
-    
+
       Locate,
       BasemapGallery,
       Home,
-   
+
       Search,
       // Locator,
       geometryEngine,
-  
+
       Request,
-   
+
     ]) => {
       window._request = Request;
       window._map = self;
@@ -305,10 +306,17 @@ class ArcticMap extends React.Component {
         }
       })
 
+      window.addEventListener("keydown",function (event) {
+        if (event.which == "17") self.cntrlIsPressed = true;
+      });
 
+      window.addEventListener("keyup",function (event) {
+        self.cntrlIsPressed = false;
+      });
 
       view.on('click', (event) => {
 
+        console.log(event);
 
         //hide stuff
 
@@ -431,8 +439,15 @@ class ArcticMap extends React.Component {
           }
 
           if (currentmode === "select") {
-            console.log(results);
-            self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
+            if (self.cntrlIsPressed === true) {
+              console.log(results);
+              console.log("Trim Smallest Result");
+              self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true, true);
+            }
+            else {
+              console.log(results);
+              self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
+            }
           }
 
 
@@ -447,7 +462,7 @@ class ArcticMap extends React.Component {
       })
 
       // Add widget to the top right corner of the view
-     // self.state.view.ui.add(layerList, 'top-left')
+      // self.state.view.ui.add(layerList, 'top-left')
 
 
       if (this.props.locate) {

@@ -318,7 +318,7 @@ export default class App extends Component {
           center="41.58340455185586|-107.37666601773141|12"
           //center="40.080097435155814|-96.6813039266699|5"
           >
-          <ArcticMapEdit upload onnewfeature={this.onnew} hidden={true} >
+          <ArcticMapEdit upload onnewfeature={this.onnew}  >
 
           {/* <ArcticMapControlArea location="top-right">
           <ArcticMapButton esriicon="locate"/>
