@@ -953,7 +953,7 @@ class ArcticMapEdit extends React.Component {
                 map: self.state.map,
                 view: self.state.view,
                 //ref: 'child-' + (index++)
-                hidden : this.state.hideEditors
+                hidden : self.state.hideEditors
             })
 
         })
