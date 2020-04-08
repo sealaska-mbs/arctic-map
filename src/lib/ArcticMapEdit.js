@@ -953,7 +953,7 @@ class ArcticMapEdit extends React.Component {
                 map: self.state.map,
                 view: self.state.view,
                 //ref: 'child-' + (index++)
-
+                hidden : this.state.hideEditors
             })
 
         })
@@ -964,9 +964,9 @@ class ArcticMapEdit extends React.Component {
 
         return <div id="topbar">
 
+            {children}
             {this.state.hideEditors === false &&
                 <span>
-                    {children}
                     <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} />
                     {this.props.point &&
 
@@ -988,23 +988,23 @@ class ArcticMapEdit extends React.Component {
                         <ArcticMapButton esriicon="radio-unchecked" onclick={this.addCircleClick.bind(this)} title="Draw circle" ></ArcticMapButton>
 
                     }
-                    {this.props.upload &&
-                        <ArcticMapPanel esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
-                            <br />
-                            <form encType="multipart/form-data" method="post" id="uploadForm">
-                                <div className="field">
-                                    <label className="file-upload">
-                                        <p><strong>Select File</strong></p>
-                                        <input type="file" name="file" id="inFile" onChange={this.fileUploaded.bind(this)} />
-                                    </label>
-                                </div>
-                            </form>
-                            <br />
-                            <span id="upload-status"></span>
-
-                        </ArcticMapPanel>}
                 </span>
             }
+            {this.props.upload &&
+                <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
+                    <br />
+                    <form encType="multipart/form-data" method="post" id="uploadForm">
+                        <div className="field">
+                            <label className="file-upload">
+                                <p><strong>Select File</strong></p>
+                                <input type="file" name="file" id="inFile" onChange={this.fileUploaded.bind(this)} />
+                            </label>
+                        </div>
+                    </form>
+                    <br />
+                    <span id="upload-status"></span>
+
+                </ArcticMapPanel>}
             <ArcticMapButton esriicon="refresh" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
 
 

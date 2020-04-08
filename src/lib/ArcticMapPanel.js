@@ -40,6 +40,7 @@ class ArcticMapPanel extends React.Component {
         this.renderEle = document.createElement("span");
         this.mapFrame.appendChild(this.renderEle);
         this.state = {
+            hidden: !this.props.hidden ? false : true,
             open: this.props.open || false
         };
      
@@ -73,7 +74,7 @@ class ArcticMapPanel extends React.Component {
 
     render() {
 
-        return (<span><ArcticMapButton padtop={this.props.padtop} padbottom={this.props.padbottom} esriicon={this.props.esriicon} onclick={this.toggle.bind(this)} title={this.props.title} ></ArcticMapButton></span>);
+        return (<span visibility={this.state.hidden}><ArcticMapButton padtop={this.props.padtop} padbottom={this.props.padbottom} esriicon={this.props.esriicon} onclick={this.toggle.bind(this)} title={this.props.title} ></ArcticMapButton></span>);
     }
     renderPanel() {
         // refactor this
