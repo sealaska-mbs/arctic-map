@@ -355,10 +355,6 @@ class ArcticMapEdit extends React.Component {
     fileUploaded(evt) {
         var self = this;
         var fileName = evt.target.value.toLowerCase();
-<<<<<<< HEAD
-
-=======
->>>>>>> Mlrs 1045 (#1)
         if (fileName.indexOf(".zip") !== -1) {
             // console.log("addEventListener", self);
             self.processShapeFile(fileName, evt.target);
@@ -409,7 +405,6 @@ class ArcticMapEdit extends React.Component {
     processKMLFile(fileName, form) {
         var file = fileName.replace(/^.*[\\\/]/, '')
         var self = this;
-<<<<<<< HEAD
 
 
 
@@ -420,18 +415,6 @@ class ArcticMapEdit extends React.Component {
             var placemarks = self.get(xmlDoc, "Placemark");
             var styles = self.get(xmlDoc, "Style");
             var styleMaps = self.get(xmlDoc, "StyleMap");
-=======
-        
-
-
-        this.readTextFile(form.files[0]).then(text =>{
-            var parser = new DOMParser();
-            var gj = self.fc()
-            var xmlDoc = parser.parseFromString(text, "text/xml");
-            var placemarks = self.get(xmlDoc,"Placemark");
-            var styles = self.get(xmlDoc,"Style");
-            var styleMaps = self.get(xmlDoc,"StyleMap");
->>>>>>> Mlrs 1045 (#1)
             var styleIndex = {};
             var styleByHash = {};
             var styleMapIndex = {};
@@ -451,18 +434,6 @@ class ArcticMapEdit extends React.Component {
 
             }
             for (var j = 0; j < placemarks.length; j++) {
-<<<<<<< HEAD
-                console.log("features", placemarks[j]);
-                gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
-            }
-
-            var features = [];
-
-            gj.features.forEach(f => {
-                var esrijson = geojsonToArcGIS(f);
-
-
-=======
                 gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
             }
             
@@ -472,7 +443,6 @@ class ArcticMapEdit extends React.Component {
                 var esrijson = geojsonToArcGIS(f);
             
              
->>>>>>> Mlrs 1045 (#1)
                 features.push(esrijson);
             });
             self.addGeojsonToMap(features, file);
@@ -480,7 +450,6 @@ class ArcticMapEdit extends React.Component {
 
         });
 
-<<<<<<< HEAD
 
     }
     getPlacemark(root) {
@@ -503,30 +472,6 @@ class ArcticMapEdit extends React.Component {
         if (name) properties.name = name;
         if (address) properties.address = address;
 
-=======
-    
-    }
-    getPlacemark(root) {
-        var geomsAndTimes = this.getGeometry(root), i, properties = {},
-        name = this.nodeVal(this.get1(root, 'name')),
-        address = this.nodeVal(this.get1(root, 'address')),
-        styleUrl = this.nodeVal(this.get1(root, 'styleUrl')),
-        styleIndex = {},
-        styleMapIndex = {},
-        styleByHash = {},
-        description = this.nodeVal(this.get1(root, 'description')),
-        timeSpan = this.get1(root, 'TimeSpan'),
-        timeStamp = this.get1(root, 'TimeStamp'),
-        extendedData = this.get1(root, 'ExtendedData'),
-        lineStyle = this.get1(root, 'LineStyle'),
-        polyStyle = this.get1(root, 'PolyStyle'),
-        visibility = this.get1(root, 'visibility');
-
-        if (!geomsAndTimes.geoms.length) return [];
-        if (name) properties.name = name;
-        if (address) properties.address = address;    
-        
->>>>>>> Mlrs 1045 (#1)
         if (styleUrl) {
             if (styleUrl[0] !== '#') {
                 styleUrl = '#' + styleUrl;
@@ -592,22 +537,15 @@ class ArcticMapEdit extends React.Component {
                     properties[simpleDatas[i].getAttribute('name')] = this.nodeVal(simpleDatas[i]);
                 }
             }
-<<<<<<< HEAD
 
             if (visibility) {
                 properties.visibility = this.nodeVal(visibility);
             }
 
-=======
-            if (visibility) {
-                properties.visibility = this.nodeVal(visibility);
-            }
->>>>>>> Mlrs 1045 (#1)
             if (geomsAndTimes.coordTimes.length) {
                 properties.coordTimes = (geomsAndTimes.coordTimes.length === 1) ?
                     geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
             }
-<<<<<<< HEAD
 
             var feature = {
                 type: 'Feature',
@@ -622,8 +560,6 @@ class ArcticMapEdit extends React.Component {
 
         } else {
 
-=======
->>>>>>> Mlrs 1045 (#1)
             var feature = {
                 type: 'Feature',
                 geometry: (geomsAndTimes.geoms.length === 1) ? geomsAndTimes.geoms[0] : {
@@ -636,18 +572,11 @@ class ArcticMapEdit extends React.Component {
             return [feature];
 
         }
-<<<<<<< HEAD
 
     }
 
     getGeometry(root) {
 
-=======
-      
-    }
-
-    getGeometry(root) {
->>>>>>> Mlrs 1045 (#1)
         var geotypes = ['Polygon', 'LineString', 'Point', 'Track', 'gx:Track'];
         var geomNode, geomNodes, i, j, k, geoms = [], coordTimes = [];
         if (this.get1(root, 'MultiGeometry')) { return this.getGeometry(this.get1(root, 'MultiGeometry')); }
@@ -672,11 +601,6 @@ class ArcticMapEdit extends React.Component {
                         var rings = this.get(geomNode, 'LinearRing'),
                             coords = [];
                         for (k = 0; k < rings.length; k++) {
-<<<<<<< HEAD
-
-=======
-                            console.log("rings[k]", rings[k]);
->>>>>>> Mlrs 1045 (#1)
                             coords.push(this.coord(this.nodeVal(this.get1(rings[k], 'coordinates'))));
                         }
                         geoms.push({
@@ -694,11 +618,6 @@ class ArcticMapEdit extends React.Component {
                     }
                 }
             }
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> Mlrs 1045 (#1)
             return {
                 geoms: geoms,
                 coordTimes: coordTimes
@@ -722,11 +641,7 @@ class ArcticMapEdit extends React.Component {
         if (typeof XMLSerializer !== 'undefined') {
             /* istanbul ignore next */
             serializer = new XMLSerializer();
-<<<<<<< HEAD
         }
-=======
-        } 
->>>>>>> Mlrs 1045 (#1)
         if (str.xml !== undefined) return str.xml;
         return serializer.serializeToString(str);
     }
@@ -742,7 +657,6 @@ class ArcticMapEdit extends React.Component {
     get(x, y) { return x.getElementsByTagName(y); }
     attr(x, y) { return x.getAttribute(y); }
     attrf(x, y) { return parseFloat(this.attr(x, y)); }
-<<<<<<< HEAD
     get1(x, y) {
         var n = this.get(x, y);
         return n.length ? n[0] : null;
@@ -751,43 +665,20 @@ class ArcticMapEdit extends React.Component {
     coord1(v) {
         var removeSpace = /\s*/g;
         return this.numarray(v.replace(removeSpace, '').split(','));
-=======
-    get1(x, y) { 
-        var n = this.get(x, y); 
-        return n.length ? n[0] : null; }
-    norm(el) { if (el.normalize) { el.normalize(); } return el; }
-    coord1(v) { 
-        var removeSpace = /\s*/g;
-        return this.numarray(v.replace(removeSpace, '').split(',')); 
->>>>>>> Mlrs 1045 (#1)
     }
     coord(v) {
         var trimSpace = /^\s*|\s*$/g;
         var splitSpace = /\s+/;
-<<<<<<< HEAD
         var coords = v.replace(trimSpace, '').split(splitSpace), o = [];
 
         for (var i = 0; i < coords.length; i++) {
             o.push(this.coord1(coords[i]));
         }
 
-=======
-        var coords = v.replace(trimSpace, '').split(splitSpace),o = [];
-        
-        for (var i = 0; i < coords.length; i++) {
-            o.push(this.coord1(coords[i]));
-        }
-        console.log("coord o", o);
->>>>>>> Mlrs 1045 (#1)
         return o;
     }
     gxCoord(v) { return this.numarray(v.split(' ')); }
     numarray(x) {
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> Mlrs 1045 (#1)
         for (var j = 0, o = []; j < x.length; j++) { o[j] = parseFloat(x[j]); }
         return o;
     }
@@ -833,10 +724,6 @@ class ArcticMapEdit extends React.Component {
 
         var self = this;
         self.uploadPanel.current.toggle();
-<<<<<<< HEAD
-        //console.log("Process Shape File", fileName);
-=======
->>>>>>> Mlrs 1045 (#1)
         var name = fileName.split(".");
         name = name[0].replace("c:\\fakepath\\", "");
 
@@ -893,10 +780,6 @@ class ArcticMapEdit extends React.Component {
                 var layers = featureCollection.layers.map(function (layer) {
 
                     var graphics = layer.featureSet.features.map(function (feature) {
-<<<<<<< HEAD
-                        //console.log("layer.featureSet.feature.map", feature);
-=======
->>>>>>> Mlrs 1045 (#1)
                         var gfx = Graphic.fromJSON(feature);
                         gfx.symbol = {
                             type: "simple-fill", // autocasts as new SimpleFillSymbol()
@@ -974,10 +857,6 @@ class ArcticMapEdit extends React.Component {
                 var i = 0;
                 var graphics = featureCollection.map(feature => {
 
-<<<<<<< HEAD
-                    //console.log(feature);
-=======
->>>>>>> Mlrs 1045 (#1)
                     feature.attributes["OBJECTID"] = i++;
                     var gfx = Graphic.fromJSON(feature);
 
