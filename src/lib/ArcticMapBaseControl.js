@@ -22,14 +22,17 @@ class ArcticMapBaseControl extends React.Component {
         var self = this;
         this.zoomControlDiv = document.createElement("div");
         this.layersDiv = document.createElement("div");
+        this.legendDiv = document.createElement("div");
 
         loadModules([
             'esri/widgets/Zoom',
             'esri/widgets/LayerList',
+            'esri/widgets/Legend',
             'esri/widgets/BasemapGallery',
         ]).then(([
             Zoom,
             LayerList,
+            Legend,
             BasemapGallery
         ]) => {
 
@@ -56,7 +59,10 @@ class ArcticMapBaseControl extends React.Component {
             //props.view.ui.add(zoom, props.hostDiv);
             //self.state.children.push(self.zoomControlDiv);
 
-
+            var legend = new Legend({
+                view: props.view,
+                container: self.legendDiv,
+            });
 
             var layerList = new LayerList({
                 view: props.view,
@@ -119,7 +125,11 @@ class ArcticMapBaseControl extends React.Component {
                     </ArcticMapPanel>
                 </ArcticMapControlArea>
 
-               
+                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
+                    <ArcticMapPanel  esriicon='layer-list' title='Legend'>
+                        <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
+                    </ArcticMapPanel>
+                </ArcticMapControlArea>
 
                 <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
                     <ArcticMapButton esriicon='basemap' title='Basemaps' onclick={this.basemapclick.bind(this)} />
