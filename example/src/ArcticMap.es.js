@@ -1667,7 +1667,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     styleMapIndex['#' + self.attr(styleMaps[l], 'id')] = pairsMap;
                 }
                 for (var j = 0; j < placemarks.length; j++) {
-
                     gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
                 }
 
@@ -1772,7 +1771,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     }
                 }
 
-
                 if (visibility) {
                     properties.visibility = this.nodeVal(visibility);
                 }
@@ -1793,22 +1791,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 return [feature];
             } else {
 
-
-                if (visibility) {
-                    properties.visibility = this.nodeVal(visibility);
-                }
-                if (geomsAndTimes.coordTimes.length) {
-                    properties.coordTimes = geomsAndTimes.coordTimes.length === 1 ? geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
-                }
->>>>>>> Mlrs 1045 (#1)
-=======
-                if (visibility) {
-                    properties.visibility = this.nodeVal(visibility);
-                }
-                if (geomsAndTimes.coordTimes.length) {
-                    properties.coordTimes = geomsAndTimes.coordTimes.length === 1 ? geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
-                }
->>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
                 var feature = {
                     type: 'Feature',
                     geometry: geomsAndTimes.geoms.length === 1 ? geomsAndTimes.geoms[0] : {
@@ -1824,13 +1806,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
     }, {
         key: "getGeometry",
         value: function getGeometry(root) {
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> Mlrs 1045 (#1)
-=======
->>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
             var geotypes = ['Polygon', 'LineString', 'Point', 'Track', 'gx:Track'];
             var geomNode,
                 geomNodes,
@@ -1867,15 +1843,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                             var rings = this.get(geomNode, 'LinearRing'),
                                 coords = [];
                             for (k = 0; k < rings.length; k++) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-                                console.log("rings[k]", rings[k]);
->>>>>>> Mlrs 1045 (#1)
-=======
-                                console.log("rings[k]", rings[k]);
->>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
                                 coords.push(this.coord(this.nodeVal(this.get1(rings[k], 'coordinates'))));
                             }
                             geoms.push({
@@ -1892,7 +1859,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         }
                     }
                 }
-
                 return {
                     geoms: geoms,
                     coordTimes: coordTimes
@@ -1979,15 +1945,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
             for (var i = 0; i < coords.length; i++) {
                 o.push(this.coord1(coords[i]));
             }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-            console.log("coord o", o);
->>>>>>> Mlrs 1045 (#1)
-=======
-            console.log("coord o", o);
->>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
             return o;
         }
     }, {
@@ -1998,7 +1956,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
     }, {
         key: "numarray",
         value: function numarray(x) {
-
             for (var j = 0, o = []; j < x.length; j++) {
                 o[j] = parseFloat(x[j]);
             }
@@ -2048,10 +2005,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
             var self = this;
             self.uploadPanel.current.toggle();
-<<<<<<< HEAD
-            //console.log("Process Shape File", fileName);
-=======
->>>>>>> Mlrs 1045 (#1)
             var name = fileName.split(".");
             name = name[0].replace("c:\\fakepath\\", "");
 
@@ -2110,10 +2063,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 var layers = featureCollection.layers.map(function (layer) {
 
                     var graphics = layer.featureSet.features.map(function (feature) {
-<<<<<<< HEAD
-                        //console.log("layer.featureSet.feature.map", feature);
-=======
->>>>>>> Mlrs 1045 (#1)
                         var gfx = Graphic.fromJSON(feature);
                         gfx.symbol = {
                             type: "simple-fill", // autocasts as new SimpleFillSymbol()
@@ -2191,10 +2140,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 var i = 0;
                 var graphics = featureCollection.map(function (feature) {
 
-<<<<<<< HEAD
-                    //console.log(feature);
-=======
->>>>>>> Mlrs 1045 (#1)
                     feature.attributes["OBJECTID"] = i++;
                     var gfx = Graphic.fromJSON(feature);
 
