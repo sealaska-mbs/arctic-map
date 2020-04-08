@@ -1594,10 +1594,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
         value: function fileUploaded(evt) {
             var self = this;
             var fileName = evt.target.value.toLowerCase();
-<<<<<<< HEAD
-
-=======
->>>>>>> Mlrs 1045 (#1)
             if (fileName.indexOf(".zip") !== -1) {
                 // console.log("addEventListener", self);
                 self.processShapeFile(fileName, evt.target);
@@ -1671,10 +1667,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     styleMapIndex['#' + self.attr(styleMaps[l], 'id')] = pairsMap;
                 }
                 for (var j = 0; j < placemarks.length; j++) {
-<<<<<<< HEAD
-                    console.log("features", placemarks[j]);
-=======
->>>>>>> Mlrs 1045 (#1)
+
                     gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
                 }
 
@@ -1778,7 +1771,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         properties[simpleDatas[i].getAttribute('name')] = this.nodeVal(simpleDatas[i]);
                     }
                 }
-<<<<<<< HEAD
+
 
                 if (visibility) {
                     properties.visibility = this.nodeVal(visibility);
@@ -1800,7 +1793,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 return [feature];
             } else {
 
-=======
+
                 if (visibility) {
                     properties.visibility = this.nodeVal(visibility);
                 }
@@ -1808,6 +1801,14 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     properties.coordTimes = geomsAndTimes.coordTimes.length === 1 ? geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
                 }
 >>>>>>> Mlrs 1045 (#1)
+=======
+                if (visibility) {
+                    properties.visibility = this.nodeVal(visibility);
+                }
+                if (geomsAndTimes.coordTimes.length) {
+                    properties.coordTimes = geomsAndTimes.coordTimes.length === 1 ? geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
+                }
+>>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
                 var feature = {
                     type: 'Feature',
                     geometry: geomsAndTimes.geoms.length === 1 ? geomsAndTimes.geoms[0] : {
@@ -1824,9 +1825,12 @@ var ArcticMapEdit$1 = function (_React$Component) {
         key: "getGeometry",
         value: function getGeometry(root) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> Mlrs 1045 (#1)
+=======
+>>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
             var geotypes = ['Polygon', 'LineString', 'Point', 'Track', 'gx:Track'];
             var geomNode,
                 geomNodes,
@@ -1864,10 +1868,14 @@ var ArcticMapEdit$1 = function (_React$Component) {
                                 coords = [];
                             for (k = 0; k < rings.length; k++) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
                                 console.log("rings[k]", rings[k]);
 >>>>>>> Mlrs 1045 (#1)
+=======
+                                console.log("rings[k]", rings[k]);
+>>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
                                 coords.push(this.coord(this.nodeVal(this.get1(rings[k], 'coordinates'))));
                             }
                             geoms.push({
@@ -1972,10 +1980,14 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 o.push(this.coord1(coords[i]));
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
             console.log("coord o", o);
 >>>>>>> Mlrs 1045 (#1)
+=======
+            console.log("coord o", o);
+>>>>>>> b535515f7033fae074af7587cdcced9ada87e0ca
             return o;
         }
     }, {
