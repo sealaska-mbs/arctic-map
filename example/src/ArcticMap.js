@@ -1675,7 +1675,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     styleMapIndex['#' + self.attr(styleMaps[l], 'id')] = pairsMap;
                 }
                 for (var j = 0; j < placemarks.length; j++) {
-
                     gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
                 }
 
@@ -1780,7 +1779,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     }
                 }
 
-
                 if (visibility) {
                     properties.visibility = this.nodeVal(visibility);
                 }
@@ -1801,18 +1799,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 return [feature];
             } else {
 
-                if (visibility) {
-                    properties.visibility = this.nodeVal(visibility);
-                }
-                if (geomsAndTimes.coordTimes.length) {
-                    properties.coordTimes = geomsAndTimes.coordTimes.length === 1 ? geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
-                }
-                if (visibility) {
-                    properties.visibility = this.nodeVal(visibility);
-                }
-                if (geomsAndTimes.coordTimes.length) {
-                    properties.coordTimes = geomsAndTimes.coordTimes.length === 1 ? geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
-                }
                 var feature = {
                     type: 'Feature',
                     geometry: geomsAndTimes.geoms.length === 1 ? geomsAndTimes.geoms[0] : {
@@ -1880,7 +1866,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         }
                     }
                 }
-
                 return {
                     geoms: geoms,
                     coordTimes: coordTimes
@@ -1977,7 +1962,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
     }, {
         key: "numarray",
         value: function numarray(x) {
-
             for (var j = 0, o = []; j < x.length; j++) {
                 o[j] = parseFloat(x[j]);
             }
