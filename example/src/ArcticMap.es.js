@@ -1594,6 +1594,7 @@ var ArcticMapEdit$1 = function (_React$Component) {
         value: function fileUploaded(evt) {
             var self = this;
 
+            var fileName = evt.target.value.toLowerCase();
             if (fileName.indexOf(".zip") !== -1) {
                 // console.log("addEventListener", self);
                 self.processShapeFile(fileName, evt.target);
