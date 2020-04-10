@@ -392,7 +392,7 @@ export default class App extends Component {
 
             </ArcticMapLayerPopup>
 
-            <ArcticMapLayerPopup layerid="3" popupTitle="this is a test" popup={(context, all) => {
+            <ArcticMapLayerPopup layerid="3" popuptitle="this is a test" popup={(context, all) => {
 
             return (<h3>{context.attributes["Second Division Identifier"]}</h3>);
             }} >

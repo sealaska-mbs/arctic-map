@@ -357,9 +357,9 @@ class ArcticMapLayer extends React.Component {
 
     renderPopupTitle(feature, result){
         if(result.layerId !== undefined && this.layerRenderers) {
-            var popupTitle = this.layerRenderers.find(l => l.props.popupTitle);
+            var popupTitle = this.layerRenderers.find(l => l.props.popuptitle);
             if (popupTitle  && result.layerId == popupTitle.props.layerid) {
-                return popupTitle.props.popupTitle;
+                return popupTitle.props.popuptitle;
             } else {
                 return result.layerName;
             }
