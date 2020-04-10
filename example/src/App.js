@@ -385,19 +385,23 @@ export default class App extends Component {
 
              
 
-            <ArcticMapLayerPopup layerid="0" popup={(context, all) => {
+            <ArcticMapLayerPopup layerid="0" popuptitle="State" popup={(context, all) => {
 
               return (<h3>{context.attributes.NAME}</h3>);
             }}>
 
             </ArcticMapLayerPopup>
 
-            <ArcticMapLayerPopup layerid="3" popuptitle="this is a test" popup={(context, all) => {
+            <ArcticMapLayerPopup layerid="3" popuptitle="Public Land Survey System (PLSS)" popup={(context, all) => {
 
             return (<h3>{context.attributes["Second Division Identifier"]}</h3>);
             }} >
 
             </ArcticMapLayerPopup>
+            <ArcticMapLayerPopup layerid="2" popuptitle="PLSS First Division" popup={(context, all) => {}} >
+
+            </ArcticMapLayerPopup>
+
 
           </ArcticMapLayer>
 
