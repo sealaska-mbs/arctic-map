@@ -7,6 +7,7 @@ import ArcticMapButton from './ArcticMapButton';
 import ArcticMapLoader from './ArcticMapLoader';
 import ArcticMapPanel from './ArcticMapPanel';
 
+
 var style = document.createElement('style');
 style.id = "esri-overrides"
 style.innerHTML =
@@ -414,7 +415,8 @@ class ArcticMap extends React.Component {
 
 
               feature.popupTemplate = { // autocasts as new PopupTemplate()
-                title: layerName,
+                //title: layerName,
+                title: result.layer.renderPopupTitle(feature, result),
                 content: result.layer.renderPopup(feature, result),
                 actions: [{ title: "Select", id: "select-action" }]
               };
