@@ -373,6 +373,10 @@ export default class App extends Component {
                             }
                         }
                       }}/>
+                      
+                <ArcticMapLayerPopup layerid="1" popuptitle="State" popup={(context, all) => {}} >
+
+                </ArcticMapLayerPopup>
             </ArcticMapLayer>
 
 
@@ -381,16 +385,7 @@ export default class App extends Component {
             type="dynamic"
             src="https://gis.test.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer" >
 
-            
-
-             
-
-            <ArcticMapLayerPopup layerid="0" popuptitle="State" popup={(context, all) => {
-
-              return (<h3>{context.attributes.NAME}</h3>);
-            }}>
-
-            </ArcticMapLayerPopup>
+          
 
             <ArcticMapLayerPopup layerid="3" popuptitle="Public Land Survey System (PLSS)" popup={(context, all) => {
 
