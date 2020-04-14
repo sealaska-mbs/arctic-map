@@ -416,20 +416,34 @@ class ArcticMapEdit extends React.Component {
             var xmlDoc = parser.parseFromString(text, "text/xml");
             var Polygon = self.get(xmlDoc,"gml:Polygon");
             var featureMember = self.get(xmlDoc,"gml:featureMember");
-            console.log("gml Polygon", Polygon);
-            console.log("gml featureMember", featureMember);
             for (var j = 0; j < featureMember.length; j++) {
-                console.log("features", featureMember[j]);
                 gj.features = gj.features.concat(self.getFeatureMember(featureMember[j]));
-                console.log("gj", gj);
             }
+            var features = [];
+            
+            gj.features.forEach(f=> {
+                var esrijson = geojsonToArcGIS(f);
+                features.push(esrijson);
+            });
+            self.addGeojsonToMap(features, file);
+            self.uploadPanel.current.toggle();
         });
+        
     }
 
     getFeatureMember(root) {
-        console.log("getFeatureMember", root);
         var geometryProperty = this.get(root, "ogr:geometryProperty");
-        var geomsAndTimes = this.getGeometry(geometryProperty[0]);
+        var geomsCoord = this.getGeometry(geometryProperty[0]);
+        var feature = {
+            type: 'Feature',
+            geometry: (geomsCoord.geoms.length === 1) ? geomsCoord.geoms[0] : {
+                type: 'GeometryCollection',
+                geometries: geomsCoord.geoms
+            },
+            //properties: properties
+        };
+        if (this.attr(root, 'id')) feature.id = this.attr(root, 'id');
+        return [feature];
     }
 
     processKMLFile(fileName, form) {
@@ -464,7 +478,6 @@ class ArcticMapEdit extends React.Component {
 
             }
             for (var j = 0; j < placemarks.length; j++) {
-                console.log("features", placemarks[j]);
                 gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
             }
             
@@ -640,7 +653,6 @@ class ArcticMapEdit extends React.Component {
                             coordinates: coords
                         });
                     } else if (geotypes[i] === 'gml:Polygon') {
-                        console.log("geotypes", geotypes);
                         var rings = this.get(geomNode, 'gml:LinearRing'),
                             coords = [];
                         for (k = 0; k < rings.length; k++) {
@@ -919,125 +931,6 @@ class ArcticMapEdit extends React.Component {
 
     }
 
-    // getGeometry(root) {
-
-    //     var geotypes = ['Polygon', 'LineString', 'Point', 'Track', 'gx:Track'];
-    //     var geomNode, geomNodes, i, j, k, geoms = [], coordTimes = [];
-    //     if (this.get1(root, 'MultiGeometry')) { return this.getGeometry(this.get1(root, 'MultiGeometry')); }
-    //     if (this.get1(root, 'MultiTrack')) { return this.getGeometry(this.get1(root, 'MultiTrack')); }
-    //     if (this.get1(root, 'gx:MultiTrack')) { return this.getGeometry(this.get1(root, 'gx:MultiTrack')); }
-    //     for (i = 0; i < geotypes.length; i++) {
-    //         geomNodes = this.get(root, geotypes[i]);
-    //         if (geomNodes) {
-    //             for (j = 0; j < geomNodes.length; j++) {
-    //                 geomNode = geomNodes[j];
-    //                 if (geotypes[i] === 'Point') {
-    //                     geoms.push({
-    //                         type: 'Point',
-    //                         coordinates: this.coord1(this.nodeVal(this.get1(geomNode, 'coordinates')))
-    //                     });
-    //                 } else if (geotypes[i] === 'LineString') {
-    //                     geoms.push({
-    //                         type: 'LineString',
-    //                         coordinates: this.coord(this.nodeVal(this.get1(geomNode, 'coordinates')))
-    //                     });
-    //                 } else if (geotypes[i] === 'Polygon') {
-    //                     var rings = this.get(geomNode, 'LinearRing'),
-    //                         coords = [];
-    //                     for (k = 0; k < rings.length; k++) {
-    //                         coords.push(this.coord(this.nodeVal(this.get1(rings[k], 'coordinates'))));
-    //                     }
-    //                     geoms.push({
-    //                         type: 'Polygon',
-    //                         coordinates: coords
-    //                     });
-    //                 } else if (geotypes[i] === 'Track' ||
-    //                     geotypes[i] === 'gx:Track') {
-    //                     var track = this.gxCoords(geomNode);
-    //                     geoms.push({
-    //                         type: 'LineString',
-    //                         coordinates: track.coords
-    //                     });
-    //                     if (track.times.length) coordTimes.push(track.times);
-    //                 }
-    //             }
-    //         }
-    //         return {
-    //             geoms: geoms,
-    //             coordTimes: coordTimes
-    //         };
-    //     }
-    // }
-
-    // nodeVal(x) {
-    //     if (x) { this.norm(x); }
-    //     return (x && x.textContent) || '';
-    // }
-
-    // fc() {
-    //     return {
-    //         type: 'FeatureCollection',
-    //         features: []
-    //     }
-    // }
-    // xml2str(str) {
-    //     var serializer;
-    //     if (typeof XMLSerializer !== 'undefined') {
-    //         /* istanbul ignore next */
-    //         serializer = new XMLSerializer();
-    //     }
-    //     if (str.xml !== undefined) return str.xml;
-    //     return serializer.serializeToString(str);
-    // }
-
-    // okhash(x) {
-    //     if (!x || !x.length) return 0;
-    //     for (var i = 0, h = 0; i < x.length; i++) {
-    //         h = ((h << 5) - h) + x.charCodeAt(i) | 0;
-    //     } return h;
-    // }
-
-
-    // // get(x, y) { return x.getElementsByTagName(y); }
-    // attr(x, y) { return x.getAttribute(y); }
-    // attrf(x, y) { return parseFloat(this.attr(x, y)); }
-    // get1(x, y) {
-    //     var n = this.get(x, y);
-    //     return n.length ? n[0] : null;
-    // }
-    // norm(el) { if (el.normalize) { el.normalize(); } return el; }
-    // coord1(v) {
-    //     var removeSpace = /\s*/g;
-    //     return this.numarray(v.replace(removeSpace, '').split(','));
-    // }
-    // coord(v) {
-    //     var trimSpace = /^\s*|\s*$/g;
-    //     var splitSpace = /\s+/;
-    //     var coords = v.replace(trimSpace, '').split(splitSpace), o = [];
-
-    //     for (var i = 0; i < coords.length; i++) {
-    //         o.push(this.coord1(coords[i]));
-    //     }
-
-    //     return o;
-    // }
-    // gxCoord(v) { return this.numarray(v.split(' ')); }
-    // numarray(x) {
-    //     for (var j = 0, o = []; j < x.length; j++) { o[j] = parseFloat(x[j]); }
-    //     return o;
-    // }
-    // gxCoords(root) {
-    //     var elems = this.get(root, 'coord', 'gx'), coords = [], times = [];
-    //     if (elems.length === 0) elems = this.get(root, 'gx:coord');
-    //     for (var i = 0; i < elems.length; i++) coords.push(this.gxCoord(this.nodeVal(elems[i])));
-    //     var timeElems = this.get(root, 'when');
-    //     for (var j = 0; j < timeElems.length; j++) times.push(this.nodeVal(timeElems[j]));
-    //     return {
-    //         coords: coords,
-    //         times: times
-    //     };
-    // }
-
     processGeojsonFile(fileName, form) {
 
         var file = fileName.replace(/^.*[\\\/]/, '')
@@ -1058,10 +951,7 @@ class ArcticMapEdit extends React.Component {
             self.uploadPanel.current.toggle();
         });
 
-
-
     }
-
 
     processShapeFile(fileName, form) {
 
@@ -1172,12 +1062,8 @@ class ArcticMapEdit extends React.Component {
                 aml.layerRef = layers[0];
                 aml.context = window._map.layers[0].context;
                 aml.layerRef.title = props.title;
-                //aml.componentDidMount();
-                //console.log("aml", aml);
-                self.state.map.amlayers.push(aml);
-                //window._map.props.childern.push(aml);
 
-                //self.setState({ fileLayer:  aml });
+                self.state.map.amlayers.push(aml);
 
             });
     }
