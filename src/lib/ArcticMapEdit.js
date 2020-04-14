@@ -373,10 +373,14 @@ class ArcticMapEdit extends React.Component {
 
             self.processGMLFile(fileName, evt.target);
         }
+        else if (fileName.indexOf(".gpx") !== -1) {
+            // console.log("addEventListener", self);
 
+            self.processGPXFile(fileName, evt.target);
+        }
         else {
             document.getElementById("upload-status").innerHTML =
-                '<p style="color:red">Only shapefile(.zip), .kml, or .geojson are supported</p>'
+                '<p style="color:red">Only shapefile(.zip), .gml, .gpx, .kml, or .geojson are supported</p>'
         }
 
 
@@ -407,12 +411,47 @@ class ArcticMapEdit extends React.Component {
         return [color, isNaN(opacity) ? undefined : opacity];
     }
 
-    processGMLFile(fileName, form) {
-        var file = fileName.replace(/^.*[\\\/]/, '')
+    processGPXFile(fileName, form) {
+        var file = fileName.replace(/^.*[\\\/]/, '');
         var self = this;
         this.readTextFile(form.files[0]).then(text =>{
             var parser = new DOMParser();
-            var gj = self.fc()
+            var gj = self.fc();
+            var xmlDoc = parser.parseFromString(text, "text/xml");
+            var trkMember = self.get(xmlDoc,"trk");
+            for (var j = 0; j < trkMember.length; j++) {
+                gj.features = gj.features.concat(self.getTRKMember(trkMember[j]));
+            }
+            var features = [];
+            gj.features.forEach(f=> {
+                var esrijson = geojsonToArcGIS(f);
+                features.push(esrijson);
+            });
+            self.addGeojsonToMap(features, file, "GPX");
+            self.uploadPanel.current.toggle();
+        });
+    }
+    getTRKMember(root) {
+        var geometryProperty = this.get(root, "trkseg");
+        var geomsCoord = this.getGeometry(geometryProperty[0]);
+        var feature = {
+            type: 'Feature',
+            geometry: (geomsCoord.geoms.length === 1) ? geomsCoord.geoms[0] : {
+                type: 'GeometryCollection',
+                geometries: geomsCoord.geoms
+            },
+            //properties: properties
+        };
+        if (this.attr(root, 'id')) feature.id = this.attr(root, 'id');
+        return [feature];
+    }
+
+    processGMLFile(fileName, form) {
+        var file = fileName.replace(/^.*[\\\/]/, '');
+        var self = this;
+        this.readTextFile(form.files[0]).then(text =>{
+            var parser = new DOMParser();
+            var gj = self.fc();
             var xmlDoc = parser.parseFromString(text, "text/xml");
             var Polygon = self.get(xmlDoc,"gml:Polygon");
             var featureMember = self.get(xmlDoc,"gml:featureMember");
@@ -425,7 +464,7 @@ class ArcticMapEdit extends React.Component {
                 var esrijson = geojsonToArcGIS(f);
                 features.push(esrijson);
             });
-            self.addGeojsonToMap(features, file);
+            self.addGeojsonToMap(features, file, "GML");
             self.uploadPanel.current.toggle();
         });
         
@@ -446,186 +485,24 @@ class ArcticMapEdit extends React.Component {
         return [feature];
     }
 
-    processKMLFile(fileName, form) {
-        var file = fileName.replace(/^.*[\\\/]/, '')
-        var self = this;
-        
-
-
-        this.readTextFile(form.files[0]).then(text =>{
-            var parser = new DOMParser();
-            var gj = self.fc()
-            var xmlDoc = parser.parseFromString(text, "text/xml");
-            var placemarks = self.get(xmlDoc,"Placemark");
-            var styles = self.get(xmlDoc,"Style");
-            var styleMaps = self.get(xmlDoc,"StyleMap");
-            var styleIndex = {};
-            var styleByHash = {};
-            var styleMapIndex = {};
-            for (var k = 0; k < styles.length; k++) {
-                var hash = self.okhash(self.xml2str(styles[k])).toString(16);
-                styleIndex['#' + self.attr(styles[k], 'id')] = hash;
-                styleByHash[hash] = styles[k];
-            }
-            for (var l = 0; l < styleMaps.length; l++) {
-                styleIndex['#' + self.attr(styleMaps[l], 'id')] = self.okhash(self.xml2str(styleMaps[l])).toString(16);
-                var pairs = self.get(styleMaps[l], 'Pair');
-                var pairsMap = {};
-                for (var m = 0; m < pairs.length; m++) {
-                    pairsMap[self.nodeVal(self.get1(pairs[m], 'key'))] = self.nodeVal(self.get1(pairs[m], 'styleUrl'));
-                }
-                styleMapIndex['#' + self.attr(styleMaps[l], 'id')] = pairsMap;
-
-            }
-            for (var j = 0; j < placemarks.length; j++) {
-                gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
-            }
-            
-            var features = [];
-            
-            gj.features.forEach(f=> {
-                var esrijson = geojsonToArcGIS(f);
-            
-             
-                features.push(esrijson);
-            });
-            self.addGeojsonToMap(features, file);
-            self.uploadPanel.current.toggle();
-
-        });
-
-    
-    }
-    getPlacemark(root) {
-        var geomsAndTimes = this.getGeometry(root), i, properties = {},
-        name = this.nodeVal(this.get1(root, 'name')),
-        address = this.nodeVal(this.get1(root, 'address')),
-        styleUrl = this.nodeVal(this.get1(root, 'styleUrl')),
-        styleIndex = {},
-        styleMapIndex = {},
-        styleByHash = {},
-        description = this.nodeVal(this.get1(root, 'description')),
-        timeSpan = this.get1(root, 'TimeSpan'),
-        timeStamp = this.get1(root, 'TimeStamp'),
-        extendedData = this.get1(root, 'ExtendedData'),
-        lineStyle = this.get1(root, 'LineStyle'),
-        polyStyle = this.get1(root, 'PolyStyle'),
-        visibility = this.get1(root, 'visibility');
-        
-        if (!geomsAndTimes.geoms.length) return [];
-        if (name) properties.name = name;
-        if (address) properties.address = address;    
-        
-        if (styleUrl) {
-            if (styleUrl[0] !== '#') {
-                styleUrl = '#' + styleUrl;
-            }
-            properties.styleUrl = styleUrl;
-            if (styleIndex[styleUrl]) {
-                properties.styleHash = styleIndex[styleUrl];
-            }
-            if (styleMapIndex[styleUrl]) {
-                properties.styleMapHash = styleMapIndex[styleUrl];
-                properties.styleHash = styleIndex[styleMapIndex[styleUrl].normal];
-            }
-            var style = styleByHash[properties.styleHash];
-            if (style) {
-                if (!lineStyle) lineStyle = this.get1(style, 'LineStyle');
-                if (!polyStyle) polyStyle = this.get1(style, 'PolyStyle');
-                var iconStyle = this.get1(style, 'IconStyle');
-                if (iconStyle) {
-                    var icon = this.get1(iconStyle, 'Icon');
-                    if (icon) {
-                        var href = this.nodeVal(this.get1(icon, 'href'));
-                        if (href) properties.icon = href;
-                    }
-                }
-            }
-            if (description) properties.description = description;
-            if (timeSpan) {
-                var begin = this.nodeVal(this.get1(timeSpan, 'begin'));
-                var end = this.nodeVal(this.get1(timeSpan, 'end'));
-                properties.timespan = { begin: begin, end: end };
-            }
-            if (timeStamp) {
-                properties.timestamp = this.nodeVal(this.get1(timeStamp, 'when'));
-            }
-            if (lineStyle) {
-                var linestyles = this.kmlColor(this.nodeVal(this.get1(lineStyle, 'color'))),
-                    color = linestyles[0],
-                    opacity = linestyles[1],
-                    width = parseFloat(this.nodeVal(this.get1(lineStyle, 'width')));
-                if (color) properties.stroke = color;
-                if (!isNaN(opacity)) properties['stroke-opacity'] = opacity;
-                if (!isNaN(width)) properties['stroke-width'] = width;
-            }
-            if (polyStyle) {
-                var polystyles = this.kmlColor(this.nodeVal(this.get1(polyStyle, 'color'))),
-                    pcolor = polystyles[0],
-                    popacity = polystyles[1],
-                    fill = this.nodeVal(this.get1(polyStyle, 'fill')),
-                    outline = this.nodeVal(this.get1(polyStyle, 'outline'));
-                if (pcolor) properties.fill = pcolor;
-                if (!isNaN(popacity)) properties['fill-opacity'] = popacity;
-                if (fill) properties['fill-opacity'] = fill === '1' ? properties['fill-opacity'] || 1 : 0;
-                if (outline) properties['stroke-opacity'] = outline === '1' ? properties['stroke-opacity'] || 1 : 0;
-            }
-            if (extendedData) {
-                var datas = this.get(extendedData, 'Data'),
-                    simpleDatas = this.get(extendedData, 'SimpleData');
-
-                for (i = 0; i < datas.length; i++) {
-                    properties[datas[i].getAttribute('name')] = this.nodeVal(this.get1(datas[i], 'value'));
-                }
-                for (i = 0; i < simpleDatas.length; i++) {
-                    properties[simpleDatas[i].getAttribute('name')] = this.nodeVal(simpleDatas[i]);
-                }
-            }
-            
-            if (visibility) {
-                properties.visibility = this.nodeVal(visibility);
-            }
-            
-            if (geomsAndTimes.coordTimes.length) {
-                properties.coordTimes = (geomsAndTimes.coordTimes.length === 1) ?
-                    geomsAndTimes.coordTimes[0] : geomsAndTimes.coordTimes;
-            }
-            
-            var feature = {
-                type: 'Feature',
-                geometry: (geomsAndTimes.geoms.length === 1) ? geomsAndTimes.geoms[0] : {
-                    type: 'GeometryCollection',
-                    geometries: geomsAndTimes.geoms
-                },
-                properties: properties
-            };
-            if (this.attr(root, 'id')) feature.id = this.attr(root, 'id');
-            return [feature];
-
-        } else {
-            
-            var feature = {
-                type: 'Feature',
-                geometry: (geomsAndTimes.geoms.length === 1) ? geomsAndTimes.geoms[0] : {
-                    type: 'GeometryCollection',
-                    geometries: geomsAndTimes.geoms
-                },
-                properties: properties
-            };
-            if (this.attr(root, 'id')) feature.id = this.attr(root, 'id');
-            return [feature];
-            
-        }
-      
-    }
-
     getGeometry(root) {
         
-        var geotypes = [ 'LineString','Polygon', 'Point', 'Track', 'gx:Track', 'gml:Polygon'];
+        var geotypes = [ 'LineString','Polygon', 'Point', 'Track', 'gx:Track', 'gml:Polygon', 'trkpt'];
         var geomNode, geomNodes, i, j, k, geoms = [], coordTimes = [];
         if (this.get1(root, 'MultiGeometry')) { return this.getGeometry(this.get1(root, 'MultiGeometry')); }
         if (this.get1(root, 'MultiTrack')) { return this.getGeometry(this.get1(root, 'MultiTrack')); }
         if (this.get1(root, 'gx:MultiTrack')) { return this.getGeometry(this.get1(root, 'gx:MultiTrack')); }
+        if (this.get1(root, 'trkpt')) {
+            geomNodes = this.get(root, 'trkpt');
+            coords = [];
+                for (k = 0;  k < geomNodes.length; k ++) {
+                    coords.push([parseFloat(geomNodes[k].attributes[1].nodeValue), parseFloat(geomNodes[k].attributes[0].nodeValue)]);                   
+                }
+                geoms.push({
+                    type: 'Polygon',
+                    coordinates: [coords]
+                });
+        }
         for (i = 0; i < geotypes.length; i++) {
             geomNodes = this.get(root, geotypes[i]);
             if (geomNodes) {
@@ -663,7 +540,7 @@ class ArcticMapEdit extends React.Component {
                             type: 'Polygon',
                             coordinates: coords
                         });
-                    } else if (geotypes[i] === 'Track' ||
+                    }  else if (geotypes[i] === 'Track' ||
                         geotypes[i] === 'gx:Track') {
                         var track = this.gxCoords(geomNode);
                         geoms.push({
@@ -712,13 +589,7 @@ class ArcticMapEdit extends React.Component {
     }
 
 
-    get(x, y) { 
-        // try { 
-            return x.getElementsByTagName(y);
-        // } catch(e) {
-        //     return [];
-        // } 
-    }
+    get(x, y) {return x.getElementsByTagName(y); }
     attr(x, y) { return x.getAttribute(y); }
     attrf(x, y) { return parseFloat(this.attr(x, y)); }
     get1(x, y) { 
@@ -801,7 +672,7 @@ class ArcticMapEdit extends React.Component {
              
                 features.push(esrijson);
             });
-            self.addGeojsonToMap(features, file);
+            self.addGeojsonToMap(features, file, "KML");
             self.uploadPanel.current.toggle();
 
         });
@@ -935,6 +806,7 @@ class ArcticMapEdit extends React.Component {
 
         var file = fileName.replace(/^.*[\\\/]/, '')
         var self = this;
+        
         this.readTextFile(form.files[0]).then(text => {
 
             var geojson = JSON.parse(text);
@@ -947,7 +819,7 @@ class ArcticMapEdit extends React.Component {
                 features.push(esrijson);
             });
 
-            self.addGeojsonToMap(features, file);
+            self.addGeojsonToMap(features, file, "GEOJSON");
             self.uploadPanel.current.toggle();
         });
 
@@ -1069,7 +941,7 @@ class ArcticMapEdit extends React.Component {
     }
 
 
-    addGeojsonToMap(featureCollection, layerName) {
+    addGeojsonToMap(featureCollection, layerName, filetype) {
         var self = this;
         loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate', "esri/renderers/SimpleRenderer"])
             .then(([Graphic, FeatureLayer, Field, PopupTemplate, SimpleRenderer]) => {
@@ -1097,7 +969,7 @@ class ArcticMapEdit extends React.Component {
 
 
                 var featureLayer = new FeatureLayer({
-                    title: "GEOJSON File: " + layerName,
+                    title: filetype +" File: " + layerName,
                     objectIdField: "OBJECTID",
                     //renderer : SimpleRenderer.fromJSON(symbol) ,
                     source: graphics,
@@ -1115,7 +987,7 @@ class ArcticMapEdit extends React.Component {
 
 
                 var props = {
-                    title: "GEOJSON File: " + layerName,
+                    title: filetype +" File: " + layerName,
                     transparency: ".32",
                     identmaxzoom: "13",
                     blockidentselect: true,
