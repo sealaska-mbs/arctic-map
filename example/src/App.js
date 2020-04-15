@@ -351,12 +351,6 @@ export default class App extends Component {
 
           </ArcticMapControlArea> */}
 
-
-
-          <ArcticMapLayer
-            type="geojson"
-            template={this.geojsontemplate} onready={this.layerready.bind(this)} />
-
           <ArcticMapLayer identMaxZoom="13"
 
             type="dynamic"
