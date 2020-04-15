@@ -5,13 +5,7 @@ import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapLayer from './ArcticMapLayer';
 import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
-import './ArcticMapEdit.css'
-
-
-
-
-
-
+import './ArcticMapEdit.css';
 
 import {
     loadModules

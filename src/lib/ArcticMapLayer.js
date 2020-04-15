@@ -254,83 +254,83 @@ class ArcticMapLayer extends React.Component {
 
             }
 
-            if (self.props.type === "geojson") {
+            // if (self.props.type === "geojson") {
 
-                var geojsonLayer = new GraphicsLayer({ title: 'GeoJSON Layer', listMode: "hide" });
-                // var geojsonLayer = new GeoJSONLayer({
-                //     //source: self.props.src,
-                //     //copyright: "USGS Earthquakes",
-                //     //popupTemplate: template
-                //   });
-                var dataarr = [];
+            //     var geojsonLayer = new GraphicsLayer({ title: 'GeoJSON Layer', listMode: "hide" });
+            //     // var geojsonLayer = new GeoJSONLayer({
+            //     //     //source: self.props.src,
+            //     //     //copyright: "USGS Earthquakes",
+            //     //     //popupTemplate: template
+            //     //   });
+            //     var dataarr = [];
 
-                if (typeof self.props.src === 'object') {
-                    if (self.props.src.features) {
-                        dataarr = self.props.src.features;
-                    }
-                    else {
-                        dataarr = self.props.src;
-                    }
-                }
+            //     if (typeof self.props.src === 'object') {
+            //         if (self.props.src.features) {
+            //             dataarr = self.props.src.features;
+            //         }
+            //         else {
+            //             dataarr = self.props.src;
+            //         }
+            //     }
 
-                if (self.props.title) {
+            //     if (self.props.title) {
 
-                    geojsonLayer.title = self.props.title;
-                }
-
-
-                dataarr.forEach(obj => {
-                    //var esrijson = geojsonToArcGIS(obj);
-                    if (obj.geometry.type === "Point") {
-
-                        var popupTemplate = {
-                            title: "{Name}",
-                            content: self.props.template,
-                        };
+            //         geojsonLayer.title = self.props.title;
+            //     }
 
 
-                        var point = new Point({
-                            longitude: obj.geometry.coordinates[1],
-                            latitude: obj.geometry.coordinates[0],
+            //     dataarr.forEach(obj => {
+            //         //var esrijson = geojsonToArcGIS(obj);
+            //         if (obj.geometry.type === "Point") {
 
-                        });
-
-                        // Create a symbol for drawing the point
-                        var markerSymbol = new SimpleMarkerSymbol({
-                            color: [226, 119, 40],
-                            outline: {
-                                color: [255, 255, 255],
-                                width: 1
-                            }
-                        });
-
-                        // Create a graphic and add the geometry and symbol to it
-                        var pointGraphic = new Graphic({
-                            geometry: point,
-                            symbol: markerSymbol,
-                            attributes: obj.properties,
-                            popupTemplate: popupTemplate,
-                            // extent : new Extent().centerAt(point)
-                        });
-
-                        // Add the graphic to the view
-                        geojsonLayer.graphics.add(pointGraphic);
-                    }
+            //             var popupTemplate = {
+            //                 title: "{Name}",
+            //                 content: self.props.template,
+            //             };
 
 
-                })
+            //             var point = new Point({
+            //                 longitude: obj.geometry.coordinates[1],
+            //                 latitude: obj.geometry.coordinates[0],
+
+            //             });
+
+            //             // Create a symbol for drawing the point
+            //             var markerSymbol = new SimpleMarkerSymbol({
+            //                 color: [226, 119, 40],
+            //                 outline: {
+            //                     color: [255, 255, 255],
+            //                     width: 1
+            //                 }
+            //             });
+
+            //             // Create a graphic and add the geometry and symbol to it
+            //             var pointGraphic = new Graphic({
+            //                 geometry: point,
+            //                 symbol: markerSymbol,
+            //                 attributes: obj.properties,
+            //                 popupTemplate: popupTemplate,
+            //                 // extent : new Extent().centerAt(point)
+            //             });
+
+            //             // Add the graphic to the view
+            //             geojsonLayer.graphics.add(pointGraphic);
+            //         }
 
 
-                self.layerRef = geojsonLayer;
-                self.state.map.add(geojsonLayer);
-                // var imagelayer = new ImageryLayer({
-                //     url: self.props.src,
-                //     format: "jpgpng" // server exports in either jpg or png format
-                // });
-                // self.layerRef = imagelayer;
-                // self.state.map.add(imagelayer);
+            //     })
 
-            }
+
+            //     self.layerRef = geojsonLayer;
+            //     self.state.map.add(geojsonLayer);
+            //     // var imagelayer = new ImageryLayer({
+            //     //     url: self.props.src,
+            //     //     format: "jpgpng" // server exports in either jpg or png format
+            //     // });
+            //     // self.layerRef = imagelayer;
+            //     // self.state.map.add(imagelayer);
+
+            // }
 
 
             self.layerRef.when(function () {
