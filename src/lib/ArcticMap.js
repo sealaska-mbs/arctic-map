@@ -7,6 +7,7 @@ import ArcticMapButton from './ArcticMapButton';
 import ArcticMapLoader from './ArcticMapLoader';
 import ArcticMapPanel from './ArcticMapPanel';
 
+
 var style = document.createElement('style');
 style.id = "esri-overrides"
 style.innerHTML =
@@ -284,7 +285,13 @@ class ArcticMap extends React.Component {
 
 
       // console.log(layers);
+      view.popup.watch("visible", function (visible) {
+        view.graphics.removeAll();
+       // view.popup.content.graphic = null;
+      })
+
       view.popup.watch('selectedFeature', function (graphic) {
+        view.graphics.removeAll();
         if (graphic) {
           var graphicTemplate = graphic.getEffectivePopupTemplate()
           graphicTemplate.actions = [{
@@ -296,6 +303,25 @@ class ArcticMap extends React.Component {
           }]
 
           graphicTemplate.actions.items[0].visible = self.state.map.editor !== undefined// graphic.attributes.website ? true : false;
+          loadModules(['esri/symbols/SimpleFillSymbol'])
+                .then(([SimpleFillSymbol]) => {
+                    var symbol = new SimpleFillSymbol({
+                        color: [135, 206, 235, 0.5],
+                        style: "solid",
+                        outline: {
+                            color: [0, 191, 255],
+                            width: 1
+                        }
+                    });
+                    if (graphic) {
+                        graphic.symbol = symbol;
+                        var popupGraphic = graphic
+                        view.graphics.add(popupGraphic);
+                    } else {
+                      view.graphics.removeAll();
+                      view.popup.content.graphic = null;
+                    }                    
+                })
           //self.state.view.goTo(graphic);
         }
       })
@@ -414,7 +440,8 @@ class ArcticMap extends React.Component {
 
 
               feature.popupTemplate = { // autocasts as new PopupTemplate()
-                title: layerName,
+                //title: layerName,
+                title: result.layer.renderPopupTitle(feature, result),
                 content: result.layer.renderPopup(feature, result),
                 actions: [{ title: "Select", id: "select-action" }]
               };

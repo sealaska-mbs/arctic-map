@@ -1601,7 +1601,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
         value: function fileUploaded(evt) {
             var self = this;
             var fileName = evt.target.value.toLowerCase();
-
             if (fileName.indexOf(".zip") !== -1) {
                 // console.log("addEventListener", self);
                 self.processShapeFile(fileName, evt.target);
@@ -1675,7 +1674,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                     styleMapIndex['#' + self.attr(styleMaps[l], 'id')] = pairsMap;
                 }
                 for (var j = 0; j < placemarks.length; j++) {
-                    console.log("features", placemarks[j]);
                     gj.features = gj.features.concat(self.getPlacemark(placemarks[j]));
                 }
 
@@ -1815,7 +1813,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
     }, {
         key: "getGeometry",
         value: function getGeometry(root) {
-
             var geotypes = ['Polygon', 'LineString', 'Point', 'Track', 'gx:Track'];
             var geomNode,
                 geomNodes,
@@ -1852,7 +1849,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                             var rings = this.get(geomNode, 'LinearRing'),
                                 coords = [];
                             for (k = 0; k < rings.length; k++) {
-
                                 coords.push(this.coord(this.nodeVal(this.get1(rings[k], 'coordinates'))));
                             }
                             geoms.push({
@@ -1869,7 +1865,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                         }
                     }
                 }
-
                 return {
                     geoms: geoms,
                     coordTimes: coordTimes
@@ -1956,7 +1951,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
             for (var i = 0; i < coords.length; i++) {
                 o.push(this.coord1(coords[i]));
             }
-
             return o;
         }
     }, {
@@ -1967,7 +1961,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
     }, {
         key: "numarray",
         value: function numarray(x) {
-
             for (var j = 0, o = []; j < x.length; j++) {
                 o[j] = parseFloat(x[j]);
             }
@@ -2017,7 +2010,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
 
             var self = this;
             self.uploadPanel.current.toggle();
-            //console.log("Process Shape File", fileName);
             var name = fileName.split(".");
             name = name[0].replace("c:\\fakepath\\", "");
 
@@ -2076,7 +2068,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 var layers = featureCollection.layers.map(function (layer) {
 
                     var graphics = layer.featureSet.features.map(function (feature) {
-                        //console.log("layer.featureSet.feature.map", feature);
                         var gfx = Graphic.fromJSON(feature);
                         gfx.symbol = {
                             type: "simple-fill", // autocasts as new SimpleFillSymbol()
@@ -2154,7 +2145,6 @@ var ArcticMapEdit$1 = function (_React$Component) {
                 var i = 0;
                 var graphics = featureCollection.map(function (feature) {
 
-                    //console.log(feature);
                     feature.attributes["OBJECTID"] = i++;
                     var gfx = Graphic.fromJSON(feature);
 

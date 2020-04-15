@@ -351,12 +351,6 @@ export default class App extends Component {
 
           </ArcticMapControlArea> */}
 
-
-
-          <ArcticMapLayer
-            type="geojson"
-            template={this.geojsontemplate} onready={this.layerready.bind(this)} />
-
           <ArcticMapLayer identMaxZoom="13"
 
             type="dynamic"
@@ -373,6 +367,10 @@ export default class App extends Component {
                             }
                         }
                       }}/>
+                      
+                <ArcticMapLayerPopup layerid="1" popuptitle="State" popup={(context, all) => {}} >
+
+                </ArcticMapLayerPopup>
             </ArcticMapLayer>
 
 
@@ -381,23 +379,18 @@ export default class App extends Component {
             type="dynamic"
             src="https://gis.test.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer" >
 
-            
+          
 
-             
+            <ArcticMapLayerPopup layerid="3" popuptitle="Public Land Survey System (PLSS)" popup={(context, all) => {
 
-            <ArcticMapLayerPopup layerid="0" popup={(context, all) => {
+            return (<h3>{context.attributes["Second Division Identifier"]}</h3>);
+            }} >
 
-              return (<h3>{context.attributes.NAME}</h3>);
-            }}>
+            </ArcticMapLayerPopup>
+            <ArcticMapLayerPopup layerid="2" popuptitle="PLSS First Division" popup={(context, all) => {}} >
 
             </ArcticMapLayerPopup>
 
-            <ArcticMapLayerPopup layerid="3" popup={(context, all) => {
-
-              return (<h3>{context.attributes["Second Division Identifier"]}</h3>);
-            }}>
-
-            </ArcticMapLayerPopup>
 
           </ArcticMapLayer>
 

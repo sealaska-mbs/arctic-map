@@ -20,3 +20,7 @@ dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+example/src/ArcticMap.es.js
+example/src/ArcticMap.es.js.map
+example/src/ArcticMap.js
+example/src/ArcticMap.js.map
