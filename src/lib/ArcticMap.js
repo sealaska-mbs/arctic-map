@@ -551,26 +551,28 @@ class ArcticMap extends React.Component {
         });
 
         var searchsources = searchitems.map(i => {
-          if (i.search) { i.search(); }
+          if (i.search) { return i.search; }
         });
 
 
 
 
 
-
+        console.log("searchsources", searchsources[0]);
         var searchWidget = new Search({
           view: view,
           sources: searchsources,
           includeDefaultSources: true
         });
+        console.log("searchWidget", searchWidget);
 
         searchWidget.on("search-complete", function (event) {
-
+          console.log("search-complete", event);
         });
 
         searchWidget.on('select-result', function (evt) {
 
+          console.log("select-result", evt);
           view.popup.currentSearchResultFeature = evt.result.feature;
           view.popup.close();
           // view.popup.open({
