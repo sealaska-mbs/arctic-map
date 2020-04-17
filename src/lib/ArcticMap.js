@@ -559,14 +559,17 @@ class ArcticMap extends React.Component {
         });
 
         self.layers.filter(layer => {
-          if (layer.props.searchSource) {
-            layer.props.searchSource.layer=layer.layerRef
-            var searchFeature = new FeatureLayer({
-              url: layer.props.searchSource.scr + layer.props.searchSource.layerid
-            });
-            layer.props.searchSource.layer=searchFeature;
+          if (layer.props.searchSources) {
+            layer.props.searchSources.map(searchSource => {
+              
+              var searchFeature = new FeatureLayer({
+                url: searchSource.scr + searchSource.layerid
+              });
+              searchSource.layer=searchFeature;
 
-            searchsources.push(layer.props.searchSource);
+              searchsources.push(searchSource);
+            })
+            
 
           }
 

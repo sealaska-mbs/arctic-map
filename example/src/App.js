@@ -354,8 +354,8 @@ export default class App extends Component {
                         title="Land Status"
                         type="dynamic"
                         src="https://arcgis.mlrsdev.com/server/rest/services/NLSDB/MapServer" 
-                        searchSource = {
-                          {
+                        searchSources = {
+                          [{
                             scr: "https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/",
                             layerid:6,
                             layername: "Case",
@@ -378,7 +378,7 @@ export default class App extends Component {
                             outFields: ["*"],
                             name: "Sales Force ID",
                             placeholder: "example: a02r0000002NG0XAAW"
-                          }
+                          }]
                         }>
                            
 
@@ -388,8 +388,8 @@ export default class App extends Component {
 
             type="dynamic"
             src="https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/"
-            searchSource = {
-              {scr: "https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/",
+            searchSources = {
+              [{scr: "https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/",
               layerid:0,
               layername: "BLM Administrative Unit Office Points",
               searchFields: ["ADMU_NAME"],
@@ -398,7 +398,7 @@ export default class App extends Component {
               minSuggestCharacters: 3,
               outFields: ["*"],
               name: "Administrative Unit Name",
-              placeholder: "example: Cottonwood Field Office"}
+              placeholder: "example: Cottonwood Field Office"}]
             } >
                 <ArcticMapLayerRenderer layer="BLM Administrative Unit District Boundary"
                  style={{
