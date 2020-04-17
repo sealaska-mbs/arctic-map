@@ -77,7 +77,7 @@ static displayName = 'ArcticMapLLDSearch';
                     placeholder: "example: NV 21 T38N R56E SEC 10 ALIQ SESW",
                    
                     getSuggestions: function (params) {
-                        console.log("params",params);
+  
                         var serarcParams = params.suggestTerm.replace(/\+/g,' ');
                         var options = {
                             query :{
@@ -102,7 +102,6 @@ static displayName = 'ArcticMapLLDSearch';
                     },
                 
                     getResults: function (params) {
-                        console.log("getResults",params.suggestResult.text);
                         var serarchParams = params.suggestResult.text.replace(/\+/g,' ');
                         var options = {
                             query :{
@@ -116,8 +115,6 @@ static displayName = 'ArcticMapLLDSearch';
                         return esriRequest(url, options).then(function(results) {
                         
                         var searchResults = results.data.features.map(function (feature) {
-
-                                console.log("result feature",feature);
 
                                 var outfeature = Graphic.fromJSON(feature);
 

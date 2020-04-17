@@ -350,11 +350,56 @@ export default class App extends Component {
             </ArcticMapPanel>
 
           </ArcticMapControlArea> */}
+          <ArcticMapLayer
+                        title="Land Status"
+                        type="dynamic"
+                        src="https://arcgis.mlrsdev.com/server/rest/services/NLSDB/MapServer" 
+                        searchSource = {
+                          {
+                            scr: "https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/",
+                            layerid:6,
+                            layername: "Case",
+                            searchFields: ["CSE_NR", "LEG_CSE_NR"],
+                            displayField: "CSE_NR",
+                            exactMatch: false,
+                            minSuggestCharacters: 3,
+                            outFields: ["*"],
+                            name: "Case or Legasy Number",
+                            placeholder: "example: MMC52572"
+                          },
+                          {
+                            scr: "https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/",
+                            layerid: 7,
+                            layername: "Case Stage",
+                            searchFields: ["SF_ID"],
+                            displayField: "SF_ID",
+                            exactMatch: false,
+                            minSuggestCharacters: 3,
+                            outFields: ["*"],
+                            name: "Sales Force ID",
+                            placeholder: "example: a02r0000002NG0XAAW"
+                          }
+                        }>
+                           
+
+          </ArcticMapLayer>
 
           <ArcticMapLayer identMaxZoom="13"
 
             type="dynamic"
-            src="https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/" >
+            src="https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/"
+            searchSource = {
+              {scr: "https://gis.test.blm.gov/arcgis/rest/services/admin_boundaries/BLM_Natl_AdminUnit/MapServer/",
+              layerid:0,
+              layername: "BLM Administrative Unit Office Points",
+              searchFields: ["ADMU_NAME"],
+              displayField: "ADMU_NAME",
+              exactMatch: false,
+              minSuggestCharacters: 3,
+              outFields: ["*"],
+              name: "Administrative Unit Name",
+              placeholder: "example: Cottonwood Field Office"}
+            } >
                 <ArcticMapLayerRenderer layer="BLM Administrative Unit District Boundary"
                  style={{
                           type: "simple",

@@ -220,6 +220,7 @@ class ArcticMap extends React.Component {
       'esri/widgets/Home',
 
       'esri/widgets/Search',
+      'esri/layers/FeatureLayer',
       // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
 
@@ -232,6 +233,7 @@ class ArcticMap extends React.Component {
       Home,
 
       Search,
+      FeatureLayer,
       // Locator,
       geometryEngine,
 
@@ -342,7 +344,7 @@ class ArcticMap extends React.Component {
 
       view.on('click', (event) => {
 
-        console.log(event);
+        //console.log(event);
 
         //hide stuff
 
@@ -467,12 +469,11 @@ class ArcticMap extends React.Component {
 
           if (currentmode === "select") {
             if (self.cntrlIsPressed === true) {
-              console.log(results);
-              console.log("Trim Smallest Result");
+
               self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true, true);
             }
             else {
-              console.log(results);
+
               self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
             }
           }
@@ -550,29 +551,39 @@ class ArcticMap extends React.Component {
 
         });
 
+
+        var searchsources = []
+
         var searchsources = searchitems.map(i => {
           if (i.search) { return i.search; }
         });
 
+        self.layers.filter(layer => {
+          if (layer.props.searchSource) {
+            layer.props.searchSource.layer=layer.layerRef
+            var searchFeature = new FeatureLayer({
+              url: layer.props.searchSource.scr + layer.props.searchSource.layerid
+            });
+            layer.props.searchSource.layer=searchFeature;
 
+            searchsources.push(layer.props.searchSource);
 
+          }
 
+        });
 
-        console.log("searchsources", searchsources[0]);
         var searchWidget = new Search({
           view: view,
           sources: searchsources,
           includeDefaultSources: true
         });
-        console.log("searchWidget", searchWidget);
 
         searchWidget.on("search-complete", function (event) {
-          console.log("search-complete", event);
+
         });
 
         searchWidget.on('select-result', function (evt) {
 
-          console.log("select-result", evt);
           view.popup.currentSearchResultFeature = evt.result.feature;
           view.popup.close();
           // view.popup.open({
