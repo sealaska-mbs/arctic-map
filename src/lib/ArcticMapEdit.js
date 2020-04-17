@@ -173,6 +173,7 @@ class ArcticMapEdit extends React.Component {
 
             // scoped methods
             self.setEditFeature = (feature, nofire, type, zoomto, addto, trim) => {
+                
                 if (nofire === null) {
                     nofire = false;
                 }
@@ -192,9 +193,15 @@ class ArcticMapEdit extends React.Component {
                     trim = false;
                 }
 
+                if (feature.attributes.layerName) {
+                    feature.sourceLayer = feature.attributes.layerName.trim();
+                } else {
+                    feature.sourceLayer = 'PLSS';
+                }
+
                 if (!feature.geometry.type) {
                     if (type === "polygon") {
-
+                        
                         feature.geometry = new Polygon(feature.geometry);
                         feature.geometry.type = "polygon";
                     }
@@ -220,11 +227,13 @@ class ArcticMapEdit extends React.Component {
                         geometry: feature.geometry,
                         symbol: this.state.sketchViewModel.polygonSymbol
                     });
+                    
 
                 }
 
                 if (graphic.geometry === null) {
                     graphic.geometry = feature.geometry;
+                    
                 }
 
 
@@ -239,6 +248,7 @@ class ArcticMapEdit extends React.Component {
                             geometry: merge,
                             symbol: this.state.sketchViewModel.polygonSymbol
                         })
+                        graphic.geometry.sourceLayer = feature.sourceLayer;
                         this.state.tempGraphicsLayer.graphics = [graphic]
 
                     }
@@ -257,6 +267,7 @@ class ArcticMapEdit extends React.Component {
                             geometry: merge,
                             symbol: this.state.sketchViewModel.polygonSymbol
                         })
+                        graphic.geometry.sourceLayer = feature.sourceLayer;
                         this.state.tempGraphicsLayer.graphics = [graphic]
                     }
                 }
@@ -894,7 +905,7 @@ class ArcticMapEdit extends React.Component {
                     });
                     sourceGraphics = sourceGraphics.concat(graphics);
                     var featureLayer = new FeatureLayer({
-                        title: "Shape File: " + layerName,
+                        title: "SHP File: " + layerName,
                         //objectIDField: "FID",
                         source: graphics,
                         fields: layer.layerDefinition.fields.map(function (field) {
