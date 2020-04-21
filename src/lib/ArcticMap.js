@@ -221,7 +221,7 @@ class ArcticMap extends React.Component {
 
       'esri/widgets/Search',
       'esri/layers/FeatureLayer',
-      'esri/tasks/Locator',
+      // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
 
       "esri/request",
@@ -234,7 +234,7 @@ class ArcticMap extends React.Component {
 
       Search,
       FeatureLayer,
-      Locator,
+      // Locator,
       geometryEngine,
 
       Request,
