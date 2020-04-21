@@ -31,19 +31,19 @@ static displayName = 'ArcticMapLLDSearch';
     componentDidMount() {
         var self = this;
         loadModules(['esri/Graphic',
-
-
+            "esri/geometry/geometryEngine",
             'esri/geometry/Geometry',
             'esri/geometry/Polygon',
             "esri/widgets/Search/SearchSource",
+            'esri/request'
 
         ]).then(([
             Graphic,
-
-
+            geometryEngine,
             Geometry,
             Polygon,
             SearchSource,
+            esriRequest
 
         ]) => {
 
@@ -69,19 +69,27 @@ static displayName = 'ArcticMapLLDSearch';
             // );
 
 
-            var url = "https://api-adresse.data.gouv.fr/";
 
-            self.search = () => {
-                return new SearchSource({
+            var url = "https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD"
+
+            self.search = new SearchSource({
                     name: 'Legal Land Description',
                     placeholder: "example: NV 21 T38N R56E SEC 10 ALIQ SESW",
                    
                     getSuggestions: function (params) {
-                 
-
-                        return fetch(`https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${params.suggestTerm.replace(/ /g, "+")}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
+  
+                        var serarcParams = params.suggestTerm.replace(/\+/g,' ');
+                        var options = {
+                            query :{
+                                "legaldescription": serarcParams,
+                                "returnalllevels": "true",
+                                f:"pjson"
+                            },
+                            responseType: "json"
+                        }
+                        return esriRequest(url, options).then(function(results) {
                        
-                            return data.features.map(function (feature) {
+                            return results.data.features.map(function (feature) {
                                 return {
                                     key: "name",
                                     text: feature.attributes.landdescription,
@@ -94,31 +102,38 @@ static displayName = 'ArcticMapLLDSearch';
                     },
                 
                     getResults: function (params) {
-                     
+                        var serarchParams = params.suggestResult.text.replace(/\+/g,' ');
+                        var options = {
+                            query :{
+                                "legaldescription": serarchParams,
+                                "returnalllevels": "true",
+                                f:"pjson"
+                            },
+                            responseType: "json"
+                        }
 
-
-                        return fetch(`https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${params.suggestResult.text.replace(/ /g, "+")}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
+                        return esriRequest(url, options).then(function(results) {
                         
-                            return data.features.map(function (feature) {
-
+                        var searchResults = results.data.features.map(function (feature) {
 
                                 var outfeature = Graphic.fromJSON(feature);
-                                
-                          
 
-                                return {
-                                    key: "name",
-                                    text: feature.attributes.landdescription,
-                                    sourceIndex: params.sourceIndex,
+                                var buffer = geometryEngine.geodesicBuffer(outfeature.geometry, 100, "feet");
+
+                                var searchResult = {
+                                    extent: buffer.extent,
                                     feature: outfeature,
-
                                     name: feature.attributes.landdescription
                                 };
+                                return searchResult;
                             });
+                            return searchResults;
                         });
+                        
+  
                     }
                 });
-            }
+            
 
 
         });
