@@ -52,6 +52,9 @@ export {
   default as ArcticMapLayerRenderer
 } from './lib/ArcticMapLayerRenderer'
 
+export {
+  default as ArcticMapLocator
+} from './lib/ArcticMapLocator'
 
 
 
