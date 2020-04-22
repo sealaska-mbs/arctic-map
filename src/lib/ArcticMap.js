@@ -288,8 +288,11 @@ class ArcticMap extends React.Component {
 
       // console.log(layers);
       view.popup.watch("visible", function (visible) {
-        view.graphics.removeAll();
-       // view.popup.content.graphic = null;
+        
+        if (!visible) {
+          view.graphics.removeAll();
+        }
+
       })
 
       view.popup.watch('selectedFeature', function (graphic) {
@@ -458,7 +461,7 @@ class ArcticMap extends React.Component {
                 features: popupresults,
                 location: event.mapPoint
               });
-              popupresults[0].setCurrentPopup();
+              // popupresults[0].setCurrentPopup();
 
               self.state.view.popup.on('trigger-action', function (e) {
                 if (e.action.id === 'select-action');
