@@ -601,7 +601,7 @@ export default class App extends Component {
                 scr: "https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/",
                 layerid:6,
                 layername: "Case",
-                searchFields: ["CSE_NR", "LEG_CSE_NR"],
+                searchFields: ["CSE_NR", "SF_ID", "LEG_CSE_NR"],
                 displayField: "CSE_NR",
                 exactMatch: false,
                 minSuggestCharacters: 3,

@@ -61,12 +61,16 @@ class ArcticMapLocator extends React.Component {
             }
             searchsources.push(devaultSource);
             var searchitems = self.props.am.childrenElements.filter(ele => {
-
-                if (ele.constructor.name.toLowerCase().includes('search')) {
+                console.log("ele",ele);
+                if (ele.search) {
                   return ele;
                 }
+                // if (ele.constructor.name.toLowerCase().includes('search')) {
+                //   return ele;
+                // }
       
               });
+              console.log("searchitems", searchitems);
             var lldsSarchsources = searchitems.map(i => {
                 if (i.search) { return i.search; }
             });
