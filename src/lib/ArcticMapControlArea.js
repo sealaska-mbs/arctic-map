@@ -8,9 +8,11 @@ class ArcticMapControlArea extends React.Component {
         
         this.controlNode = document.createElement("div");
         this.props.view.ui.add(this.controlNode, this.props.location);
+        
     }
 
     componentDidUpdate() {
+        
         if (this.controlNode) {
             ReactDOM.render(this.widgetRender(), this.controlNode, ()=>{
              
@@ -50,7 +52,7 @@ class ArcticMapControlArea extends React.Component {
             
           });
 
-        
+          
 
         return (<span className='arcticmap-area'>{children}</span>)
     }

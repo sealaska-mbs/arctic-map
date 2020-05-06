@@ -3,3 +3,16 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+.esri-icon-visible:before {
+  content: "\e611";
+  color: inherit;
+  font-weight: bold;
+  
+}
+
+.esri-icon-non-visible:before {
+  content: "\e610";
+  color: inherit;
+  font-weight: bold;
+}

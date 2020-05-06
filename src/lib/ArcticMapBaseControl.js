@@ -4,7 +4,8 @@ import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapControlArea from './ArcticMapControlArea';
-import { loadModules } from 'react-arcgis'
+import { loadModules } from 'react-arcgis';
+import styles from './ArcticMap.css';
 
 
 class ArcticMapBaseControl extends React.Component {
@@ -23,6 +24,7 @@ class ArcticMapBaseControl extends React.Component {
         this.zoomControlDiv = document.createElement("div");
         this.layersDiv = document.createElement("div");
         this.legendDiv = document.createElement("div");
+
 
         loadModules([
             'esri/widgets/Zoom',
@@ -52,9 +54,11 @@ class ArcticMapBaseControl extends React.Component {
 
             var zoom = new Zoom({
                 view: props.view,
-                container: self.zoomControlDiv
+                container: self.zoomControlDiv,
+                position: "top-left"
             })
             self.state.zoomControl = zoom;
+            
             //this.props.hostDiv.appendChild(zoom);
             //props.view.ui.add(zoom, props.hostDiv);
             //self.state.children.push(self.zoomControlDiv);
@@ -77,7 +81,7 @@ class ArcticMapBaseControl extends React.Component {
             });
             //self.state.view.ui.add(layerList, 'top-left')
 
-
+            console.log("ArcticMapbaseControl",this);
             //var joined = self.state.renderElements.concat(self.zoomControlDiv);
             this.setState({ renderElements: self.state.renderElements.concat(self.zoomControlDiv) })
         })
@@ -90,7 +94,7 @@ class ArcticMapBaseControl extends React.Component {
     }
 
     renderZoomcontrol() {
-
+        
         return this.zoomControlDiv;
     }
 
@@ -98,7 +102,6 @@ class ArcticMapBaseControl extends React.Component {
         this.props.view.ui.add(this.basemapGallery, {
             position: 'bottom-right'
         })
-
         //this.setState({ hideBasemapButton: true })
         // self.state.view.ui.remove(self.basemapGallery);
     }
@@ -107,14 +110,12 @@ class ArcticMapBaseControl extends React.Component {
         return (
             <div >
 
-                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right">
+                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="top-left">
                     <div ref={(e) => { e && e.appendChild(this.zoomControlDiv) }} />
-
-
                 </ArcticMapControlArea>
 
-                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
-                    <ArcticMapPanel esriicon='layers' title='Data Layers' >
+                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" className={styles.ArcticMap} >
+                    <ArcticMapPanel esriicon='layers' title='Data Filters' >
                         <p>Toggle visibility of each data layer.</p>
                         {this.state.canReset &&
                             <p><a href="#" style={{ color: '#71A3AF', textDecoration: 'none' }} onClick={this.props.reset}>
@@ -123,15 +124,12 @@ class ArcticMapBaseControl extends React.Component {
                         }
                         <div ref={(e) => { e && e.appendChild(this.layersDiv) }} />
                     </ArcticMapPanel>
-                </ArcticMapControlArea>
-
-                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
+    
                     <ArcticMapPanel  esriicon='layer-list' title='Legend'>
                         <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
-                </ArcticMapControlArea>
 
-                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
+
                     <ArcticMapButton esriicon='basemap' title='Basemaps' onclick={this.basemapclick.bind(this)} />
                 </ArcticMapControlArea>
 

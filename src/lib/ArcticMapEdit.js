@@ -5,7 +5,7 @@ import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapLayer from './ArcticMapLayer';
 import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
-import './ArcticMapEdit.css';
+import style from  './ArcticMapEdit.css';
 
 import {
     loadModules
@@ -1092,11 +1092,16 @@ class ArcticMapEdit extends React.Component {
             {this.props.upload &&
                 <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
                     <br />
+                    <p className={style.infoarea} >Do you already have a shope of your plot? Upload your file
+                        here. Supported file type are:
+                        Shapefiles (.zip), kml, glm, gpx, and geojson
+                    </p>
                     <form encType="multipart/form-data" method="post" id="uploadForm">
                         <div className="field">
-                            <label className="file-upload">
-                                <p><strong>Select File</strong></p>
-                                <input type="file" name="file" id="inFile" onChange={this.fileUploaded.bind(this)} />
+                            <p><strong>Select File</strong></p>
+                            <label className={style.btm_primary_file}>
+                                <input type="file" name="file" id="inFile"  onChange={this.fileUploaded.bind(this)} />
+                                Upload Image
                             </label>
                         </div>
                     </form>

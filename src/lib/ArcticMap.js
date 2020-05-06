@@ -119,9 +119,9 @@ class ArcticMap extends React.Component {
         mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
         {children}
 
-        <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}>
+        {/* <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}> */}
 
-        </div>
+        {/* </div> */}
 
 
 
