@@ -1063,7 +1063,6 @@ class ArcticMapEdit extends React.Component {
 
         return <div id="topbar">
 
-            {children}
             {this.state.hideEditors === false &&
                 <span>
                     <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} />
@@ -1089,6 +1088,7 @@ class ArcticMapEdit extends React.Component {
                     }
                 </span>
             }
+            {children}
             {this.props.upload &&
                 <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
                     <br />
