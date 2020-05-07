@@ -80,8 +80,6 @@ class ArcticMapBaseControl extends React.Component {
                 }
             });
             //self.state.view.ui.add(layerList, 'top-left')
-
-            console.log("ArcticMapbaseControl",this);
             //var joined = self.state.renderElements.concat(self.zoomControlDiv);
             this.setState({ renderElements: self.state.renderElements.concat(self.zoomControlDiv) })
         })
