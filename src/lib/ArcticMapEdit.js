@@ -1093,7 +1093,7 @@ class ArcticMapEdit extends React.Component {
                 <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
                     <br />
                     <p className={style.infoarea} >Do you already have a shope of your plot? Upload your file
-                        here. Supported file type are:
+                        here. Supported file types:
                         Shapefiles (.zip), kml, glm, gpx, and geojson
                     </p>
                     <form encType="multipart/form-data" method="post" id="uploadForm">
