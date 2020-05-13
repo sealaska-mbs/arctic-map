@@ -241,15 +241,21 @@ class ArcticMapEdit extends React.Component {
                     if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
 
                         var geometrys = this.state.tempGraphicsLayer.graphics.items.map(i => i.geometry);
-
+                        
                         var merge = geometryEngine.union(geometrys);
-                        merge = geometryEngine.difference(merge, graphic.geometry);
-                        graphic = new Graphic({
-                            geometry: merge,
-                            symbol: this.state.sketchViewModel.polygonSymbol
-                        })
-                        graphic.geometry.sourceLayer = feature.sourceLayer;
-                        this.state.tempGraphicsLayer.graphics = [graphic]
+                        var isEqual = geometryEngine.equals(merge, graphic.geometry);
+                        if(!isEqual) {
+                            merge = geometryEngine.difference(merge, graphic.geometry);
+                            graphic = new Graphic({
+                                geometry: merge,
+                                symbol: this.state.sketchViewModel.polygonSymbol
+                            });
+                            graphic.geometry.sourceLayer = feature.sourceLayer;
+                            this.state.tempGraphicsLayer.graphics = [graphic];
+                        } else {
+                            this.state.tempGraphicsLayer.graphics = null;
+                        }
+                        
 
                     }
                 }
@@ -1066,7 +1072,7 @@ class ArcticMapEdit extends React.Component {
             {children}
             {this.state.hideEditors === false &&
                 <span>
-                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} />
+                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Click to select/ Rightclick to remove' onclick={this.setmaptoselect.bind(this)} />
                     {this.props.point &&
 
                         <ArcticMapButton esriicon="blank-map-pin" onclick={this.addPointClick.bind(this)} title="Draw point" ></ArcticMapButton>
