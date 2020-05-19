@@ -122,12 +122,9 @@ class ArcticMapBaseControl extends React.Component {
                         }
                         <div ref={(e) => { e && e.appendChild(this.layersDiv) }} />
                     </ArcticMapPanel>
-    
                     <ArcticMapPanel  esriicon='layer-list' title='Legend'>
                         <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
-
-
                     <ArcticMapButton esriicon='basemap' title='Basemaps' onclick={this.basemapclick.bind(this)} />
                 </ArcticMapControlArea>
 
