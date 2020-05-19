@@ -114,7 +114,13 @@ class ArcticMapBaseControl extends React.Component {
                 </ArcticMapControlArea>
 
                 <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
-                    <ArcticMapPanel esriicon='layers' title='Data Layers' >
+                    <ArcticMapPanel  esriicon='layer-list' title='Legend'>
+                        <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
+                    </ArcticMapPanel>
+                </ArcticMapControlArea>
+
+                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
+                    <ArcticMapPanel esriicon='collection' title='Data Layers' >
                         <p>Toggle visibility of each data layer.</p>
                         {this.state.canReset &&
                             <p><a href="#" style={{ color: '#71A3AF', textDecoration: 'none' }} onClick={this.props.reset}>
@@ -122,12 +128,6 @@ class ArcticMapBaseControl extends React.Component {
                                 Reset to Default Data Visibility</a></p>
                         }
                         <div ref={(e) => { e && e.appendChild(this.layersDiv) }} />
-                    </ArcticMapPanel>
-                </ArcticMapControlArea>
-
-                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" >
-                    <ArcticMapPanel  esriicon='layer-list' title='Legend'>
-                        <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
                 </ArcticMapControlArea>
 

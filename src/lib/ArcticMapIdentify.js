@@ -28,7 +28,7 @@ class ArcticMapIdentify extends React.Component {
     return (
       <span>
 
-        <ArcticMapButton showactive={this.props.am.state.mode === "identify"} esriicon='question' title='Identify' onclick={this.setmaptoidentify.bind(this)} />
+        <ArcticMapButton showactive={this.props.am.state.mode === "description"} esriicon='question' title='Identify' onclick={this.setmaptoidentify.bind(this)} />
           </span>
 
 
