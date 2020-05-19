@@ -119,9 +119,9 @@ class ArcticMap extends React.Component {
         mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
         {children}
 
-        <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}>
+        {/* <div id='bottombar' style={{ position: 'absolute', right: '10px', bottom: '20px' }}> */}
 
-        </div>
+        {/* </div> */}
 
 
 
@@ -341,12 +341,19 @@ class ArcticMap extends React.Component {
         if (event.which == "17") self.cntrlIsPressed = true;
       });
 
+      window.addEventListener("contextmenu", function(event){
+        self.contextmenuPressed = true;
+      });
+
       window.addEventListener("keyup",function (event) {
         self.cntrlIsPressed = false;
       });
 
       view.on('click', (event) => {
-
+        if (event.button == 0 ) {
+          self.contextmenuPressed = false;
+        }
+        
         //console.log(event);
 
         //hide stuff
@@ -471,7 +478,7 @@ class ArcticMap extends React.Component {
           }
 
           if (currentmode === "select") {
-            if (self.cntrlIsPressed === true) {
+            if (self.contextmenuPressed === true) {
 
               self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true, true);
             }

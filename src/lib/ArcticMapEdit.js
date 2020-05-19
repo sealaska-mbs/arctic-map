@@ -5,7 +5,7 @@ import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapLayer from './ArcticMapLayer';
 import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
-import './ArcticMapEdit.css';
+import style from  './ArcticMapEdit.css';
 
 import {
     loadModules
@@ -241,15 +241,21 @@ class ArcticMapEdit extends React.Component {
                     if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
 
                         var geometrys = this.state.tempGraphicsLayer.graphics.items.map(i => i.geometry);
-
+                        
                         var merge = geometryEngine.union(geometrys);
-                        merge = geometryEngine.difference(merge, graphic.geometry);
-                        graphic = new Graphic({
-                            geometry: merge,
-                            symbol: this.state.sketchViewModel.polygonSymbol
-                        })
-                        graphic.geometry.sourceLayer = feature.sourceLayer;
-                        this.state.tempGraphicsLayer.graphics = [graphic]
+                        var isEqual = geometryEngine.equals(merge, graphic.geometry);
+                        if(!isEqual) {
+                            merge = geometryEngine.difference(merge, graphic.geometry);
+                            graphic = new Graphic({
+                                geometry: merge,
+                                symbol: this.state.sketchViewModel.polygonSymbol
+                            });
+                            graphic.geometry.sourceLayer = feature.sourceLayer;
+                            this.state.tempGraphicsLayer.graphics = [graphic];
+                        } else {
+                            this.state.tempGraphicsLayer.graphics = null;
+                        }
+                        
 
                     }
                 }
@@ -1065,7 +1071,7 @@ class ArcticMapEdit extends React.Component {
 
             {this.state.hideEditors === false &&
                 <span>
-                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Select' onclick={this.setmaptoselect.bind(this)} />
+                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Click to select/ Rightclick to remove' onclick={this.setmaptoselect.bind(this)} />
                     {this.props.point &&
 
                         <ArcticMapButton esriicon="blank-map-pin" onclick={this.addPointClick.bind(this)} title="Draw point" ></ArcticMapButton>
@@ -1092,11 +1098,16 @@ class ArcticMapEdit extends React.Component {
             {this.props.upload &&
                 <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
                     <br />
+                    <p className={style.infoarea} >Do you already have a shope of your plot? Upload your file
+                        here. Supported file types:
+                        Shapefiles (.zip), kml, glm, gpx, and geojson
+                    </p>
                     <form encType="multipart/form-data" method="post" id="uploadForm">
                         <div className="field">
-                            <label className="file-upload">
-                                <p><strong>Select File</strong></p>
-                                <input type="file" name="file" id="inFile" onChange={this.fileUploaded.bind(this)} />
+                            <p><strong>Select File</strong></p>
+                            <label className={style.btm_primary_file}>
+                                <input type="file" name="file" id="inFile"  onChange={this.fileUploaded.bind(this)} />
+                                Upload Image
                             </label>
                         </div>
                     </form>

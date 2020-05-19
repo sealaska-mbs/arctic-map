@@ -61,7 +61,7 @@ class ArcticMapLocator extends React.Component {
             }
             searchsources.push(devaultSource);
             var searchitems = self.props.am.childrenElements.filter(ele => {
-                console.log("ele",ele);
+
                 if (ele.search) {
                   return ele;
                 }
@@ -70,7 +70,7 @@ class ArcticMapLocator extends React.Component {
                 // }
       
               });
-              console.log("searchitems", searchitems);
+
             var lldsSarchsources = searchitems.map(i => {
                 if (i.search) { return i.search; }
             });
