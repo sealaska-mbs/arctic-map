@@ -12,8 +12,8 @@
     background-color: transparent;
     border: 1px solid #D3D3D3;
     color: #6e6e6e;
-    height: 32px;
-    width: 32px;
+    height: 40px;
+    width: 125px;
     text-align: center;
     box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
     padding: 2px;
@@ -41,11 +41,11 @@
   }
   .btm_primary_file {
     background-color: #005a70;
-    padding: 10px;
+    padding: 7px;
     border: 1px solid #D3D3D3;
     color: #D3D3D3;
-    height: 32px;
-    width: 32px;
+    height: 40px;
+    width: 125px;
     text-align: center;
     box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
