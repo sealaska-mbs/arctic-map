@@ -16,7 +16,8 @@ class ArcticMapLayer extends React.Component {
             view: props.view,
             graphic: null,
             title: props.title,
-            blockSelect: props.blockIdentSelect !== undefined
+            blockSelect: props.blockIdentSelect !== undefined,
+            disablePopup: props.disablePopup !== undefined
         };
     }
 

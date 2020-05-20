@@ -409,13 +409,15 @@ class ArcticMap extends React.Component {
         identLayers = identLayers.concat(self.state.map.amlayers);
 
         async.eachSeries(identLayers, function (layer, cb) {
-          layer.identify(event, function (results) {
-            if (results) {
-              results.layer = layer;
-              identresults.push(results);
-            }
-            cb();
-          });
+          if(!layer.state.disablePopup){
+            layer.identify(event, function (results) {
+              if (results) {
+                results.layer = layer;
+                identresults.push(results);
+              }
+              cb();
+            });
+          }
         }, function (err) {
           var results = identresults.map(function (ir) {
             ir.results.forEach(function (res) {
