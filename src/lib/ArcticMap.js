@@ -367,10 +367,13 @@ class ArcticMap extends React.Component {
 
 
         if (self.state.mode === "view") { return; }
-
-        if (self.state.map.editor && self.state.map.editor.state.editing === true) {
-          return;
+        
+        if (event.button == 0 ) {
+          if (self.state.map.editor && self.state.map.editor.state.editing === true) {
+            return;
+          }
         }
+        
 
         var currentmode = self.state.mode;
         if (currentmode !== 'select') {
