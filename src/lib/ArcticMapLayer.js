@@ -186,8 +186,14 @@ class ArcticMapLayer extends React.Component {
                 var maplayer = new MapImageLayer({
                     url: self.props.src,
                     opacity: trans
+                    //sublayers: []
 
                 });
+                
+                if(self.props.sublayers) {
+                    maplayer.sublayers = self.props.sublayers;
+                }
+
 
                 if (self.props.childsrc);
 
