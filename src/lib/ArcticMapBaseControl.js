@@ -67,16 +67,19 @@ class ArcticMapBaseControl extends React.Component {
                 view: props.view,
                 container: self.legendDiv,
             });
-
             var layerList = new LayerList({
                 view: props.view,
                 container: self.layersDiv,
                 listItemCreatedFunction: function (event) {
-                    const item = event.item
-                    item.panel = {
-                        content: 'legend',
-                        open: false
+                    // only legend if imageFormat exist in TOC
+                    if (event.item.layer.imageFormat) {
+                        const item = event.item
+                        item.panel = {
+                            content: 'legend',
+                            open: false
+                        }
                     }
+                    
                 }
             });
             //self.state.view.ui.add(layerList, 'top-left')
