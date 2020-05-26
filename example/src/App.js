@@ -418,7 +418,7 @@ export default class App extends Component {
                         }
                       }}/>
                       
-                <ArcticMapLayerPopup layerid="1" popuptitle="State" popup={(context, all) => {}} >
+                <ArcticMapLayerPopup disabled="true" layerid="1" popuptitle="State" popup={(context, all) => {}} >
 
                 </ArcticMapLayerPopup>
             </ArcticMapLayer>
@@ -431,13 +431,13 @@ export default class App extends Component {
 
           
 
-            <ArcticMapLayerPopup layerid="3" popuptitle="Public Land Survey System (PLSS)" popup={(context, all) => {
+            <ArcticMapLayerPopup layerid="3" disabled="false" popuptitle="Public Land Survey System (PLSS)" popup={(context, all) => {
 
             return (<h3>{context.attributes["Second Division Identifier"]}</h3>);
             }} >
 
             </ArcticMapLayerPopup>
-            <ArcticMapLayerPopup layerid="2" popuptitle="PLSS First Division" popup={(context, all) => {}} >
+            <ArcticMapLayerPopup layerid="2"  disabled="false" popuptitle="PLSS First Division" popup={(context, all) => {}} >
 
             </ArcticMapLayerPopup>
 

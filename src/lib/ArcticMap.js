@@ -455,7 +455,16 @@ class ArcticMap extends React.Component {
 
               feature.attributes.layerName = layerName;
 
-
+              //console.log("result.layer  this.layerRenderers", result);
+              var popupDisable = result.layer.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
+              //console.log("result.layer  popupDisable", popupDisable.props);
+              if (popupDisable  && result.layerId == popupDisable.props.layerid) {
+                //console.log("result.layer  popupDisable", popupDisable.props);
+                if (popupDisable.props.disabled == "true") {
+                  return null;
+                }
+                
+              }
               feature.popupTemplate = { // autocasts as new PopupTemplate()
                 //title: layerName,
                 title: result.layer.renderPopupTitle(feature, result),
@@ -464,6 +473,13 @@ class ArcticMap extends React.Component {
               };
 
               return feature;
+            });
+
+            // remove the disabled popup layer
+            popupresults.forEach( function (result) {
+              if (result == null) {
+                popupresults.pop();
+              } 
             });
 
             if (popupresults.length > 0) {
