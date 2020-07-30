@@ -331,9 +331,9 @@ class ArcticMap extends React.Component {
         }
       })
       view.popup.viewModel.on('trigger-action', function (event) {
-        var target = event.target || window.event.target || window.event.srcElement;
+        //var target = event.target || window.event.target || window.event.srcElement;
         if (event.action.id === 'select-item') {
-          self.state.map.editor.setEditFeature(target.selectedFeature, null, null, false, true);
+          self.state.map.editor.setEditFeature(view.popup.selectedFeature, null, null, false, true);
           view.popup.close();
         }
       })
