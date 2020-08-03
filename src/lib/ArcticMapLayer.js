@@ -108,7 +108,7 @@ class ArcticMapLayer extends React.Component {
                     gtrans = Number.parseFloat(self.props.transparency);
                 }
                 var srcsplit = self.props.src.split(',');
-
+                
                 var gmaplayer = new GroupLayer({
                     //url: self.props.src,
                     opacity: gtrans
@@ -119,12 +119,19 @@ class ArcticMapLayer extends React.Component {
                     gmaplayer.title = self.props.title;
                 }
 
+                var idx = 0;
                 srcsplit.forEach(function (src) {
                     var glayer = new MapImageLayer({
                         url: src,
                         opacity: gtrans
 
                     });
+
+                    if(self.props.sublayers && self.props.sublayers.length>idx){
+                        glayer.sublayers = self.props.sublayers[idx];
+                        idx++;
+                    }
+
                     gmaplayer.layers.add(glayer);
 
 
@@ -132,6 +139,7 @@ class ArcticMapLayer extends React.Component {
 
 
                         var layerids = [];
+                        
                         //console.log("Maplayer: ", maplayer);
                         glayer.allSublayers.items.forEach(sublayer => {
                             layerids.push(sublayer.id);
