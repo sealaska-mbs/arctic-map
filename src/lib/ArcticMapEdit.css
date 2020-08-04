@@ -39,7 +39,7 @@
   .hide_input {
     width:0px;
   }
-  .btm_primary_file {
+  /* .btm_primary_file {
     background-color: #005a70;
     padding: 7px;
     border: 1px solid #D3D3D3;
@@ -49,8 +49,23 @@
     text-align: center;
     box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
-  }
+  } */
+  .btm_primary_file {
+    background-color: #005a70;
+    padding: 5px 10px 5px 10px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #dadbdd;
+    color: #e0ebeb;
+    
+    width: 125px;
+    border-radius: 5px;
 
+    fill-opacity: 100;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    font: 400 13.3333px Arial;
+  }
   input[type="file"]
   {
     display: none;
