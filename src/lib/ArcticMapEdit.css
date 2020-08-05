@@ -57,10 +57,9 @@
     border-style: solid;
     border-color: #dadbdd;
     color: #e0ebeb;
-    
+    text-align: center;
     width: 125px;
     border-radius: 5px;
-
     fill-opacity: 100;
     margin-bottom: 5px;
     margin-top: 10px;
