@@ -159,7 +159,7 @@ class ArcticMapLayer extends React.Component {
                         });
                         layerids.reverse();
 
-                        self.identifyTask = new IdentifyTask(self.props.src);
+                        self.identifyTask = new IdentifyTask(src);
                         self.params = new IdentifyParameters();
                         self.params.tolerance = 3;
                         self.params.layerIds = layerids;
