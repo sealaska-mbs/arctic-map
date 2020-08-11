@@ -167,7 +167,7 @@ class ArcticMapLayer extends React.Component {
                         self.params.width = self.state.view.width;
                         self.params.height = self.state.view.height;
                         self.params.returnGeometry = true;
-                        self.params.returnGeometry = self.state.blockSelect;
+                        self.params.returnGeometry = !self.state.blockSelect;
 
                         //  console.log(self.params);
 
@@ -246,7 +246,7 @@ class ArcticMapLayer extends React.Component {
                     self.params.width = self.state.view.width;
                     self.params.height = self.state.view.height;
                     self.params.returnGeometry = true;
-                    self.params.returnGeometry = self.state.blockSelect;
+                    self.params.returnGeometry = !self.state.blockSelect;
 
                     //  console.log(self.params);
 
@@ -449,7 +449,7 @@ class ArcticMapLayer extends React.Component {
 
             this.params.geometry = event.mapPoint;
             this.params.mapExtent = this.state.view.extent;
-            this.params.returnGeometry = true;
+            //this.params.returnGeometry = true;
             //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
 
