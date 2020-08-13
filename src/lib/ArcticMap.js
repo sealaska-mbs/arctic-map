@@ -467,11 +467,20 @@ class ArcticMap extends React.Component {
                   }
                 }
               }
+
+              var PTActions = [];
+              if(!result.layer.state.blockSelect)
+              {
+                PTActions = [];
+              } else {
+                PTActions = [{ title: "Select", id: "select-action" }];
+              }
+
               feature.popupTemplate = { // autocasts as new PopupTemplate()
                 //title: layerName,
                 title: result.layer.renderPopupTitle(feature, result),
                 content: result.layer.renderPopup(feature, result),
-                actions: [{ title: "Select", id: "select-action" }]
+                actions: PTActions
               };
 
               return feature;
