@@ -441,11 +441,17 @@ class ArcticMap extends React.Component {
           results = results.flat();
 
           results = results.sort(function (r1, r2) {
+            if(r1.acres < 0 && r2.acres < 0) return 0;
             if(r1.acres < 0) return 1;
+            if(r2.acres < 0) return -1;
+
             if (r1.acres > r2.acres) {
               return 1;
             }
-            return -1
+            if (r2.acres > r1.acres) {
+              return -1;
+            }
+            return 0;
             //r.feature.attributes.Shape_Area
           });
 
@@ -513,13 +519,18 @@ class ArcticMap extends React.Component {
           }
 
           if (currentmode === "select") {
+            var feature = null;
+            for (var idx = 0; idx<results.length && feature===null; idx++){
+              feature = results[idx].feature;
+            }
+
             if (self.contextmenuPressed === true) {
 
-              self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true, true);
+              self.state.map.editor.setEditFeature(feature, null, null, false, true, true);
             }
             else {
 
-              self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
+              self.state.map.editor.setEditFeature(feature, null, null, false, true);
             }
           }
 

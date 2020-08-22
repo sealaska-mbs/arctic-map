@@ -11,12 +11,13 @@ var styles = {
         "zIndex": "100",
 
         "minWidth": '30%',
-        paddingTop: '20px'
+        "paddingTop": '20px'
     },
     widgetContainer: {
-        position: 'realative',
+        "position": 'realative',
         "paddingRight": "20px",
         "paddingLeft": "20px",
+        "paddingBottom": "50px",
        
         "overflowY": 'auto',
         "maxHeight": '100%'
