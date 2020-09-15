@@ -374,8 +374,11 @@ class ArcticMapLayer extends React.Component {
         if(result.layerId !== undefined && this.layerRenderers) {
             var popupTitle = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
             if (popupTitle  && result.layerId == popupTitle.props.layerid) {
-                return popupTitle.props.popuptitle;
+                if(popupTitle.props.popuptitle) return popupTitle.props.popuptitle;
+                else return result.layerName;
             } else {
+                popupTitle = this.layerRenderers.find(l => l.props.layerid === null);
+                if(popupTitle && popupTitle.props.popuptitle) return popupTitle.props.popuptitle;
                 return result.layerName;
             }
         } else {
@@ -388,6 +391,7 @@ class ArcticMapLayer extends React.Component {
 
         if (result.layerId !== undefined && this.layerRenderers) {
             var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
+            if (!popuprender) popuprender = this.layerRenderers.find(l => l.props.layerid === null);
             if (popuprender && popuprender.props.popup !== undefined) {
                 var ele = popuprender.props.popup(feature, result);
 
