@@ -496,11 +496,16 @@ class ArcticMap extends React.Component {
             });
 
             // remove the disabled popup layer
-            popupresults.forEach( function (result) {
-              if (result == null) {
-                popupresults.pop();
-              } 
-            });
+            for(var i=popupresults.length-1;i>=0;i--){
+              if(popupresults[i]==null){
+                popupresults.splice(i, 1);
+              }
+            }
+            //popupresults.forEach( function (result) {
+            //  if (result == null) {
+            //    popupresults.pop();
+            //  } 
+            //});
 
             if (popupresults.length > 0) {
               view.popup.close();
