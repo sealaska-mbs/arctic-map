@@ -112,6 +112,9 @@ class ArcticMapLayer extends React.Component {
                         outFields: ["*"],
                         opacity: gtrans
                     });    
+                    if(sub.visible===false){
+                        glayer.visible = false;
+                    }
 
                     if(self.props.portalItem){
                         glayer.portalItem = {id: self.props.src};
