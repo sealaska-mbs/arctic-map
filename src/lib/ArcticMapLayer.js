@@ -93,11 +93,56 @@ class ArcticMapLayer extends React.Component {
             // this.setState({ graphic });
 
             if (self.props.type === "feature") {
+                var flayers = self.props.sublayers;
+                if(!flayers || self.props.sublayers.length<1) {
+                    flayers = [{id:0, title:""}];
+                }
 
-                var featureLayer = new FeatureLayer({
-                    url: self.props.src,
-                    outFields: ["*"],
-                });
+                var gmaplayer = new GroupLayer();
+
+                var trans = 1;
+                if (self.props.transparency) {
+                    trans = Number.parseFloat(self.props.transparency);
+                }
+
+                flayers.forEach(function (sub) {
+                    //portalItem
+                    var glayer = new FeatureLayer({
+                        title: sub.title,
+                        outFields: ["*"],
+                        opacity: gtrans
+                    });    
+
+                    if(self.props.portalItem){
+                        glayer.portalItem = {id: self.props.src};
+                        glayer.layerId = sub.id;
+
+                    }else{
+                        glayer.url = self.props.src+sub.id;
+                    }
+
+                    var renderer = renderers.find(r => {
+                        if (r.props.layer === sub.title || r.props.layer === `${sub.id}`) {
+                            return r;
+                        }
+                    });
+                    if (renderer !== undefined) {
+                        glayer.renderer = renderer.props.style;
+                    }
+
+                    gmaplayer.layers.add(glayer);
+                }); 
+                
+                var featureLayer;
+                if(flayers.length>1)featureLayer = gmaplayer;
+                else featureLayer = gmaplayer.layers[0];
+
+                featureLayer.opacity = trans;
+
+                if (self.props.title) {
+                    featureLayer.title = self.props.title;
+                }
+
                 self.layerRef = featureLayer;
                 self.state.map.add(featureLayer);
             }
