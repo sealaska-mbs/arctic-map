@@ -1115,7 +1115,7 @@ class ArcticMapEdit extends React.Component {
                     <span id="upload-status"></span>
 
                 </ArcticMapPanel>}
-            <ArcticMapButton esriicon="refresh" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
+            <ArcticMapButton esriicon="erase" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
 
 
 
