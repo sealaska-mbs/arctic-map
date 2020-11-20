@@ -352,6 +352,82 @@ class ArcticMap extends React.Component {
         self.cntrlIsPressed = false;
       });
 
+      view.on('drag', (event) => {
+        if(self.state.mode==="select")
+        {
+          if(event.action==="start"){
+            this.dragStart = event;
+          }
+          else if(event.action==="end"){
+            if (event.button == 0 ) {
+              self.contextmenuPressed = false;
+            }
+            if (self.state.map.editor && self.state.map.editor.state.editing === true) {
+                return;
+            }
+        
+            var identresults = [];
+            self.setState({ loading: true });
+        
+            var identLayers = self.layers.filter(function (layer) {
+              //TODO check if this is selectable
+              if (layer.props.allowMultiSelect === undefined) {
+                  return;
+              }
+        
+                var mapzoom = view.zoom;
+        
+              if (layer.props.identMaxZoom !== undefined) {
+                if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
+                  return layer;
+                }
+                else {
+                  return;
+                }
+              }
+        
+              return layer;
+        
+            });
+        
+            identLayers = identLayers.concat(self.state.map.amlayers);
+        
+            async.eachSeries(identLayers, function (layer, cb) {
+              if(!layer.state.disablePopup){
+                  //TODO
+                layer.identifyArea(this.dragStart, event, layer.props.allowMultiSelect, function (results) {
+                  if (results) {
+                    results.layer = layer;
+                    identresults.push(results);
+                  }
+                  cb();
+                });
+              }
+            }, function (err) {
+              var results = identresults.map(function (ir) {
+                ir.results.forEach(function (res) {
+                  res.layer = ir.layer;
+                });
+                return ir.results;
+              }) || [].reduce(function (a, b) {
+                return a.concat(b);
+              });
+        
+              self.setState({ loading: false });
+        
+              results = results.flat();
+        
+                var feature = null;
+                for (var idx = 0; idx<results.length; idx++){
+                    feature = results[idx].feature;
+        
+                    self.state.map.editor.setEditFeature(feature, null, null, false, true, self.contextmenuPressed);            
+                }
+            });
+          }
+        }
+      });
+
       view.on('click', (event) => {
         if (event.button == 0 ) {
           self.contextmenuPressed = false;
