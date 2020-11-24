@@ -356,8 +356,11 @@ class ArcticMap extends React.Component {
         if(self.state.mode==="select")
         {
           event.stopPropagation();
+          var vw = self.state.view;
+          var pt = vw.toMap({ x: event.x, y: event.y });
+
           if(event.action==="start"){
-            self.dragStart = event;
+            self.dragStart = pt;
           }
           else if(event.action==="end"){
             if (event.button == 0 ) {
@@ -396,7 +399,7 @@ class ArcticMap extends React.Component {
             async.eachSeries(identLayers, function (layer, cb) {
               if(!layer.state.disablePopup){
                   //TODO
-                layer.identifyArea(self.dragStart, event, layer.props.allowMultiSelect, function (results) {
+                layer.identifyArea(self.dragStart, pt, layer.props.allowMultiSelect, function (results) {
                   if (results) {
                     results.layer = layer;
                     identresults.push(results);
