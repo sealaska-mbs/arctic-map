@@ -513,19 +513,21 @@ class ArcticMapLayer extends React.Component {
     }
 
     identifyArea(eventS, eventE, sublayers, callback) {
-
-        var points = new Multipoint();
-        points.addPoint(eventS.mapPoint);
-        points.addPoint(eventE.mapPoint);
-
-        if (!this.params) { callback(null); return; }
-
-        this.params.layerIds = sublayers;
-        this.params.geometry = points.extent;
-        this.params.mapExtent = this.state.view.extent;
-        this.identifyTask.execute(this.params).then(function (response) {
-            this.params.layerIds = null;
-            callback(response);
+        var self = this;
+        loadModules(["esri/geometry/Multipoint"]).then(([Multipoint]) => {
+            var points = new Multipoint();
+            points.addPoint(eventS.mapPoint);
+            points.addPoint(eventE.mapPoint);
+    
+            if (!self.params) { callback(null); return; }
+    
+            self.params.layerIds = sublayers;
+            self.params.geometry = points.extent;
+            self.params.mapExtent = self.state.view.extent;
+            self.identifyTask.execute(self.params).then(function (response) {
+                self.params.layerIds = null;
+                callback(response);
+            });
         });
     }
 
