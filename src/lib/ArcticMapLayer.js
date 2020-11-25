@@ -520,12 +520,15 @@ class ArcticMapLayer extends React.Component {
             points.addPoint(eventPE);
     
             if (!self.params) { callback(null); return; }
+
+            var layerids = self.params.layerIds;
     
             self.params.layerIds = sublayers;
             self.params.geometry = points.extent;
+            self.params.geometry.spatialReference = self.state.view.extent.spatialReference;
             self.params.mapExtent = self.state.view.extent;
             self.identifyTask.execute(self.params).then(function (response) {
-                self.params.layerIds = null;
+                self.params.layerIds = layerids;
                 callback(response);
             });
         });
