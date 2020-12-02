@@ -119,7 +119,7 @@ class ArcticMapBaseControl extends React.Component {
                     <ArcticMapPanel  esriicon='layer-list' title='Legend'>
                         <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
-                    <ArcticMapPanel esriicon='collection' title='Data Filters' >
+                    <ArcticMapPanel esriicon='collection' title='Data Layers' >
                         <p>Toggle visibility of each data layer.</p>
                         {this.state.canReset &&
                             <p><a href="#" style={{ color: '#71A3AF', textDecoration: 'none' }} onClick={this.props.reset}>

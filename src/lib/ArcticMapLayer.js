@@ -317,6 +317,10 @@ class ArcticMapLayer extends React.Component {
 
             }
 
+            if (self.props.type === "custom") {
+                self.layerRef = self.props.layerRef;
+                self.state.map.add(self.props.layerRef);
+            }
             // if (self.props.type === "geojson") {
 
             //     var geojsonLayer = new GraphicsLayer({ title: 'GeoJSON Layer', listMode: "hide" });
