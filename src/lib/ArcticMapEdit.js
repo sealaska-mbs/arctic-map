@@ -1100,7 +1100,7 @@ class ArcticMapEdit extends React.Component {
                     <br />
                     <p className={style.infoarea} >Do you already have a shape of your plot? Upload your file
                         here. Supported file types:
-                        Shapefiles (.zip), kml, glm, gpx, and geojson
+                        Shapefiles (.zip), kml, gml, gpx, and geojson
                     </p>
                     <form encType="multipart/form-data" method="post" id="uploadForm">
                         <div className="field">
@@ -1115,7 +1115,7 @@ class ArcticMapEdit extends React.Component {
                     <span id="upload-status"></span>
 
                 </ArcticMapPanel>}
-            <ArcticMapButton esriicon="refresh" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
+            <ArcticMapButton esriicon="erase" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
 
 
 

@@ -93,11 +93,59 @@ class ArcticMapLayer extends React.Component {
             // this.setState({ graphic });
 
             if (self.props.type === "feature") {
+                var flayers = self.props.sublayers;
+                if(!flayers || self.props.sublayers.length<1) {
+                    flayers = [{id:0, title:""}];
+                }
 
-                var featureLayer = new FeatureLayer({
-                    url: self.props.src,
-                    outFields: ["*"],
-                });
+                var gmaplayer = new GroupLayer();
+
+                var trans = 1;
+                if (self.props.transparency) {
+                    trans = Number.parseFloat(self.props.transparency);
+                }
+
+                flayers.forEach(function (sub) {
+                    //portalItem
+                    var glayer = new FeatureLayer({
+                        title: sub.title,
+                        outFields: ["*"],
+                        opacity: gtrans
+                    });    
+                    if(sub.visible===false){
+                        glayer.visible = false;
+                    }
+
+                    if(self.props.portalItem){
+                        glayer.portalItem = {id: self.props.src};
+                        glayer.layerId = sub.id;
+
+                    }else{
+                        glayer.url = self.props.src+sub.id;
+                    }
+
+                    var renderer = renderers.find(r => {
+                        if (r.props.layer === sub.title || r.props.layer === `${sub.id}`) {
+                            return r;
+                        }
+                    });
+                    if (renderer !== undefined) {
+                        glayer.renderer = renderer.props.style;
+                    }
+
+                    gmaplayer.layers.add(glayer);
+                }); 
+                
+                var featureLayer;
+                if(flayers.length>1)featureLayer = gmaplayer;
+                else featureLayer = gmaplayer.layers[0];
+
+                featureLayer.opacity = trans;
+
+                if (self.props.title) {
+                    featureLayer.title = self.props.title;
+                }
+
                 self.layerRef = featureLayer;
                 self.state.map.add(featureLayer);
             }
@@ -108,7 +156,7 @@ class ArcticMapLayer extends React.Component {
                     gtrans = Number.parseFloat(self.props.transparency);
                 }
                 var srcsplit = self.props.src.split(',');
-
+                
                 var gmaplayer = new GroupLayer({
                     //url: self.props.src,
                     opacity: gtrans
@@ -119,12 +167,19 @@ class ArcticMapLayer extends React.Component {
                     gmaplayer.title = self.props.title;
                 }
 
+                var idx = 0;
                 srcsplit.forEach(function (src) {
                     var glayer = new MapImageLayer({
                         url: src,
                         opacity: gtrans
 
                     });
+
+                    if(self.props.sublayers && self.props.sublayers.length>idx){
+                        glayer.sublayers = self.props.sublayers[idx];
+                        idx++;
+                    }
+
                     gmaplayer.layers.add(glayer);
 
 
@@ -132,6 +187,7 @@ class ArcticMapLayer extends React.Component {
 
 
                         var layerids = [];
+                        
                         //console.log("Maplayer: ", maplayer);
                         glayer.allSublayers.items.forEach(sublayer => {
                             layerids.push(sublayer.id);
@@ -151,7 +207,7 @@ class ArcticMapLayer extends React.Component {
                         });
                         layerids.reverse();
 
-                        self.identifyTask = new IdentifyTask(self.props.src);
+                        self.identifyTask = new IdentifyTask(src);
                         self.params = new IdentifyParameters();
                         self.params.tolerance = 3;
                         self.params.layerIds = layerids;
@@ -159,7 +215,7 @@ class ArcticMapLayer extends React.Component {
                         self.params.width = self.state.view.width;
                         self.params.height = self.state.view.height;
                         self.params.returnGeometry = true;
-                        self.params.returnGeometry = self.state.blockSelect;
+                        self.params.returnGeometry = !self.state.blockSelect;
 
                         //  console.log(self.params);
 
@@ -238,7 +294,7 @@ class ArcticMapLayer extends React.Component {
                     self.params.width = self.state.view.width;
                     self.params.height = self.state.view.height;
                     self.params.returnGeometry = true;
-                    self.params.returnGeometry = self.state.blockSelect;
+                    self.params.returnGeometry = !self.state.blockSelect;
 
                     //  console.log(self.params);
 
@@ -261,6 +317,10 @@ class ArcticMapLayer extends React.Component {
 
             }
 
+            if (self.props.type === "custom") {
+                self.layerRef = self.props.layerRef;
+                self.state.map.add(self.props.layerRef);
+            }
             // if (self.props.type === "geojson") {
 
             //     var geojsonLayer = new GraphicsLayer({ title: 'GeoJSON Layer', listMode: "hide" });
@@ -366,8 +426,11 @@ class ArcticMapLayer extends React.Component {
         if(result.layerId !== undefined && this.layerRenderers) {
             var popupTitle = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
             if (popupTitle  && result.layerId == popupTitle.props.layerid) {
-                return popupTitle.props.popuptitle;
+                if(popupTitle.props.popuptitle) return popupTitle.props.popuptitle;
+                else return result.layerName;
             } else {
+                popupTitle = this.layerRenderers.find(l => l.props.layerid === null);
+                if(popupTitle && popupTitle.props.popuptitle) return popupTitle.props.popuptitle;
                 return result.layerName;
             }
         } else {
@@ -380,6 +443,7 @@ class ArcticMapLayer extends React.Component {
 
         if (result.layerId !== undefined && this.layerRenderers) {
             var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
+            if (!popuprender) popuprender = this.layerRenderers.find(l => l.props.layerid === null);
             if (popuprender && popuprender.props.popup !== undefined) {
                 var ele = popuprender.props.popup(feature, result);
 
@@ -441,7 +505,7 @@ class ArcticMapLayer extends React.Component {
 
             this.params.geometry = event.mapPoint;
             this.params.mapExtent = this.state.view.extent;
-            this.params.returnGeometry = true;
+            //this.params.returnGeometry = true;
             //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
 
@@ -450,7 +514,28 @@ class ArcticMapLayer extends React.Component {
 
             });
         }
+    }
 
+    identifyArea(eventPS, eventPE, sublayers, callback) {
+        var self = this;
+        loadModules(["esri/geometry/Multipoint"]).then(([Multipoint]) => {
+            var points = new Multipoint();
+            points.addPoint(eventPS);
+            points.addPoint(eventPE);
+    
+            if (!self.params) { callback(null); return; }
+
+            var layerids = self.params.layerIds;
+    
+            self.params.layerIds = sublayers;
+            self.params.geometry = points.extent;
+            self.params.geometry.spatialReference = self.state.view.extent.spatialReference;
+            self.params.mapExtent = self.state.view.extent;
+            self.identifyTask.execute(self.params).then(function (response) {
+                self.params.layerIds = layerids;
+                callback(response);
+            });
+        });
     }
 
 

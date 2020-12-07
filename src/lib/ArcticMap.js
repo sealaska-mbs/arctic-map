@@ -298,16 +298,18 @@ class ArcticMap extends React.Component {
       view.popup.watch('selectedFeature', function (graphic) {
         view.graphics.removeAll();
         if (graphic) {
-          var graphicTemplate = graphic.getEffectivePopupTemplate()
-          graphicTemplate.actions = [{
-            id: 'select-item',
-            title: 'Select',
-            image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyhpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTQgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NTQyREM3RDkwQzVGMTFFNTk4QkI4OTBEOTYzQTg5MzEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NTQyREM3REEwQzVGMTFFNTk4QkI4OTBEOTYzQTg5MzEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo1NDJEQzdENzBDNUYxMUU1OThCQjg5MEQ5NjNBODkzMSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo1NDJEQzdEODBDNUYxMUU1OThCQjg5MEQ5NjNBODkzMSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Prb3PqgAAACTSURBVHjaYvz//z8DJYCJgVJAjgsiIyMFQBjEZgQZwMjISJJmILUXynVmIdVmqGZ9qFAe0S7AonnR8uXLk5jItBmsGSUWgIriSdUMNwCoaB6QmgulidaM7AKYgjiYIcRohkdjVFQUhmIoG69mlHSAxUYGQppRAhGo6AMoYQDxRWI1Y02JSC65SEgz3IABzY0AAQYAhIhWWCl3Pj0AAAAASUVORK5CYII=",
+          var graphicTemplate = graphic.getEffectivePopupTemplate();
+          if(graphic.geometry){
+            graphicTemplate.actions = [{
+              id: 'select-item',
+              title: 'Select',
+              image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyhpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDE0IDc5LjE1Njc5NywgMjAxNC8wOC8yMC0wOTo1MzowMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTQgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NTQyREM3RDkwQzVGMTFFNTk4QkI4OTBEOTYzQTg5MzEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NTQyREM3REEwQzVGMTFFNTk4QkI4OTBEOTYzQTg5MzEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo1NDJEQzdENzBDNUYxMUU1OThCQjg5MEQ5NjNBODkzMSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo1NDJEQzdEODBDNUYxMUU1OThCQjg5MEQ5NjNBODkzMSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Prb3PqgAAACTSURBVHjaYvz//z8DJYCJgVJAjgsiIyMFQBjEZgQZwMjISJJmILUXynVmIdVmqGZ9qFAe0S7AonnR8uXLk5jItBmsGSUWgIriSdUMNwCoaB6QmgulidaM7AKYgjiYIcRohkdjVFQUhmIoG69mlHSAxUYGQppRAhGo6AMoYQDxRWI1Y02JSC65SEgz3IABzY0AAQYAhIhWWCl3Pj0AAAAASUVORK5CYII=",
+            }]
+            graphicTemplate.actions.items[0].visible = self.state.map.editor !== undefined// graphic.attributes.website ? true : false;
 
-
-          }]
-
-          graphicTemplate.actions.items[0].visible = self.state.map.editor !== undefined// graphic.attributes.website ? true : false;
+          }else{
+            graphicTemplate.actions = [];
+          }
           loadModules(['esri/symbols/SimpleFillSymbol'])
                 .then(([SimpleFillSymbol]) => {
                     var symbol = new SimpleFillSymbol({
@@ -331,8 +333,9 @@ class ArcticMap extends React.Component {
         }
       })
       view.popup.viewModel.on('trigger-action', function (event) {
+        //var target = event.target || window.event.target || window.event.srcElement;
         if (event.action.id === 'select-item') {
-          self.state.map.editor.setEditFeature(event.target.selectedFeature, null, null, false, true);
+          self.state.map.editor.setEditFeature(view.popup.selectedFeature, null, null, false, true);
           view.popup.close();
         }
       })
@@ -347,6 +350,86 @@ class ArcticMap extends React.Component {
 
       window.addEventListener("keyup",function (event) {
         self.cntrlIsPressed = false;
+      });
+
+      view.on('drag', (event) => {
+        if(self.state.mode==="select")
+        {
+          event.stopPropagation();
+          var vw = self.state.view;
+          var pt = vw.toMap({ x: event.x, y: event.y });
+
+          if(event.action==="start"){
+            self.dragStart = pt;
+          }
+          else if(event.action==="end"){
+            if (event.button == 0 ) {
+              self.contextmenuPressed = false;
+            }
+            if (self.state.map.editor && self.state.map.editor.state.editing === true) {
+                return;
+            }
+        
+            var identresults = [];
+            self.setState({ loading: true });
+        
+            var identLayers = self.layers.filter(function (layer) {
+              //TODO check if this is selectable
+              if (layer.props.allowMultiSelect === undefined) {
+                  return;
+              }
+        
+                var mapzoom = view.zoom;
+        
+              if (layer.props.identMaxZoom !== undefined) {
+                if (Number.parseInt(layer.props.identMaxZoom, 10) > mapzoom) {
+                  return layer;
+                }
+                else {
+                  return;
+                }
+              }
+        
+              return layer;
+        
+            });
+        
+            identLayers = identLayers.concat(self.state.map.amlayers);
+        
+            async.eachSeries(identLayers, function (layer, cb) {
+              if(!layer.state.disablePopup){
+                  //TODO
+                layer.identifyArea(self.dragStart, pt, layer.props.allowMultiSelect, function (results) {
+                  if (results) {
+                    results.layer = layer;
+                    identresults.push(results);
+                  }
+                  cb();
+                });
+              }
+            }, function (err) {
+              var results = identresults.map(function (ir) {
+                ir.results.forEach(function (res) {
+                  res.layer = ir.layer;
+                });
+                return ir.results;
+              }) || [].reduce(function (a, b) {
+                return a.concat(b);
+              });
+        
+              self.setState({ loading: false });
+        
+              results = results.flat();
+        
+                var feature = null;
+                for (var idx = 0; idx<results.length; idx++){
+                    feature = results[idx].feature;
+        
+                    self.state.map.editor.setEditFeature(feature, null, null, false, true, self.contextmenuPressed);            
+                }
+            });
+          }
+        }
       });
 
       view.on('click', (event) => {
@@ -438,10 +521,17 @@ class ArcticMap extends React.Component {
           results = results.flat();
 
           results = results.sort(function (r1, r2) {
+            if(r1.acres < 0 && r2.acres < 0) return 0;
+            if(r1.acres < 0) return 1;
+            if(r2.acres < 0) return -1;
+
             if (r1.acres > r2.acres) {
               return 1;
             }
-            return -1
+            if (r2.acres > r1.acres) {
+              return -1;
+            }
+            return 0;
             //r.feature.attributes.Shape_Area
           });
 
@@ -455,32 +545,47 @@ class ArcticMap extends React.Component {
 
               feature.attributes.layerName = layerName;
 
-              //console.log("result.layer  this.layerRenderers", result);
-              var popupDisable = result.layer.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
-              //console.log("result.layer  popupDisable", popupDisable.props);
-              if (popupDisable  && result.layerId == popupDisable.props.layerid) {
+              if(result.layer.layerRenderers){
+                //console.log("result.layer  this.layerRenderers", result);
+                var popupDisable = result.layer.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
                 //console.log("result.layer  popupDisable", popupDisable.props);
-                if (popupDisable.props.disabled == "true") {
-                  return null;
+                if (popupDisable  && result.layerId == popupDisable.props.layerid) {
+                  //console.log("result.layer  popupDisable", popupDisable.props);
+                  if (popupDisable.props.disabled == "true") {
+                    return null;
+                  }
                 }
-                
               }
+
+              var PTActions = [];
+              if(!result.layer.state.blockSelect)
+              {
+                PTActions = [];
+              } else {
+                PTActions = [{ title: "Select", id: "select-action" }];
+              }
+
               feature.popupTemplate = { // autocasts as new PopupTemplate()
                 //title: layerName,
                 title: result.layer.renderPopupTitle(feature, result),
                 content: result.layer.renderPopup(feature, result),
-                actions: [{ title: "Select", id: "select-action" }]
+                actions: PTActions
               };
 
               return feature;
             });
 
             // remove the disabled popup layer
-            popupresults.forEach( function (result) {
-              if (result == null) {
-                popupresults.pop();
-              } 
-            });
+            for(var i=popupresults.length-1;i>=0;i--){
+              if(popupresults[i]==null){
+                popupresults.splice(i, 1);
+              }
+            }
+            //popupresults.forEach( function (result) {
+            //  if (result == null) {
+            //    popupresults.pop();
+            //  } 
+            //});
 
             if (popupresults.length > 0) {
               view.popup.close();
@@ -499,13 +604,18 @@ class ArcticMap extends React.Component {
           }
 
           if (currentmode === "select") {
+            var feature = null;
+            for (var idx = 0; idx<results.length && feature===null; idx++){
+              feature = results[idx].feature;
+            }
+
             if (self.contextmenuPressed === true) {
 
-              self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true, true);
+              self.state.map.editor.setEditFeature(feature, null, null, false, true, true);
             }
             else {
 
-              self.state.map.editor.setEditFeature(results[0].feature, null, null, false, true);
+              self.state.map.editor.setEditFeature(feature, null, null, false, true);
             }
           }
 
