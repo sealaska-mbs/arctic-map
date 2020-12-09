@@ -1071,7 +1071,7 @@ class ArcticMapEdit extends React.Component {
 
             {this.state.hideEditors === false &&
                 <span>
-                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Click to select/ Rightclick to remove' onclick={this.setmaptoselect.bind(this)} />
+                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Left click to select / Right click to deselect' onclick={this.setmaptoselect.bind(this)} />
                     {this.props.point &&
 
                         <ArcticMapButton esriicon="blank-map-pin" onclick={this.addPointClick.bind(this)} title="Draw point" ></ArcticMapButton>
