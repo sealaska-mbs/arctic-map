@@ -430,6 +430,20 @@ class ArcticMap extends React.Component {
             });
           }
         }
+        else if(event.button != 0){
+          event.stopPropagation();
+          var vw = self.state.view;
+          var pt = vw.toMap({ x: event.x, y: event.y });
+          
+          if(event.action==="start"){
+            self.dragStart = pt;
+          }
+          else if(event.action==="end"){
+
+            vw.goTo([pt,self.dragStart]);
+          }
+
+        }
       });
 
       view.on('click', (event) => {
