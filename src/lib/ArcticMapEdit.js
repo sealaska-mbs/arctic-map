@@ -1071,7 +1071,7 @@ class ArcticMapEdit extends React.Component {
 
             {this.state.hideEditors === false &&
                 <span>
-                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Click to select/ Rightclick to remove' onclick={this.setmaptoselect.bind(this)} />
+                    <ArcticMapButton showactive={this.props.am.state.mode === "select"} esriicon='cursor' title='Left click to select / Right click to deselect' onclick={this.setmaptoselect.bind(this)} />
                     {this.props.point &&
 
                         <ArcticMapButton esriicon="blank-map-pin" onclick={this.addPointClick.bind(this)} title="Draw point" ></ArcticMapButton>
@@ -1096,7 +1096,7 @@ class ArcticMapEdit extends React.Component {
             }
             {children}
             {this.props.upload &&
-                <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload Polygon" ref={this.uploadPanel}  >
+                <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload GIS file" ref={this.uploadPanel}  >
                     <br />
                     <p className={style.infoarea} >Do you already have a shape of your plot? Upload your file
                         here. Supported file types:
@@ -1115,7 +1115,7 @@ class ArcticMapEdit extends React.Component {
                     <span id="upload-status"></span>
 
                 </ArcticMapPanel>}
-            <ArcticMapButton esriicon="erase" onclick={this.reset.bind(this)} title="Clear graphics" ></ArcticMapButton>
+            <ArcticMapButton esriicon="erase" onclick={this.reset.bind(this)} title="Clear selection" ></ArcticMapButton>
 
 
 
