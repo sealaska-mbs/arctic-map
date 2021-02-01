@@ -72,6 +72,17 @@ class ArcticMapBaseControl extends React.Component {
                 container: self.layersDiv,
                 listItemCreatedFunction: function (event) {
                     // only legend if imageFormat exist in TOC
+                    var actions = [{
+                        title: "Increase opacity",
+                        className: "esri-icon-up",
+                        id: "increase-opacity"
+                    },
+                    {
+                        title: "Decrease opacity",
+                        className: "esri-icon-down",
+                        id: "decrease-opacity"
+                    }];
+                    
                     const item = event.item
                     if (item.layer.imageFormat) {
                         //const item = event.item
@@ -80,21 +91,15 @@ class ArcticMapBaseControl extends React.Component {
                             open: false
                         }
                     }
+                    else{
+                        actions.Add({
+                            title: "Open Attribute Table",
+                            className: "esri-icon-table",
+                            id: "open-attribute-table"
+                        });
 
-                    item.actionsSections = [
-                        [
-                            {
-                                title: "Increase opacity",
-                                className: "esri-icon-up",
-                                id: "increase-opacity"
-                            },
-                                                        {
-                                title: "Decrease opacity",
-                                className: "esri-icon-down",
-                                id: "decrease-opacity"
-                            }
-                        ]
-                    ];
+                    }
+                    item.actionsSections = [ actions ];
 
                                       
                 }
@@ -109,6 +114,9 @@ class ArcticMapBaseControl extends React.Component {
                 if (event.action.id === "decrease-opacity") {
                     event.item.layer.opacity -= 0.1;
                     event.item.layer.opacity <= 0 ? event.item.layer.opacity = 0:  event.item.layer.opacity;
+                }
+                if (event.action.id === "open-attribute-table") {
+                    alert("openAT");
                 }
             });
             //self.state.view.ui.add(layerList, 'top-left')
