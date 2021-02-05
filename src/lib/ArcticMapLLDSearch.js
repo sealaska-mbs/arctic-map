@@ -77,7 +77,7 @@ static displayName = 'ArcticMapLLDSearch';
                     placeholder: "example: NV 21 T38N R56E SEC 10 ALIQ SESW",
                    
                     getSuggestions: function (p) {
-  
+                        self.search.autoNavigate = false;
                         let getIT = function (params) {
                             var searchParams = params.suggestTerm.replace(/\+/g, ' ');
                             var searchParts = searchParams.trim().replace(/\s+/g, ' ').split(' ').filter((part) => part!="" );
@@ -91,6 +91,7 @@ static displayName = 'ArcticMapLLDSearch';
                                     },
                                     responseType: "json"
                                 }
+                                self.search.autoNavigate = true;
                                 return esriRequest(url, options).then(function (results) {
     
                                     return results.data.features.map(function (feature) {
@@ -309,6 +310,7 @@ static displayName = 'ArcticMapLLDSearch';
                                     });
                                 });
                             }
+                            self.search.autoNavigate = true;
                             var rangeDict = townshipDict[townships[0]];
                             if (searchParts.length === 3 && rangeDict.length > 1) {
                                 return new Promise((res, rej) => {
@@ -352,7 +354,7 @@ static displayName = 'ArcticMapLLDSearch';
                                 responseType: "json"
                             }
                             return esriRequest(url, options).then(function (results) {
-    
+                                self.search.autoNavigate = true;
                                 return results.data.features.map(function (feature) {
                                     return {
                                         key: "name",
