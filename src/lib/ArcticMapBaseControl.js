@@ -4,6 +4,8 @@ import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapControlArea from './ArcticMapControlArea';
+import ArcticMapDGridPanel from './ArcticMapDGridPanel';
+import ArcticMapDatagrid from './ArcticMapDatagrid';
 import { loadModules } from 'react-arcgis';
 import styles from './ArcticMap.css';
 
@@ -144,6 +146,21 @@ class ArcticMapBaseControl extends React.Component {
         // self.state.view.ui.remove(self.basemapGallery);
     }
 
+    setmaptoreview() {
+
+        if (this.props.am.state.mode === "review") {
+            this.props.am.setMode("view");
+            this.setState({ mode: "view" });
+        }
+        else {
+
+            this.props.am.setMode("review");
+            this.setState({ mode: "review" });
+        }
+    }
+
+
+
     render() {
         return (
             <div >
@@ -166,6 +183,10 @@ class ArcticMapBaseControl extends React.Component {
                         <div ref={(e) => { e && e.appendChild(this.layersDiv) }} />
                     </ArcticMapPanel>
                     <ArcticMapButton esriicon='basemap' title='Basemaps' onclick={this.basemapclick.bind(this)} />
+                    <ArcticMapButton esriicon='cursor-filled' title='Review Layers' onclick={this.setmaptoreview.bind(this)} />
+                    <ArcticMapDGridPanel  esriicon='review' title='Review Data'>
+                        <ArcticMapDatagrid am={this.props.am} view={this.props.view} />
+                    </ArcticMapDGridPanel>
                 </ArcticMapControlArea>
 
 

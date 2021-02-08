@@ -125,7 +125,7 @@ static displayName = 'ArcticMapLLDSearch';
                             });
                         }
                         if(searchParts===null || searchParts.length===0){
-                            return suggestionDictionary.map(function(state){
+                            return self.suggestionDictionary.map(function(state){
                                 return {
                                     key: "name",
                                     text: state + " ",
@@ -134,7 +134,7 @@ static displayName = 'ArcticMapLLDSearch';
 
                             });
                         }
-                        var states = suggestionDictionary.map(function(state){
+                        var states = self.suggestionDictionary.map(function(state){
                             if(state.indexOf(searchParts[0])>=0){
                                 return state;
                             }

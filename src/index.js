@@ -56,6 +56,10 @@ export {
   default as ArcticMapLocator
 } from './lib/ArcticMapLocator'
 
+export {
+  default as ArcticMapDatagrid
+} from './lib/ArcticMapDatagrid'
+
 
 
 

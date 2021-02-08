@@ -267,8 +267,9 @@ class ArcticMap extends React.Component {
       'esri/layers/FeatureLayer',
       // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
-
-      "esri/request",
+      'esri/tasks/support/IdentifyParameters',
+      'esri/request',
+      'esri/geometry/Polygon',
 
     ]).then(([
 
@@ -280,8 +281,9 @@ class ArcticMap extends React.Component {
       FeatureLayer,
       // Locator,
       geometryEngine,
-
+      IdentifyParameters,
       Request,
+      Polygon,
 
     ]) => {
       window._request = Request;
@@ -398,9 +400,59 @@ class ArcticMap extends React.Component {
 
       view.on('drag', (event) => {
 
+        console.log("drag",self);
         
-        
-        
+        if(self.state.mode==="review"){
+          self.drawTempGraphic( self.state.view, event);
+          event.stopPropagation();
+          var vw = self.state.view;
+          var pt = vw.toMap({ x: event.x, y: event.y });
+          var idParams = new IdentifyParameters();
+          if(event.action==="start"){
+            self.dragStart = pt;
+          }
+          if (event.action == "end"){
+            const rings= [
+              [pt.x, pt.y],
+              [pt.x, self.dragStart.y],      
+              [self.dragStart.x, self.dragStart.y],
+              [self.dragStart.x, pt.y]
+            ]
+            const tempPolygon = new Polygon({
+              hasz: false,
+              hasm: false,
+              rings: rings,
+              spatialReference: self.state.view.spatialReference
+            })
+            console.log("check self", self);
+            idParams.geometry=tempPolygon;
+            idParams.tolerance = 3;
+            //vw.goTo([pt,self.dragStart]);
+            self.state.view.dgridResponse= []
+            self.layers.filter( function(layer){
+              console.log("layers", layer);
+              layer.params.width = self.state.view.width;
+              layer.params.height = self.state.view.height;
+              layer.params.mapExtent = self.state.view.extent;
+              layer.params.geometry=tempPolygon;
+              layer.identifyTask.execute(layer.params).then(function(response){
+                console.log("identifyTask ",response );
+                self.state.view.dgridResponse.push(response);
+                
+              })
+              
+            })
+          }
+
+          // self.layer.identifyArea(self.dragStart, pt, self.layer.props.allowMultiSelect, function (results) {
+          //   console.log("identifyArea", results);
+          //   if (results) {
+          //     results.layer = self.layer;
+          //     identresults.push(results);
+          //   }
+
+          // });
+        }
         if(self.state.mode==="select")
         {
 
@@ -485,12 +537,12 @@ class ArcticMap extends React.Component {
           event.stopPropagation();
           var vw = self.state.view;
           var pt = vw.toMap({ x: event.x, y: event.y });
-          
+          console.log("self.", self);
+          console.log("self.dragStart", self.dragStart);
           if(event.action==="start"){
             self.dragStart = pt;
           }
           else if(event.action==="end"){
-
             vw.goTo([pt,self.dragStart]);
           }
 

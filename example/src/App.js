@@ -355,7 +355,7 @@ export default class App extends Component {
                         title="Land Status"
                         type="dynamic"
                         src="https://arcgis.mlrsdev.com/server/rest/services/NLSDB/MapServer" 
-                        sublayers={[{id:2, title:"Case"}]}
+                        //sublayers={[{id:1, title:"Case History"},{id:2, title:"Case"}]}
                         // searchSources = {
                         //   [{
                         //     scr: "https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/",
