@@ -67,3 +67,8 @@
 .dgrid-row {
     border: none
 }
+
+.gridcontainer {
+    max-height: 21em;
+}
+

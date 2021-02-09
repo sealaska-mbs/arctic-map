@@ -60,6 +60,10 @@ export {
   default as ArcticMapDatagrid
 } from './lib/ArcticMapDatagrid'
 
+export {
+  default as ArcticMapDGridPanel
+} from './lib/ArcticMapDGridPanel'
+
 
 
 
