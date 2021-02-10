@@ -481,8 +481,10 @@ class ArcticMapLayer extends React.Component {
     }
 
     identify(event, callback) {
-
+        
         var self = this;
+        //console.log("identify", self)
+        
         if (this.props.type === "geojson") {
 
             this.state.view.hitTest(event).then((htresponse) => {
@@ -508,7 +510,8 @@ class ArcticMapLayer extends React.Component {
             //this.params.returnGeometry = true;
             //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
-
+                console.log("identifyTask here",response );
+                self.state.view.dgridResponse.push(response);
                 callback(response);
 
 
@@ -533,6 +536,7 @@ class ArcticMapLayer extends React.Component {
             self.params.mapExtent = self.state.view.extent;
             self.identifyTask.execute(self.params).then(function (response) {
                 self.params.layerIds = layerids;
+                console.log("identifyArea", response)
                 callback(response);
             });
         });

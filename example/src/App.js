@@ -12,7 +12,9 @@ import {
   ArcticMapPanel,
   ArcticMapBaseControl,
   ArcticMapLayerRenderer,
-  ArcticMapLocator
+  ArcticMapLocator,
+  ArcticMapDGridPanel,
+  ArcticMapDatagrid
 } from './ArcticMap'
 
 
@@ -355,7 +357,7 @@ export default class App extends Component {
                         title="Land Status"
                         type="dynamic"
                         src="https://arcgis.mlrsdev.com/server/rest/services/NLSDB/MapServer" 
-                        sublayers={[{id:2, title:"Case"}]}
+                        //sublayers={[{id:1, title:"Case History"},{id:2, title:"Case"}]}
                         // searchSources = {
                         //   [{
                         //     scr: "https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/",
@@ -582,6 +584,11 @@ export default class App extends Component {
           </ArcticMapControlArea>
           <ArcticMapControlArea location="bottom-right">
             <ArcticMapPanel esriicon="printer" onclick={this.locateExtra.bind(this)} />
+          </ArcticMapControlArea>
+          <ArcticMapControlArea location="bottom-right">
+              <ArcticMapDGridPanel  esriicon='review' title='Case Feature'>
+                <ArcticMapDatagrid am={this.props.am} view={this.props.view}  src={"https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/2"}/>
+              </ArcticMapDGridPanel>
           </ArcticMapControlArea>
           <ArcticMapLLDSearch />
           <ArcticMapLocator

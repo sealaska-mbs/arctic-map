@@ -1,0 +1,74 @@
+#viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#viewDiv.withGrid {
+    height: 65%;
+}
+
+.esri-widget {
+    padding-left: 8px;
+    padding-right: 4px;
+}
+
+#paneDiv {
+    position: absolute;
+    top: 10px;
+    left: 62px;
+    padding: 0 12px 0 12px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+#gridDisplay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 35%;
+    background-color: white;
+    border-color: grey;
+    width: 100%;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    display: none;
+}
+
+#gridDisplay {
+    z-index: 80;
+}
+
+.info {
+    line-height: 20px;
+    padding-left: 5px ! important;
+}
+
+.dgrid-header,
+.dgrid-header-row {
+    background-color: #eee;
+    color: #57585A;
+}
+
+.dgrid-row-even {
+    background-color: #F7F8F8;
+}
+
+.dgrid-row-odd {
+    background-color: #EFEFEF;
+}
+
+.dgrid-selected {
+    background: #B4DAF5;
+}
+
+.dgrid-row {
+    border: none
+}
+
+.gridcontainer {
+    max-height: 21em;
+}
+
