@@ -25,66 +25,68 @@ class ArcticMapDatagrid extends React.Component {
     _getPrintLayout() {
         console.log("gridclick *****");
     }
+
+    onRowClickHandler(event) {
+      console.log("onRowClickHandler", event.rows[0].data);
+      
+      
+    }
+
     componentDidMount() {
-      const {tabs} = this.state;
       console.log("componentDidMount  *****", this);
       loadModules([
         "dgrid/Grid",
         "dgrid/Selection",
         'dojo/_base/declare',
         'esri/layers/FeatureLayer',
+        'dojo/on'
       ]).then(([
         Grid,
         Selection,
         declare,
-        FeatureLayer
+        FeatureLayer,
+        on
 
       ]) => {
         var myGrid = declare([Grid, Selection]);
-        console.log("myGrid", this);
+        var self = this;
         var caseFeatureLayer = new FeatureLayer({
-          url: this.props.src,
+          url: self.props.src,
           outFields: ["*"],
           visible: false
         });
-        console.log("caseFeatureLayer", caseFeatureLayer);
         var query = caseFeatureLayer.createQuery();
         query.where = "1=1";
         query.outFields = [ "CSE_NR", "CSE_TYPE", "CSE_TYPE_NR", "LEG_CSE_NR", "STATUS", "CSE_META", "RCRD_ACRS", "GIS_ACRS", "PLSSIDS", "CMMDTY", "FRMTN", "EDOA", "PRDCNG", "OPRTR"];
 
         caseFeatureLayer.queryFeatures(query)
         .then(function(response){
-          console.log("featureLayer.queryFeatures", response);
-          // returns a feature set with features containing the following attributes
-          // STATE_NAME, COUNTY_NAME, POPULATION, POP_DENSITY
+
           var featureColumns = response.fields.map( outField => {
+            var hideColumn = false;
+            if (outField.name == 'OBJECTID') {
+              hideColumn = true;
+            }
             var newColumn = {
               'field': outField.name,
-              'label': outField.alias}
+              'label': outField.alias,
+              hidden: hideColumn}
             return newColumn;
           });
-          console.log("featureColumns", featureColumns);
+          
           var items = response.features.map(feature => {
             return feature.attributes;
           });
-          console.log("items", items);
           var grid = new myGrid({
             columns: featureColumns, 
               selectionMode: 'single',
             }, "arcticmapdatagrid");
-          grid.renderArray(items);;
+          
+          grid.renderArray(items);
+
+          grid.on("dgrid-select", self.onRowClickHandler); 
         });
 
-        //var featureColumns = [];
-        
-
-        var columns = [
-          {'field': 'PARCELID', 'label': "Parcel ID"},
-          {'field': 'OWNERNME1', 'label': 'Owner 1'},
-          {'field': 'OWNERNME2', 'label': 'Owner 2'},
-          {'field': 'RESYRBLT', 'label': 'Year Built'},
-          {'field': 'SITEADDRESS', 'label': 'Street Address', width:"30%"} 
-        ];
 
       
         
