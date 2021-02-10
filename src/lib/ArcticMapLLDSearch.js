@@ -137,7 +137,7 @@ static displayName = 'ArcticMapLLDSearch';
                                     res(Object.keys(self.suggestionDictionary).map(function (state) {
                                         return {
                                             key: "name",
-                                            text: state + " ",
+                                            text: state,
                                             sourceIndex: params.sourceIndex
                                         };
                                     }));
@@ -156,7 +156,7 @@ static displayName = 'ArcticMapLLDSearch';
                                     res(states.map(function (state) {
                                         return {
                                             key: "name",
-                                            text: state + " ",
+                                            text: state,
                                             sourceIndex: params.sourceIndex
                                         };
     
@@ -196,7 +196,7 @@ static displayName = 'ArcticMapLLDSearch';
                                     res(Object.keys(meridianDict).map(function (meridian) {
                                         return {
                                             key: "name",
-                                            text: states[0] + " " + meridian + " T",
+                                            text: states[0] + " " + meridian,
                                             sourceIndex: params.sourceIndex
                                         };
                                     }));
@@ -216,7 +216,7 @@ static displayName = 'ArcticMapLLDSearch';
                                     res(meridians.map(function (meridian) {
                                         return {
                                             key: "name",
-                                            text: states[0] + " " + meridian + " T",
+                                            text: states[0] + " " + meridian,
                                             sourceIndex: params.sourceIndex
                                         };
                                     }));
