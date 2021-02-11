@@ -2,8 +2,7 @@ import React from "react";
 import ReactDOM from 'react-dom';
 import ArcticMapPanel from './ArcticMapPanel';
 import styles from './ArcticMapDatagrid.css';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import tabtyles from 'react-tabs/style/react-tabs.css';
+
 
 import {
     loadModules
@@ -57,22 +56,17 @@ class ArcticMapDatagrid extends React.Component {
         });
         var query = caseFeatureLayer.createQuery();
         query.where = "1=1";
-        query.outFields = [ "CSE_NR", "CSE_TYPE", "CSE_TYPE_NR", "LEG_CSE_NR", "STATUS", "CSE_META", "RCRD_ACRS", "GIS_ACRS", "PLSSIDS", "CMMDTY", "FRMTN", "EDOA", "PRDCNG", "OPRTR"];
-
+        query.outFields = self.props.outFields; // [ "CSE_NR", "BLM_PROD", "CSE_TYPE_NR", "LEG_CSE_NR", "STATUS","SRC", "CSE_META", "RCRD_ACRS", "GIS_ACRS", "PLSSIDS", "CMMDTY", "FRMTN", "EDOA", "PRDCNG", "OPRTR"];
         caseFeatureLayer.queryFeatures(query)
         .then(function(response){
 
           var featureColumns = response.fields.map( outField => {
-            var hideColumn = false;
-            if (outField.name == 'OBJECTID') {
-              hideColumn = true;
-            }
             var newColumn = {
               'field': outField.name,
-              'label': outField.alias,
-              hidden: hideColumn}
+              'label': outField.alias}
             return newColumn;
           });
+
           
           var items = response.features.map(feature => {
             return feature.attributes;
