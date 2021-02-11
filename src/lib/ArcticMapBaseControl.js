@@ -91,14 +91,14 @@ class ArcticMapBaseControl extends React.Component {
                             open: false
                         }
                     }
-                    else{
-                        actions.push({
-                            title: "Open Attribute Table",
-                            className: "esri-icon-table",
-                            id: "open-attribute-table"
-                        });
+                    // else{
+                    //     actions.push({
+                    //         title: "Open Attribute Table",
+                    //         className: "esri-icon-table",
+                    //         id: "open-attribute-table"
+                    //     });
 
-                    }
+                    // }
                     item.actionsSections = [ actions ];
 
                                       
