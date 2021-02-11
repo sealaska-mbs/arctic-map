@@ -15,7 +15,6 @@ class ArcticMapIdentify extends React.Component {
 
   setmaptoidentify() {
     this.props.am.setMode("identify");
-    this.props.view.dgridResponse=[]
     this.setState({ mode: "identify" });
 
   }
