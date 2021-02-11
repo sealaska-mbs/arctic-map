@@ -586,8 +586,11 @@ export default class App extends Component {
             <ArcticMapPanel esriicon="printer" onclick={this.locateExtra.bind(this)} />
           </ArcticMapControlArea>
           <ArcticMapControlArea location="bottom-right">
-              <ArcticMapDGridPanel  esriicon='review' title='Case Feature'>
-                <ArcticMapDatagrid am={this.props.am} view={this.props.view}  src={"https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/2"}/>
+              <ArcticMapDGridPanel  esriicon='table' title='Case Feature'>
+                <ArcticMapDatagrid 
+                view={this.props.view}  
+                src={"https://arcgis.mlrsdev.com/server/rest/services/NLSDB/FeatureServer/2"}
+                outFields={[ "CSE_NR", "BLM_PROD", "CSE_TYPE_NR", "LEG_CSE_NR", "STATUS","SRC", "CSE_META", "RCRD_ACRS", "GIS_ACRS", "PLSSIDS", "CMMDTY", "FRMTN", "EDOA", "PRDCNG", "OPRTR"]}/>
               </ArcticMapDGridPanel>
           </ArcticMapControlArea>
           <ArcticMapLLDSearch />
