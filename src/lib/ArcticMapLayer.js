@@ -510,8 +510,7 @@ class ArcticMapLayer extends React.Component {
             //this.params.returnGeometry = true;
             //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
-                console.log("identifyTask here",response );
-                self.state.view.dgridResponse.push(response);
+                //console.log("identifyTask here",response );
                 callback(response);
 
 

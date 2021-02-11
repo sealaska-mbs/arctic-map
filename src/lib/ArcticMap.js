@@ -424,20 +424,18 @@ class ArcticMap extends React.Component {
               rings: rings,
               spatialReference: self.state.view.spatialReference
             })
-            console.log("check self", self);
+            //console.log("check self", self);
             idParams.geometry=tempPolygon;
             idParams.tolerance = 3;
             //vw.goTo([pt,self.dragStart]);
-            self.state.view.dgridResponse= []
             self.layers.filter( function(layer){
-              console.log("layers", layer);
+              //console.log("layers", layer);
               layer.params.width = self.state.view.width;
               layer.params.height = self.state.view.height;
               layer.params.mapExtent = self.state.view.extent;
               layer.params.geometry=tempPolygon;
               layer.identifyTask.execute(layer.params).then(function(response){
-                console.log("identifyTask ",response );
-                self.state.view.dgridResponse.push(response);
+                //console.log("identifyTask ",response );
                 
               })
               
