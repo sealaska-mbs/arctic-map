@@ -91,22 +91,21 @@ class ArcticMapBaseControl extends React.Component {
                             open: false
                         }
                     }
-                    // else{
-                    //     actions.push({
-                    //         title: "Open Attribute Table",
-                    //         className: "esri-icon-table",
-                    //         id: "open-attribute-table"
-                    //     });
+                    else{
+                        if (self.canShowAttributeTable(item.layer.url)) {
+                            actions.unshift({
+                                title: "Open Attribute Table",
+                                className: "esri-icon-table",
+                                id: "open-attribute-table"
+                            });
+                        }
+                    }
 
-                    // }
-                    item.actionsSections = [ actions ];
-
-                                      
+                    item.actionsSections = [ actions ];                                      
                 }
             });
 
             layerList.on("trigger-action", function (event) {
-
                 if (event.action.id === "increase-opacity") {
                     event.item.layer.opacity += 0.1;
                     event.item.layer.opacity >= 1 ? event.item.layer.opacity = 1:  event.item.layer.opacity;
@@ -116,7 +115,13 @@ class ArcticMapBaseControl extends React.Component {
                     event.item.layer.opacity <= 0 ? event.item.layer.opacity = 0:  event.item.layer.opacity;
                 }
                 if (event.action.id === "open-attribute-table") {
-                    alert("openAT");
+                    self.props.openAttributesTable({
+                        view: self.props.view,
+                        url: event.item.layer.url,
+                        title: event.item.layer.title,
+                        fields: self.getAttributeTableLayerFields(event.item.layer.url),
+                        hiddenFields: self.getAttributeTableLayerHiddenFields(event.item.layer.url)
+                      });
                 }
             });
             //self.state.view.ui.add(layerList, 'top-left')
@@ -126,6 +131,38 @@ class ArcticMapBaseControl extends React.Component {
 
     }
 
+    canShowAttributeTable = (layerUrl) => {
+        if (this.props.attributesTableLayers && this.props.attributesTableLayers.length > 0) {
+            return this.props.attributesTableLayers.some((lyr) => {
+                return lyr.url === layerUrl;
+            });
+        }
+        return false;
+    }
+
+    getAttributeTableLayerFields = (layerUrl) => {
+        if (this.props.attributesTableLayers && this.props.attributesTableLayers.length > 0) {
+            const layer = this.props.attributesTableLayers.find((lyr) => {
+                return lyr.url === layerUrl;
+            });
+            if (layer && layer.fields && layer.fields.length > 0) {
+                return layer.fields;
+            }
+        }
+        return [];
+    }
+
+    getAttributeTableLayerHiddenFields = (layerUrl) => {
+        if (this.props.attributesTableLayers && this.props.attributesTableLayers.length > 0) {
+            const layer = this.props.attributesTableLayers.find((lyr) => {
+                return lyr.url === layerUrl;
+            });
+            if (layer && layer.hiddenFields && layer.hiddenFields.length > 0) {
+                return layer.hiddenFields;
+            }
+        }
+        return [];
+    }
 
     handleShowBasemaps() {
 
