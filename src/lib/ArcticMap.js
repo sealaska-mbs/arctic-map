@@ -659,6 +659,13 @@ class ArcticMap extends React.Component {
               var layerName = result.layerName;
 
               feature.attributes.layerName = layerName;
+              
+              if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
+                const sublayer = result.layer.layerRef.allSublayers.find(l => l.id === result.layerId);
+                if (sublayer) {
+                  feature.attributes.layerUrl = sublayer.url;
+                }
+              }
 
               if(result.layer.layerRenderers){
                 //console.log("result.layer  this.layerRenderers", result);
