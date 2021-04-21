@@ -947,6 +947,15 @@ var ArcticMap = function (_React$Component) {
 
                 feature.attributes.layerName = layerName;
 
+                if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
+                  var sublayer = result.layer.layerRef.allSublayers.find(function (l) {
+                    return l.id === result.layerId;
+                  });
+                  if (sublayer) {
+                    feature.attributes.layerUrl = sublayer.url;
+                  }
+                }
+
                 if (result.layer.layerRenderers) {
                   //console.log("result.layer  this.layerRenderers", result);
                   var popupDisable = result.layer.layerRenderers.find(function (l) {
@@ -1690,6 +1699,10 @@ var ArcticMapEdit = function (_React$Component) {
                         }
                     }
                 });
+
+                if (_this2.props.updateongraphicclick !== undefined) {
+                    sketchViewModel.updateOnGraphicClick = _this2.props.updateongraphicclick;
+                }
 
                 self.setState({ tempGraphicsLayer: tempGraphicsLayer, sketchViewModel: sketchViewModel });
 
