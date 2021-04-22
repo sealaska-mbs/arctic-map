@@ -25,7 +25,7 @@ class ArcticMapEdit extends React.Component {
             hideEditors: false,
             editing: false,
             showUploading: false,
-            hidden: !this.props.hidden ? false : true,
+            hidden: !this.props.hidden ? false : true,            
         };
 
         this.uploadPanel = React.createRef();
@@ -95,6 +95,9 @@ class ArcticMapEdit extends React.Component {
                 }
             });
 
+            if (this.props.updateongraphicclick !== undefined) {
+                sketchViewModel.updateOnGraphicClick = this.props.updateongraphicclick;
+            }
 
             self.setState({ tempGraphicsLayer, sketchViewModel });
 
