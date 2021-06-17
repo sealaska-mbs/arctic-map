@@ -1342,7 +1342,6 @@ var ArcticMapLayer = function (_React$Component) {
                                 }
                             });
                             if (renderer !== undefined) {
-                                console.log("Sublayer renderer:", renderer.props.style);
                                 sublayer.renderer = renderer.props.style;
                             }
                             //sublayer.renderer = Renderer.fromJSON(renderer);
