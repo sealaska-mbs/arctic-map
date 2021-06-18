@@ -87,11 +87,6 @@ class ArcticMapLayer extends React.Component {
                 }
             });
 
-
-
-
-            // this.setState({ graphic });
-
             if (self.props.type === "feature") {
                 var flayers = self.props.sublayers;
                 if(!flayers || self.props.sublayers.length<1) {
@@ -182,24 +177,17 @@ class ArcticMapLayer extends React.Component {
 
                     gmaplayer.layers.add(glayer);
 
-
                     glayer.when(() => {
-
-
-                        var layerids = [];
-                        
+                        var layerids = [];                 
                         //console.log("Maplayer: ", maplayer);
                         glayer.allSublayers.items.forEach(sublayer => {
                             layerids.push(sublayer.id);
-                            //console.log("Sublayer:", sublayer);
-
                             var renderer = renderers.find(r => {
                                 if (r.props.layer === sublayer.title || r.props.layer === `${sublayer.id}`) {
                                     return r;
                                 }
                             });
                             if (renderer !== undefined) {
-                                //console.log("Sublayer renderer:", renderer.props.style);
                                 sublayer.renderer = renderer.props.style;
                             }
                             //sublayer.renderer = Renderer.fromJSON(renderer);
@@ -216,7 +204,6 @@ class ArcticMapLayer extends React.Component {
                         self.params.height = self.state.view.height;
                         self.params.returnGeometry = true;
                         self.params.returnGeometry = !self.state.blockSelect;
-
                         //  console.log(self.params);
 
                     });
@@ -234,23 +221,14 @@ class ArcticMapLayer extends React.Component {
                     trans = Number.parseFloat(self.props.transparency);
                 }
 
-
-
-
-
-
-
                 var maplayer = new MapImageLayer({
                     url: self.props.src,
                     opacity: trans
-                    //sublayers: []
-
                 });
                 
                 if(self.props.sublayers) {
                     maplayer.sublayers = self.props.sublayers;
                 }
-
 
                 if (self.props.childsrc);
 
@@ -264,25 +242,27 @@ class ArcticMapLayer extends React.Component {
                 });
 
                 maplayer.when(() => {
-
-
                     var layerids = [];
-                    //console.log("Maplayer: ", maplayer);
                     maplayer.allSublayers.items.forEach(sublayer => {
                         layerids.push(sublayer.id);
-                        //console.log("Sublayer:", sublayer);
-
+                        sublayer.when(function(e){
+                            if(self.props.sublayers !== undefined){
+                                self.props.sublayers.forEach(sub => {
+                                    if(sub.isVisible === false && (e.id === sub.id)){
+                                        e.visible = false;
+                                    }
+                                });
+                            }
+                        });
                         var renderer = renderers.find(r => {
                             if (r.props.layer === sublayer.title || r.props.layer === `${sublayer.id}`) {
                                 return r;
                             }
                         });
                         if (renderer !== undefined) {
-                            //console.log("Sublayer renderer:", renderer.props.style);
                             sublayer.renderer = renderer.props.style;
                         }
                         //sublayer.renderer = Renderer.fromJSON(renderer);
-
                     });
                     layerids.reverse();
 
@@ -295,26 +275,19 @@ class ArcticMapLayer extends React.Component {
                     self.params.height = self.state.view.height;
                     self.params.returnGeometry = true;
                     self.params.returnGeometry = !self.state.blockSelect;
-
-                    //  console.log(self.params);
-
                 });
 
                 self.layerRef = maplayer;
                 self.state.map.add(maplayer);
             }
 
-
             if (self.props.type === "image") {
-
-
                 var imagelayer = new ImageryLayer({
                     url: self.props.src,
                     format: "jpgpng" // server exports in either jpg or png format
                 });
                 self.layerRef = imagelayer;
                 self.state.map.add(imagelayer);
-
             }
 
             if (self.props.type === "custom") {
