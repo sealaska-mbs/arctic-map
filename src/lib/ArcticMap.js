@@ -53,13 +53,7 @@ class ArcticMap extends React.Component {
     var self = this
     var index = 0
     this.layers = []
-
     self.childrenElements = [];
-
-
-
-
-
 
     var children = React.Children.map(this.props.children, function (child) {
       if (child.type.displayName === 'ArcticMapLayer') {
@@ -497,7 +491,7 @@ class ArcticMap extends React.Component {
             identLayers = identLayers.concat(self.state.map.amlayers);
         
             async.eachSeries(identLayers, function (layer, cb) {
-              if(!layer.state.disablePopup){
+              if(!layer.state.disablePopup && layer.layerRef.visible === true){
                   //TODO
                 layer.identifyArea(self.dragStart, pt, layer.props.allowMultiSelect, function (results) {
                   if (results) {
@@ -607,7 +601,10 @@ class ArcticMap extends React.Component {
         identLayers = identLayers.concat(self.state.map.amlayers);
 
         async.eachSeries(identLayers, function (layer, cb) {
-          if(!layer.state.disablePopup){
+          if(layer.layerRef.visible === false){
+            cb();
+          }
+          if(!layer.state.disablePopup && layer.layerRef.visible === true){
             layer.identify(event, function (results) {
               if (results) {
                 results.layer = layer;
