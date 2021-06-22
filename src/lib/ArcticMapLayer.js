@@ -280,6 +280,9 @@ class ArcticMapLayer extends React.Component {
                         if (renderer !== undefined) {
                             //console.log("Sublayer renderer:", renderer.props.style);
                             sublayer.renderer = renderer.props.style;
+                            if (renderer.props.displayTitle !== undefined) {
+                                sublayer.title = renderer.props.displayTitle;
+                            }
                         }
                         //sublayer.renderer = Renderer.fromJSON(renderer);
 
