@@ -413,7 +413,6 @@ var ArcticMap = function (_React$Component) {
       var self = this;
       var index = 0;
       this.layers = [];
-
       self.childrenElements = [];
 
       var children = React.Children.map(this.props.children, function (child) {
@@ -801,7 +800,7 @@ var ArcticMap = function (_React$Component) {
               identLayers = identLayers.concat(self.state.map.amlayers);
 
               async__default.eachSeries(identLayers, function (layer, cb) {
-                if (!layer.state.disablePopup) {
+                if (!layer.state.disablePopup && layer.layerRef.visible === true) {
                   //TODO
                   layer.identifyArea(self.dragStart, pt, layer.props.allowMultiSelect, function (results) {
                     if (results) {
@@ -904,7 +903,10 @@ var ArcticMap = function (_React$Component) {
           identLayers = identLayers.concat(self.state.map.amlayers);
 
           async__default.eachSeries(identLayers, function (layer, cb) {
-            if (!layer.state.disablePopup) {
+            if (layer.layerRef.visible === false) {
+              cb();
+            }
+            if (!layer.state.disablePopup && layer.layerRef.visible === true) {
               layer.identify(event, function (results) {
                 if (results) {
                   results.layer = layer;
@@ -1181,8 +1183,6 @@ var ArcticMapLayer = function (_React$Component) {
                     }
                 });
 
-                // this.setState({ graphic });
-
                 if (self.props.type === "feature") {
                     var flayers = self.props.sublayers;
                     if (!flayers || self.props.sublayers.length < 1) {
@@ -1272,21 +1272,16 @@ var ArcticMapLayer = function (_React$Component) {
                         gmaplayer.layers.add(glayer);
 
                         glayer.when(function () {
-
                             var layerids = [];
-
                             //console.log("Maplayer: ", maplayer);
                             glayer.allSublayers.items.forEach(function (sublayer) {
                                 layerids.push(sublayer.id);
-                                //console.log("Sublayer:", sublayer);
-
                                 var renderer = renderers.find(function (r) {
                                     if (r.props.layer === sublayer.title || r.props.layer === '' + sublayer.id) {
                                         return r;
                                     }
                                 });
                                 if (renderer !== undefined) {
-                                    //console.log("Sublayer renderer:", renderer.props.style);
                                     sublayer.renderer = renderer.props.style;
                                 }
                                 //sublayer.renderer = Renderer.fromJSON(renderer);
@@ -1302,7 +1297,6 @@ var ArcticMapLayer = function (_React$Component) {
                             self.params.height = self.state.view.height;
                             self.params.returnGeometry = true;
                             self.params.returnGeometry = !self.state.blockSelect;
-
                             //  console.log(self.params);
                         });
                     });
@@ -1321,8 +1315,6 @@ var ArcticMapLayer = function (_React$Component) {
                     var maplayer = new MapImageLayer({
                         url: self.props.src,
                         opacity: trans
-                        //sublayers: []
-
                     });
 
                     if (self.props.sublayers) {
@@ -1341,20 +1333,24 @@ var ArcticMapLayer = function (_React$Component) {
                     });
 
                     maplayer.when(function () {
-
                         var layerids = [];
-                        //console.log("Maplayer: ", maplayer);
                         maplayer.allSublayers.items.forEach(function (sublayer) {
                             layerids.push(sublayer.id);
-                            //console.log("Sublayer:", sublayer);
-
+                            sublayer.when(function (e) {
+                                if (self.props.sublayers !== undefined) {
+                                    self.props.sublayers.forEach(function (sub) {
+                                        if (sub.isVisible === false && e.id === sub.id) {
+                                            e.visible = false;
+                                        }
+                                    });
+                                }
+                            });
                             var renderer = renderers.find(function (r) {
                                 if (r.props.layer === sublayer.title || r.props.layer === '' + sublayer.id) {
                                     return r;
                                 }
                             });
                             if (renderer !== undefined) {
-                                //console.log("Sublayer renderer:", renderer.props.style);
                                 sublayer.renderer = renderer.props.style;
                             }
                             //sublayer.renderer = Renderer.fromJSON(renderer);
@@ -1370,8 +1366,6 @@ var ArcticMapLayer = function (_React$Component) {
                         self.params.height = self.state.view.height;
                         self.params.returnGeometry = true;
                         self.params.returnGeometry = !self.state.blockSelect;
-
-                        //  console.log(self.params);
                     });
 
                     self.layerRef = maplayer;
@@ -1379,7 +1373,6 @@ var ArcticMapLayer = function (_React$Component) {
                 }
 
                 if (self.props.type === "image") {
-
                     var imagelayer = new ImageryLayer({
                         url: self.props.src,
                         format: "jpgpng" // server exports in either jpg or png format
