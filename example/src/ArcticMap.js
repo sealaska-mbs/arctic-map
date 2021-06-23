@@ -800,7 +800,7 @@ var ArcticMap = function (_React$Component) {
               identLayers = identLayers.concat(self.state.map.amlayers);
 
               async__default.eachSeries(identLayers, function (layer, cb) {
-                if (!layer.state.disablePopup && layer.layerRef.visible === true) {
+                if (!layer.state.disablePopup) {
                   //TODO
                   layer.identifyArea(self.dragStart, pt, layer.props.allowMultiSelect, function (results) {
                     if (results) {
@@ -906,11 +906,23 @@ var ArcticMap = function (_React$Component) {
             if (layer.layerRef.visible === false) {
               cb();
             }
+
             if (!layer.state.disablePopup && layer.layerRef.visible === true) {
+              var visibleLayerIds = [];
+              layer.layerRef.sublayers._items.forEach(function (sub) {
+                if (sub.visible) {
+                  visibleLayerIds.push(sub.id);
+                }
+              });
+
               layer.identify(event, function (results) {
                 if (results) {
-                  results.layer = layer;
-                  identresults.push(results);
+                  results.results.forEach(function (res) {
+                    if (visibleLayerIds.includes(res.layerId)) {
+                      results.layer = layer;
+                      identresults.push(results);
+                    }
+                  });
                 }
                 cb();
               });
