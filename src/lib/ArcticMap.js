@@ -491,8 +491,8 @@ class ArcticMap extends React.Component {
             identLayers = identLayers.concat(self.state.map.amlayers);
         
             async.eachSeries(identLayers, function (layer, cb) {
-              if(!layer.state.disablePopup && layer.layerRef.visible === true){
-                  //TODO
+              if(!layer.state.disablePopup){   
+                //TODO
                 layer.identifyArea(self.dragStart, pt, layer.props.allowMultiSelect, function (results) {
                   if (results) {
                     results.layer = layer;
@@ -604,11 +604,23 @@ class ArcticMap extends React.Component {
           if(layer.layerRef.visible === false){
             cb();
           }
+          
           if(!layer.state.disablePopup && layer.layerRef.visible === true){
+            const visibleLayerIds = [];
+            layer.layerRef.sublayers._items.forEach(sub => {
+                  if(sub.visible){
+                    visibleLayerIds.push(sub.id);
+                  }
+            });
+
             layer.identify(event, function (results) {
               if (results) {
-                results.layer = layer;
-                identresults.push(results);
+                results.results.forEach(res => {
+                    if(visibleLayerIds.includes(res.layerId)){
+                      results.layer = layer;
+                      identresults.push(results);
+                    }
+                  });
               }
               cb();
             });
