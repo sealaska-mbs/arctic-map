@@ -601,27 +601,41 @@ class ArcticMap extends React.Component {
         identLayers = identLayers.concat(self.state.map.amlayers);
 
         async.eachSeries(identLayers, function (layer, cb) {
-          if(layer.layerRef.visible === false){
+          if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined){
             cb();
           }
           
-          if(!layer.state.disablePopup && layer.layerRef.visible === true){
-            const visibleLayerIds = [];
-            layer.layerRef.sublayers._items.forEach(sub => {
-                  if(sub.visible){
-                    visibleLayerIds.push(sub.id);
+          if(!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined){
+            const visibleLayers = [];
+            let noFilter = false;
+            if(layer.props.sublayers){
+              layer.props.sublayers.forEach(s => {
+                if(s.nofilter === true){
+                  noFilter = s.nofilter;
+                }
+              });
+            }
+
+            layer.layerRef.sublayers.items.forEach(sub => {
+                  if(sub.visible && noFilter === false){
+                    visibleLayers.push(sub.url);
                   }
             });
 
             layer.identify(event, function (results) {
               if (results) {
-                results.results.forEach(res => {
-                    if(visibleLayerIds.includes(res.layerId)){
                       results.layer = layer;
-                      identresults.push(results);
-                    }
-                  });
-              }
+                      results.results.forEach(res =>{
+                        if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                        {
+                          results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
+                        }
+                      })
+                      if(results.results.length > 0){
+                        identresults.push(results);
+                      }
+              }else{cb()}
+
               cb();
             });
           }
