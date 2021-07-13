@@ -424,8 +424,6 @@ class ArcticMapLayer extends React.Component {
                 var ele = popuprender.props.popup(feature, result);
 
 
-
-
                 if (ele) {
                     var workingdiv = document.createElement('div');
                     ReactDOM.render(ele, workingdiv);
@@ -438,15 +436,17 @@ class ArcticMapLayer extends React.Component {
 
 
         var popupText = "";
-        var atts = Object.getOwnPropertyNames(feature.attributes);
-        atts.forEach(att => {
-            if (att === 'layerName') {
-
-            }
-            else {
-                popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`;
-            }
-        });
+        if(feature.attributes){
+            var atts = Object.getOwnPropertyNames(feature.attributes);
+            atts.forEach(att => {
+                if (att === 'layerName') {
+    
+                }
+                else {
+                    popupText += `<b>${att}</b> : ${feature.attributes[att]}<br/>`;
+                }
+            });
+        }
 
         return popupText;
 

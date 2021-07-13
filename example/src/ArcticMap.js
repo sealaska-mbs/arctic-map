@@ -837,8 +837,8 @@ var ArcticMap = function (_React$Component) {
             event.stopPropagation();
             var vw = self.state.view;
             var pt = vw.toMap({ x: event.x, y: event.y });
-            console.log("self.", self);
-            console.log("self.dragStart", self.dragStart);
+            //console.log("self.", self);
+            //console.log("self.dragStart", self.dragStart);
             if (event.action === "start") {
               self.dragStart = pt;
             } else if (event.action === "end") {
@@ -903,11 +903,10 @@ var ArcticMap = function (_React$Component) {
           identLayers = identLayers.concat(self.state.map.amlayers);
 
           async__default.eachSeries(identLayers, function (layer, cb) {
-            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined) {
+            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson") {
               cb();
             }
-
-            if (!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined) {
+            if (!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined || layer.props.type === "geojson") {
               var visibleLayers = [];
               var noFilter = false;
               if (layer.props.sublayers) {
@@ -918,12 +917,13 @@ var ArcticMap = function (_React$Component) {
                 });
               }
 
-              layer.layerRef.sublayers.items.forEach(function (sub) {
-                if (sub.visible && noFilter === false) {
-                  visibleLayers.push(sub.url);
-                }
-              });
-
+              if (layer.layerRef.sublayers) {
+                layer.layerRef.sublayers.items.forEach(function (sub) {
+                  if (sub.visible && noFilter === false) {
+                    visibleLayers.push(sub.url);
+                  }
+                });
+              }
               layer.identify(event, function (results) {
                 if (results) {
                   results.layer = layer;
@@ -958,14 +958,12 @@ var ArcticMap = function (_React$Component) {
               return a.concat(b);
             });
             self.setState({ loading: false });
-
             results = results.flat();
 
             results = results.sort(function (r1, r2) {
               if (r1.acres < 0 && r2.acres < 0) return 0;
               if (r1.acres < 0) return 1;
               if (r2.acres < 0) return -1;
-
               if (r1.acres > r2.acres) {
                 return 1;
               }
@@ -983,7 +981,9 @@ var ArcticMap = function (_React$Component) {
                 var feature = result.feature;
                 var layerName = result.layerName;
 
-                feature.attributes.layerName = layerName;
+                if (feature.attributes !== null) {
+                  feature.attributes.layerName = layerName;
+                }
 
                 if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
                   var sublayer = result.layer.layerRef.allSublayers.find(function (l) {
@@ -1107,7 +1107,6 @@ var ArcticMap = function (_React$Component) {
         });
 
         // Add the widget to the top-right corner of the view
-
         if (_this2.props.home) {
           var homeBtn = new Home({
             view: view
@@ -1381,6 +1380,9 @@ var ArcticMapLayer = function (_React$Component) {
                             });
                             if (renderer !== undefined) {
                                 sublayer.renderer = renderer.props.style;
+                                if (renderer.props.displayTitle !== undefined) {
+                                    sublayer.title = renderer.props.displayTitle;
+                                }
                             }
                             //sublayer.renderer = Renderer.fromJSON(renderer);
                         });
@@ -1557,12 +1559,14 @@ var ArcticMapLayer = function (_React$Component) {
             }
 
             var popupText = "";
-            var atts = Object.getOwnPropertyNames(feature.attributes);
-            atts.forEach(function (att) {
-                if (att === 'layerName') ; else {
-                    popupText += '<b>' + att + '</b> : ' + feature.attributes[att] + '<br/>';
-                }
-            });
+            if (feature.attributes) {
+                var atts = Object.getOwnPropertyNames(feature.attributes);
+                atts.forEach(function (att) {
+                    if (att === 'layerName') ; else {
+                        popupText += '<b>' + att + '</b> : ' + feature.attributes[att] + '<br/>';
+                    }
+                });
+            }
 
             return popupText;
         }
