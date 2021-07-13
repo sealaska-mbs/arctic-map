@@ -529,8 +529,8 @@ class ArcticMap extends React.Component {
           event.stopPropagation();
           var vw = self.state.view;
           var pt = vw.toMap({ x: event.x, y: event.y });
-          console.log("self.", self);
-          console.log("self.dragStart", self.dragStart);
+          //console.log("self.", self);
+          //console.log("self.dragStart", self.dragStart);
           if(event.action==="start"){
             self.dragStart = pt;
           }
@@ -601,11 +601,11 @@ class ArcticMap extends React.Component {
         identLayers = identLayers.concat(self.state.map.amlayers);
 
         async.eachSeries(identLayers, function (layer, cb) {
-          if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined){
+          if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson")
+          {
             cb();
           }
-          
-          if(!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined){
+          if((!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined) || layer.props.type === "geojson"){
             const visibleLayers = [];
             let noFilter = false;
             if(layer.props.sublayers){
@@ -616,11 +616,13 @@ class ArcticMap extends React.Component {
               });
             }
 
-            layer.layerRef.sublayers.items.forEach(sub => {
-                  if(sub.visible && noFilter === false){
-                    visibleLayers.push(sub.url);
-                  }
-            });
+            if(layer.layerRef.sublayers){
+              layer.layerRef.sublayers.items.forEach(sub => {
+                if(sub.visible && noFilter === false){
+                  visibleLayers.push(sub.url);
+                }
+            })};
+
 
             layer.identify(event, function (results) {
               if (results) {
@@ -653,16 +655,12 @@ class ArcticMap extends React.Component {
             return a.concat(b);
           });
           self.setState({ loading: false });
-
-
-
           results = results.flat();
 
           results = results.sort(function (r1, r2) {
             if(r1.acres < 0 && r2.acres < 0) return 0;
             if(r1.acres < 0) return 1;
             if(r2.acres < 0) return -1;
-
             if (r1.acres > r2.acres) {
               return 1;
             }
@@ -673,7 +671,6 @@ class ArcticMap extends React.Component {
             //r.feature.attributes.Shape_Area
           });
 
-
           if (currentmode === "identify") {
 
             //results = results.reverse();
@@ -681,8 +678,10 @@ class ArcticMap extends React.Component {
               var feature = result.feature;
               var layerName = result.layerName;
 
-              feature.attributes.layerName = layerName;
-              
+              if(feature.attributes !== null){
+                feature.attributes.layerName = layerName;
+              }
+
               if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
                 const sublayer = result.layer.layerRef.allSublayers.find(l => l.id === result.layerId);
                 if (sublayer) {
@@ -807,7 +806,6 @@ class ArcticMap extends React.Component {
 
 
       // Add the widget to the top-right corner of the view
-
       if (this.props.home) {
         var homeBtn = new Home({
           view: view
@@ -831,14 +829,8 @@ class ArcticMap extends React.Component {
           self.props.onmapready(evt);
         }
       }, 500)
-
-
-
     })
-
   }
-
-
 }
 
 export default ArcticMap
