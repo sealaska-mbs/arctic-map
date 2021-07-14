@@ -1017,11 +1017,6 @@ class ArcticMapEdit extends React.Component {
                 aml.layerRef.title = props.title;
 
                 self.state.map.amlayers.push(aml);
-
-
-
-
-
             });
     }
 
