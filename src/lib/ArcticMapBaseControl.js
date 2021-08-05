@@ -67,6 +67,9 @@ class ArcticMapBaseControl extends React.Component {
                 view: props.view,
                 container: self.legendDiv,
             });
+
+            this.watchForLegendChanges(legend);
+
             var layerList = new LayerList({
                 view: props.view,
                 container: self.layersDiv,
@@ -90,6 +93,9 @@ class ArcticMapBaseControl extends React.Component {
                             content: 'legend',
                             open: false
                         }
+                        item.panel.watch('open', (isOpen) => {
+                            self.removeLegendDuplicateLabels();
+                        });
                     }
                     else{
                         if (self.canShowAttributeTable(item.layer.url)) {
@@ -181,6 +187,55 @@ class ArcticMapBaseControl extends React.Component {
         // self.state.view.ui.remove(self.basemapGallery);
     }
 
+    watchForLegendChanges = (legend) => {
+        legend.watch('activeLayerInfos.length', (len) => {
+            this.removeLegendDuplicateLabels();
+        });
+        legend.view.watch('stationary', (stationary) => {
+            if (stationary) {
+                this.removeLegendDuplicateLabels();
+            }
+        });
+        legend.view.map.layers.on("after-changes", (event) => {
+            legend.view.map.layers.forEach((layer) => {
+                if (layer.allSublayers) {
+                    layer.allSublayers.forEach((subLayer) => {
+                        subLayer.watch('visible', (visible) => {
+                            this.removeLegendDuplicateLabels();
+                        });
+                    });
+                }
+                layer.watch('visible', (visible) => {
+                    this.removeLegendDuplicateLabels();
+                });
+            });
+        });
+    }
+
+    removeLegendDuplicateLabels = () => {
+        setTimeout(() => {
+            const elements = document.getElementsByClassName("esri-legend__layer-body");
+            for (let i = 0; i < elements.length; i++) {
+                if (elements[i].childNodes && elements[i].childNodes.length > 2) {
+                    const element = elements[i];
+                    let label = "";
+                    for (let index = 0; index < element.childNodes.length; index++) {
+                        const childNode = element.childNodes[index];
+                        if (childNode.childNodes.length === 2) {
+                            const innerText = childNode.childNodes[1].innerText;
+                            if (innerText && innerText === label) {
+                                if (!childNode.classList.contains("arctic-map-hidden")) {
+                                  childNode.classList.add("arctic-map-hidden");
+                                }
+                            }
+                            label = innerText;
+                        }
+                    }
+                }
+            }
+        }, 200);
+    }
+
     render() {
         return (
             <div >
@@ -190,7 +245,7 @@ class ArcticMapBaseControl extends React.Component {
                 </ArcticMapControlArea>
 
                 <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" className={styles.ArcticMap} >
-                    <ArcticMapPanel  esriicon='layer-list' title='Legend'>
+                    <ArcticMapPanel  esriicon='layer-list' title='Legend' ontoggle={this.removeLegendDuplicateLabels.bind(this)}>
                         <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
                     <ArcticMapPanel esriicon='collection' title='Layers' >

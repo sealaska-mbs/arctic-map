@@ -34,6 +34,10 @@ class ArcticMapPanel extends React.Component {
 
             var currvalue = this.state.open;
             this.setState({ open: !currvalue });
+
+            if (this.props.ontoggle) {
+                this.props.ontoggle();
+            }
         };
         this.toggle = this.toggle.bind(this);
 
