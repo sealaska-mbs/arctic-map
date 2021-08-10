@@ -38,8 +38,8 @@ function styleInject(css, ref) {
   }
 }
 
-var css = ".ArcticMap_simple-form-group__3yxCc {\r\n    margin-bottom: 1rem;\r\n  }\r\n  .ArcticMap_simple-text-label__JFxOr {\r\n    display: block;\r\n    color: red;\r\n  }\r\n  .ArcticMap_simple-text-input__2Da66 {\r\n    display: inline-block;\r\n    margin-bottom: 0.5rem;\r\n    font-size: 16px;\r\n    font-weight: 400;\r\n    color: rgb(33, 37, 41);\r\n  }\r\n\r\n#ArcticMap_bottomleftbar__1Odoz{\r\n  background: #fff;\r\n  position: absolute;\r\n  bottom: 30px;\r\n  left: 15px;\r\n  padding: 0px;\r\n  font-family: 'Avenir Next W00\",\"Helvetica Neue\",Helvetica,Arial,sans-serif'\r\n}\r\n\r\n#ArcticMap_bottomleftbar__1Odoz p{\r\n  padding-left: 12px;\r\n  padding-right: 12px;\r\n}\r\n  \r\n#ArcticMap_bottombar__qE1e6 {\r\n    background: #fff;\r\n    position: absolute;\r\n    bottom: 30px;\r\n    right: 15px;\r\n    padding: 0;\r\n  }\r\n\r\n  .ArcticMap_action-button__MaMS6 {\r\n    font-size: 16px;\r\n    background-color: transparent;\r\n    border: 1px solid #D3D3D3;\r\n    color: #6e6e6e;\r\n    height: 32px;\r\n    width: 32px;\r\n    text-align: center;\r\n    box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);\r\n  }\r\n\r\n  .ArcticMap_action-button__MaMS6:hover,\r\n  .ArcticMap_action-button__MaMS6:focus {\r\n    background: #0079c1;\r\n    color: #e4e4e4;\r\n  }\r\n\r\n  .ArcticMap_active__1K4ZI {\r\n    background: #0079c1;\r\n    color: #e4e4e4;\r\n  }";
-var styles = { "simple-form-group": "ArcticMap_simple-form-group__3yxCc", "simple-text-label": "ArcticMap_simple-text-label__JFxOr", "simple-text-input": "ArcticMap_simple-text-input__2Da66", "bottomleftbar": "ArcticMap_bottomleftbar__1Odoz", "bottombar": "ArcticMap_bottombar__qE1e6", "action-button": "ArcticMap_action-button__MaMS6", "active": "ArcticMap_active__1K4ZI" };
+var css = ".ArcticMap_simple-form-group__3yxCc {\r\n    margin-bottom: 1rem;\r\n  }\r\n  .ArcticMap_simple-text-label__JFxOr {\r\n    display: block;\r\n    color: red;\r\n  }\r\n  .ArcticMap_simple-text-input__2Da66 {\r\n    display: inline-block;\r\n    margin-bottom: 0.5rem;\r\n    font-size: 16px;\r\n    font-weight: 400;\r\n    color: rgb(33, 37, 41);\r\n  }\r\n\r\n#ArcticMap_bottomleftbar__1Odoz{\r\n  background: #fff;\r\n  position: absolute;\r\n  bottom: 30px;\r\n  left: 15px;\r\n  padding: 0px;\r\n  font-family: 'Avenir Next W00\",\"Helvetica Neue\",Helvetica,Arial,sans-serif'\r\n}\r\n\r\n#ArcticMap_bottomleftbar__1Odoz p{\r\n  padding-left: 12px;\r\n  padding-right: 12px;\r\n}\r\n  \r\n#ArcticMap_bottombar__qE1e6 {\r\n    background: #fff;\r\n    position: absolute;\r\n    bottom: 30px;\r\n    right: 15px;\r\n    padding: 0;\r\n  }\r\n\r\n  .ArcticMap_action-button__MaMS6 {\r\n    font-size: 16px;\r\n    background-color: transparent;\r\n    border: 1px solid #D3D3D3;\r\n    color: #6e6e6e;\r\n    height: 32px;\r\n    width: 32px;\r\n    text-align: center;\r\n    box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);\r\n  }\r\n\r\n  .ArcticMap_action-button__MaMS6:hover,\r\n  .ArcticMap_action-button__MaMS6:focus {\r\n    background: #0079c1;\r\n    color: #e4e4e4;\r\n  }\r\n\r\n  .ArcticMap_active__1K4ZI {\r\n    background: #0079c1;\r\n    color: #e4e4e4;\r\n  }\r\n\r\n  .ArcticMap_arctic-map-hidden__Azy1_ {\r\n    display: none !important;\r\n  }";
+var styles = { "simple-form-group": "ArcticMap_simple-form-group__3yxCc", "simple-text-label": "ArcticMap_simple-text-label__JFxOr", "simple-text-input": "ArcticMap_simple-text-input__2Da66", "bottomleftbar": "ArcticMap_bottomleftbar__1Odoz", "bottombar": "ArcticMap_bottombar__qE1e6", "action-button": "ArcticMap_action-button__MaMS6", "active": "ArcticMap_active__1K4ZI", "arctic-map-hidden": "ArcticMap_arctic-map-hidden__Azy1_" };
 styleInject(css);
 
 var classCallCheck = function (instance, Constructor) {
@@ -293,6 +293,10 @@ var ArcticMapPanel = function (_React$Component) {
 
             var currvalue = this.state.open;
             this.setState({ open: !currvalue });
+
+            if (this.props.ontoggle) {
+                this.props.ontoggle();
+            }
         };
         _this.toggle = _this.toggle.bind(_this);
 
@@ -903,10 +907,10 @@ var ArcticMap = function (_React$Component) {
           identLayers = identLayers.concat(self.state.map.amlayers);
 
           async__default.eachSeries(identLayers, function (layer, cb) {
-            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson") {
+            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group") {
               cb();
             }
-            if (!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined || layer.props.type === "geojson") {
+            if (!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined || layer.props.type === "geojson" || layer.props.type === "group") {
               var visibleLayers = [];
               var noFilter = false;
               if (layer.props.sublayers) {
@@ -3490,6 +3494,55 @@ var ArcticMapBaseControl = function (_React$Component) {
             return [];
         };
 
+        _this.watchForLegendChanges = function (legend) {
+            legend.watch('activeLayerInfos.length', function (len) {
+                _this.removeLegendDuplicateLabels();
+            });
+            legend.view.watch('stationary', function (stationary) {
+                if (stationary) {
+                    _this.removeLegendDuplicateLabels();
+                }
+            });
+            legend.view.map.layers.on("after-changes", function (event) {
+                legend.view.map.layers.forEach(function (layer) {
+                    if (layer.allSublayers) {
+                        layer.allSublayers.forEach(function (subLayer) {
+                            subLayer.watch('visible', function (visible) {
+                                _this.removeLegendDuplicateLabels();
+                            });
+                        });
+                    }
+                    layer.watch('visible', function (visible) {
+                        _this.removeLegendDuplicateLabels();
+                    });
+                });
+            });
+        };
+
+        _this.removeLegendDuplicateLabels = function () {
+            setTimeout(function () {
+                var elements = document.getElementsByClassName("esri-legend__layer-body");
+                for (var i = 0; i < elements.length; i++) {
+                    if (elements[i].childNodes && elements[i].childNodes.length > 2) {
+                        var element = elements[i];
+                        var label = "";
+                        for (var index = 0; index < element.childNodes.length; index++) {
+                            var childNode = element.childNodes[index];
+                            if (childNode.childNodes.length === 2) {
+                                var innerText = childNode.childNodes[1].innerText;
+                                if (innerText && innerText === label) {
+                                    if (!childNode.classList.contains("arctic-map-hidden")) {
+                                        childNode.classList.add("arctic-map-hidden");
+                                    }
+                                }
+                                label = innerText;
+                            }
+                        }
+                    }
+                }
+            }, 2000);
+        };
+
         _this.state = {
             zoomControl: null,
             renderElements: [],
@@ -3535,6 +3588,9 @@ var ArcticMapBaseControl = function (_React$Component) {
                 view: props.view,
                 container: self.legendDiv
             });
+
+            _this.watchForLegendChanges(legend);
+
             var layerList = new LayerList({
                 view: props.view,
                 container: self.layersDiv,
@@ -3557,6 +3613,9 @@ var ArcticMapBaseControl = function (_React$Component) {
                             content: 'legend',
                             open: false
                         };
+                        item.panel.watch('open', function (isOpen) {
+                            self.removeLegendDuplicateLabels();
+                        });
                     } else {
                         if (self.canShowAttributeTable(item.layer.url)) {
                             actions.unshift({
@@ -3636,7 +3695,7 @@ var ArcticMapBaseControl = function (_React$Component) {
                     { am: this.props.am, view: this.props.view, location: 'bottom-right', className: styles.ArcticMap },
                     React.createElement(
                         ArcticMapPanel,
-                        { esriicon: 'layer-list', title: 'Legend' },
+                        { esriicon: 'layer-list', title: 'Legend', ontoggle: this.removeLegendDuplicateLabels.bind(this) },
                         React.createElement('div', { ref: function ref(e) {
                                 e && e.appendChild(_this2.legendDiv);
                             } })
