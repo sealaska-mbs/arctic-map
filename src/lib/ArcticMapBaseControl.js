@@ -107,7 +107,7 @@ class ArcticMapBaseControl extends React.Component {
                         }
                     }
 
-                    item.actionsSections = [ actions ];                                      
+                    item.actionsSections = [ actions ];     
                 }
             });
 
@@ -233,7 +233,7 @@ class ArcticMapBaseControl extends React.Component {
                     }
                 }
             }
-        }, 200);
+        }, 2000);
     }
 
     render() {
