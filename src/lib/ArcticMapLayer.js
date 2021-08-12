@@ -162,6 +162,17 @@ class ArcticMapLayer extends React.Component {
                     gmaplayer.title = self.props.title;
                 }
 
+                self.identifyTask = new IdentifyTask(srcsplit[srcsplit.length-1]);
+                self.params = new IdentifyParameters();
+                self.params.tolerance = 3;
+                self.params.layerIds = layerids;
+                self.params.layerOption = "visible";
+                self.params.width = self.state.view.width;
+                self.params.height = self.state.view.height;
+                self.params.returnGeometry = true;
+                self.params.returnGeometry = !self.state.blockSelect;
+                //  console.log(self.params);
+
                 var idx = 0;
                 srcsplit.forEach(function (src) {
                     var glayer = new MapImageLayer({
@@ -195,16 +206,6 @@ class ArcticMapLayer extends React.Component {
                         });
                         layerids.reverse();
 
-                        self.identifyTask = new IdentifyTask(src);
-                        self.params = new IdentifyParameters();
-                        self.params.tolerance = 3;
-                        self.params.layerIds = layerids;
-                        self.params.layerOption = "visible";
-                        self.params.width = self.state.view.width;
-                        self.params.height = self.state.view.height;
-                        self.params.returnGeometry = true;
-                        self.params.returnGeometry = !self.state.blockSelect;
-                        //  console.log(self.params);
 
                     });
 
