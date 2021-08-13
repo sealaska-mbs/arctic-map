@@ -604,6 +604,7 @@ class ArcticMap extends React.Component {
           if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group")
           {
             cb();
+            return;
           }
           if((!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined) || layer.props.type === "geojson" || layer.props.type === "group"){
             const visibleLayers = [];
@@ -636,7 +637,7 @@ class ArcticMap extends React.Component {
                       if(results.results.length > 0){
                         identresults.push(results);
                       }
-              }else{cb()}
+              }
 
               cb();
             });

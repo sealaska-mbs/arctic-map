@@ -194,7 +194,7 @@ class ArcticMapLayer extends React.Component {
 
                         });
                         layerids.reverse();
-                        if(src===srcsplit[srcsplit.length-1]){
+                        //if(src===srcsplit[srcsplit.length-1]){
                             self.identifyTask = new IdentifyTask(src);
                             self.params = new IdentifyParameters();
                             self.params.tolerance = 3;
@@ -205,7 +205,7 @@ class ArcticMapLayer extends React.Component {
                             self.params.returnGeometry = true;
                             self.params.returnGeometry = !self.state.blockSelect;
                             //  console.log(self.params);
-                        }
+                        //}
                     });
 
                 });
