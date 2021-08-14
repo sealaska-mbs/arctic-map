@@ -628,12 +628,28 @@ class ArcticMap extends React.Component {
             layer.identify(event, function (results) {
               if (results) {
                       results.layer = layer;
-                      results.results.forEach(res =>{
-                        if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                        {
-                          results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
-                        }
-                      })
+
+                      if(visibleLayers.length > 0){
+                        var rem = [];
+                        results.results.forEach(res =>{
+                          if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                          {
+                            rem.push(res.layerId);
+                          }
+                        })
+                        rem.forEach(remid =>{
+                          results.results.splice(results.results.findIndex(r => r.layerId === remid));
+                        })
+                        
+                      }
+
+                      //results.results.forEach(res =>{
+                      //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                      //  {
+                      //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
+                      //  }
+                      //})
+
                       if(results.results.length > 0){
                         identresults.push(results);
                       }
