@@ -636,10 +636,10 @@ class ArcticMap extends React.Component {
                           {
                             rem.push(res.layerId);
                           }
-                        })
+                        });
                         rem.forEach(remid =>{
-                          results.results.splice(results.results.findIndex(r => r.layerId === remid));
-                        })
+                          results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
+                        });
                         
                       }
 
