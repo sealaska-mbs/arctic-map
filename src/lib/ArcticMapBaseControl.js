@@ -223,7 +223,7 @@ class ArcticMapBaseControl extends React.Component {
                         const childNode = element.childNodes[index];
                         if (childNode.childNodes.length === 2) {
                             const innerText = childNode.childNodes[1].innerText;
-                            if (innerText && innerText === label) {
+                            if (innerText && innerText === label && innerText !== '\t') {
                                 if (!childNode.classList.contains("arctic-map-hidden")) {
                                   childNode.classList.add("arctic-map-hidden");
                                 }
