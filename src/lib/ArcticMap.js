@@ -617,13 +617,21 @@ class ArcticMap extends React.Component {
               });
             }
 
-            if(layer.layerRef.sublayers){
-              layer.layerRef.sublayers.items.forEach(sub => {
-                if(sub.visible && noFilter === false){
+            const isLayerVisible = (lyr) => {
+              let isVisible = lyr.visible;
+              if (lyr.visible && lyr.parent && lyr.parent.title && lyr.parent.url) {
+                isVisible = isLayerVisible(lyr.parent);
+              }
+              return isVisible;
+            }
+
+            if (layer.layerRef.sublayers) {
+              layer.layerRef.allSublayers.forEach((sub) => {
+                if (!sub.sublayers && isLayerVisible(sub) && noFilter === false) {
                   visibleLayers.push(sub.url);
                 }
-            })};
-
+              });
+            }
 
             layer.identify(event, function (results) {
               if (results) {
