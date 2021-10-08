@@ -89,10 +89,16 @@ class ArcticMapLocator extends React.Component {
                 })
               }
 
+            let locationServicesEnabled = true;  
+            if (self.props.locationServicesEnabled !== undefined) {
+              locationServicesEnabled = self.props.locationServicesEnabled;
+            }
+
             var searchWidget2 = new Search({
                 view: self.props.view,
                 sources: searchsources,
-                includeDefaultSources: false // true will include standard locator
+                includeDefaultSources: false, // true will include standard locator
+                locationEnabled: locationServicesEnabled
             });
 
             self.props.view.ui.add(searchWidget2, {
