@@ -894,6 +894,25 @@ class ArcticMapEdit extends React.Component {
 
     addShapefileToMap(featureCollection, layerName) {
         var self = this;
+        if(this.props.uploadSR)
+        {
+            if(featureCollection.layers.length>0 && featureCollection.layers[0].featureSet.features.length>0)
+            {
+                var sr = featureCollection.layers[0].featureSet.features[0].geometry.spatialReference.wkid;
+                var srs = this.props.uploadSR.split(',');
+                var validsr = srs.length<1;
+                for (var i=0; i<srs.length; i++){
+                    if(sr === srs[i]) validsr=true;
+                }
+
+                if(!validsr){
+                    //TODO should not be hardcoded
+                    document.getElementById("upload-status").innerHTML =
+                        '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or WGS 84 (wkid 102100 (3857)), the data uploaded was found outside the expected datums and failed to upload, for further information please reference knowledge article Acceptable Datums in MLRS - NAD83 and WGS84.</p>'
+                    return;
+                }
+            }
+        }
         loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate'])
             .then(([Graphic, FeatureLayer, Field, PopupTemplate]) => {
                 var sourceGraphics = [];
@@ -957,6 +976,26 @@ class ArcticMapEdit extends React.Component {
 
     addGeojsonToMap(featureCollection, layerName, filetype) {
         var self = this;
+        if(this.props.uploadSR)
+        {
+            if(featureCollection.length>0)
+            {
+                var sr = featureCollection[0].geometry.spatialReference.wkid;
+                var srs = this.props.uploadSR.split(',');
+                var validsr = srs.length<1;
+                for (var i=0; i<srs.length; i++){
+                    if(sr === srs[i]) validsr=true;
+                }
+
+                if(!validsr){
+                    //TODO should not be hardcoded
+                    document.getElementById("upload-status").innerHTML =
+                        '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or WGS 84 (wkid 102100 (3857)), the data uploaded was found outside the expected datums and failed to upload, for further information please reference knowledge article Acceptable Datums in MLRS - NAD83 and WGS84.</p>'
+                    return;
+                }
+            }
+        }
+
         loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate', "esri/renderers/SimpleRenderer"])
             .then(([Graphic, FeatureLayer, Field, PopupTemplate, SimpleRenderer]) => {
                 var sourceGraphics = [];
