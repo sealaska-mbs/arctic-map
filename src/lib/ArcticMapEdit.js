@@ -441,8 +441,8 @@ class ArcticMapEdit extends React.Component {
                 var esrijson = geojsonToArcGIS(f);
                 features.push(esrijson);
             });
-            self.addGeojsonToMap(features, file, "GPX");
-            self.uploadPanel.current.toggle();
+            if(self.addGeojsonToMap(features, file, "GPX"))
+                self.uploadPanel.current.toggle();
         });
     }
     getTRKMember(root) {
@@ -478,8 +478,8 @@ class ArcticMapEdit extends React.Component {
                 var esrijson = geojsonToArcGIS(f);
                 features.push(esrijson);
             });
-            self.addGeojsonToMap(features, file, "GML");
-            self.uploadPanel.current.toggle();
+            if(self.addGeojsonToMap(features, file, "GML"))
+                self.uploadPanel.current.toggle();
         });
         
     }
@@ -686,8 +686,8 @@ class ArcticMapEdit extends React.Component {
              
                 features.push(esrijson);
             });
-            self.addGeojsonToMap(features, file, "KML");
-            self.uploadPanel.current.toggle();
+            if(self.addGeojsonToMap(features, file, "KML"))
+                self.uploadPanel.current.toggle();
 
         });
 
@@ -833,8 +833,8 @@ class ArcticMapEdit extends React.Component {
                 features.push(esrijson);
             });
 
-            self.addGeojsonToMap(features, file, "GEOJSON");
-            self.uploadPanel.current.toggle();
+            if(self.addGeojsonToMap(features, file, "GEOJSON"))
+                self.uploadPanel.current.toggle();
         });
 
     }
@@ -843,7 +843,7 @@ class ArcticMapEdit extends React.Component {
 
 
         var self = this;
-        self.uploadPanel.current.toggle();
+        //self.uploadPanel.current.toggle();
         var name = fileName.split(".");
         name = name[0].replace("c:\\fakepath\\", "");
 
@@ -885,7 +885,8 @@ class ArcticMapEdit extends React.Component {
                     })
                     .then(function (response) {
                         var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
-                        self.addShapefileToMap(response.data.featureCollection, layerName);
+                        if(self.addShapefileToMap(response.data.featureCollection, layerName)) 
+                            self.uploadPanel.current.toggle();
                     })
             })
 
@@ -908,8 +909,8 @@ class ArcticMapEdit extends React.Component {
                 if(!validsr){
                     //TODO should not be hardcoded
                     document.getElementById("upload-status").innerHTML =
-                        '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or WGS 84 (wkid 102100 (3857)), the data uploaded was found outside the expected datums and failed to upload, for further information please reference knowledge article Acceptable Datums in MLRS - NAD83 and WGS84.</p>'
-                    return;
+                        '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or WGS 84 (wkid 102100 (3857)), the data uploaded was found outside the expected datums and failed to upload, for further information please reference knowledge article <a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                    return false;
                 }
             }
         }
@@ -971,6 +972,7 @@ class ArcticMapEdit extends React.Component {
                 self.state.map.amlayers.push(aml);
 
             });
+        return true;
     }
 
 
@@ -990,8 +992,8 @@ class ArcticMapEdit extends React.Component {
                 if(!validsr){
                     //TODO should not be hardcoded
                     document.getElementById("upload-status").innerHTML =
-                        '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or WGS 84 (wkid 102100 (3857)), the data uploaded was found outside the expected datums and failed to upload, for further information please reference knowledge article Acceptable Datums in MLRS - NAD83 and WGS84.</p>'
-                    return;
+                        '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or WGS 84 (wkid 102100 (3857)), the data uploaded was found outside the expected datums and failed to upload, for further information please reference knowledge article <a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                    return false;
                 }
             }
         }
@@ -1057,6 +1059,7 @@ class ArcticMapEdit extends React.Component {
 
                 self.state.map.amlayers.push(aml);
             });
+        return true;
     }
 
 
@@ -1149,7 +1152,7 @@ class ArcticMapEdit extends React.Component {
                         </div>
                     </form>
                     <br />
-                    <span id="upload-status"></span>
+                    <span id="upload-status" className={style.infoarea}></span>
 
                 </ArcticMapPanel>}
             <ArcticMapButton esriicon="erase" onclick={this.reset.bind(this)} title="Clear selection" ></ArcticMapButton>
