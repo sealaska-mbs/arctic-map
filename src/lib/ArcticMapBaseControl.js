@@ -104,6 +104,11 @@ class ArcticMapBaseControl extends React.Component {
                                 className: "esri-icon-table",
                                 id: "open-attribute-table"
                             });
+                            actions.unshift({
+                                title: "Open Map Service",
+                                className: "esri-icon-launch-link-external",
+                                id: "open-map-service"
+                            });
                         }
                     }
 
@@ -128,6 +133,11 @@ class ArcticMapBaseControl extends React.Component {
                         fields: self.getAttributeTableLayerFields(event.item.layer.url),
                         hiddenFields: self.getAttributeTableLayerHiddenFields(event.item.layer.url)
                       });
+                }
+                if (event.action.id === "open-map-service") {
+                    self.props.openMapService({
+                        url: event.item.layer.url
+                      });                    
                 }
             });
             //self.state.view.ui.add(layerList, 'top-left')
