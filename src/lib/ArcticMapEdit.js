@@ -470,7 +470,7 @@ class ArcticMapEdit extends React.Component {
             var Polygon = self.get(xmlDoc,"gml:Polygon");
             var sr = 0;
             if(Polygon.length>0) {
-                var srp = Polygon[0].attributes["srsName"].split(":");
+                var srp = Polygon[0].attributes["srsName"].nodeValue.split(":");
                 sr=srp[srp.length-1];
             }
             var featureMember = self.get(xmlDoc,"gml:featureMember");
@@ -829,8 +829,10 @@ class ArcticMapEdit extends React.Component {
 
             var geojson = JSON.parse(text);
             var sr = 0;
-            if(geojson.crs && geojson.crs.properties)
-                sr = geojson.crs.properties.name;
+            if(geojson.crs && geojson.crs.properties){
+                var srp = geojson.crs.properties.name.split(":");
+                sr=srp[srp.length-1];
+            }
             var features = [];
 
             geojson.features.forEach(f => {
