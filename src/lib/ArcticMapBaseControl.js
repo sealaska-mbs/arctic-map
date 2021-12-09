@@ -104,11 +104,11 @@ class ArcticMapBaseControl extends React.Component {
                                 className: "esri-icon-table",
                                 id: "open-attribute-table"
                             });
-                            actions.unshift({
-                                title: "Open Map Service",
-                                className: "esri-icon-launch-link-external",
-                                id: "open-map-service"
-                            });
+                            //actions.unshift({
+                            //    title: "Open Map Service",
+                            //    className: "esri-icon-launch-link-external",
+                            //    id: "open-map-service"
+                            //});
                         }
                     }
 

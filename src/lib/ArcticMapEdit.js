@@ -468,6 +468,11 @@ class ArcticMapEdit extends React.Component {
             var gj = self.fc();
             var xmlDoc = parser.parseFromString(text, "text/xml");
             var Polygon = self.get(xmlDoc,"gml:Polygon");
+            var sr = 0;
+            if(Polygon.length>0) {
+                var srp = Polygon[0].attributes["srsName"].split(":");
+                sr=srp[srp.length-1];
+            }
             var featureMember = self.get(xmlDoc,"gml:featureMember");
             for (var j = 0; j < featureMember.length; j++) {
                 gj.features = gj.features.concat(self.getFeatureMember(featureMember[j]));
@@ -476,6 +481,7 @@ class ArcticMapEdit extends React.Component {
             
             gj.features.forEach(f=> {
                 var esrijson = geojsonToArcGIS(f);
+                esrijson.geometry.spatialReference.wkid = sr;
                 features.push(esrijson);
             });
             if(self.addGeojsonToMap(features, file, "GML"))
@@ -682,8 +688,6 @@ class ArcticMapEdit extends React.Component {
 
             gj.features.forEach(f=> {
                 var esrijson = geojsonToArcGIS(f);
-            
-             
                 features.push(esrijson);
             });
             if(self.addGeojsonToMap(features, file, "KML"))
@@ -824,11 +828,14 @@ class ArcticMapEdit extends React.Component {
         this.readTextFile(form.files[0]).then(text => {
 
             var geojson = JSON.parse(text);
+            var sr = 0;
+            if(geojson.crs && geojson.crs.properties)
+                sr = geojson.crs.properties.name;
             var features = [];
 
             geojson.features.forEach(f => {
                 var esrijson = geojsonToArcGIS(f);
-
+                esrijson.geometry.spatialReference.wkid = sr;
 
                 features.push(esrijson);
             });
