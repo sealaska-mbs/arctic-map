@@ -6,7 +6,6 @@ import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapLayer from './ArcticMapLayer';
 import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
 import style from  './ArcticMapEdit.css';
-
 import {
     loadModules
 } from 'react-arcgis';
@@ -850,56 +849,129 @@ class ArcticMapEdit extends React.Component {
 
     processShapeFile(fileName, form) {
 
-
         var self = this;
         //self.uploadPanel.current.toggle();
         var name = fileName.split(".");
         name = name[0].replace("c:\\fakepath\\", "");
 
-        var parms = {
-            name: name,
-            targetSR: self.state.view.extent.spatialReference,
-            maxRecordCount: 1000,
-            enforceInputFileSizeLimit: true,
-            enforceOutputJsonSizeLimit: true,
-        };
-
-        parms.generalize = true;
-        parms.maxAllowableOffset = 10;
-        parms.reducePrecision = true;
-        parms.numberOfDigitsAfterDecimal = 0;
-        var myContent = {
-            filetype: "shapefile",
-            publishParameters: JSON.stringify(parms),
-            f: "json",
-            'content-type': 'multipart/form-data',
-        };
-
-        var portalUrl = "https://www.arcgis.com";
-
-        var query = Object.keys(myContent)
-            .map(k => escape(k) + '=' + escape(myContent[k]))
-            .join('&');
-
-
-
-        loadModules(['esri/request'])
-            .then(([request]) => {
-                request(portalUrl + "/sharing/rest/content/features/generate",
-                    {
-                        query: myContent,
-                        body: new FormData(form.form),
-                        //body: document.getElementById("uploadForm"),
-                        responseType: "json"
+        var fd = form.files[0];
+        const JSZip = require('jszip')();
+        
+        JSZip.loadAsync(fd).then((zipEntries) => {
+            var prjfile = null;
+            zipEntries.forEach(function(rp, zipEntry) {
+                if(zipEntry.name.indexOf(".prj") !== -1){
+                    prjfile=zipEntry
+                }
+            });
+            if(prjfile==null){
+                document.getElementById("upload-status").innerHTML =
+                '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or<br>WGS 84 (wkid 102100 (3857)), the data uploaded<br>was found outside the expected datums and<br>failed to upload, for further information<br>please reference knowledge article<br><a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84" target="_blank">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                return;
+            }
+            prjfile.async('text').then(function(text){
+                
+                var datums = {
+                    4269: ["nad83",
+                        "northamericandatum1983",
+                        "gcsnorthamerican1983",
+                        "dnorthamerican1983",
+                        "nad83(1986)",
+                        "nad83(1986)-latlon",
+                        "nad83(original)"],
+                    3857: ["wgs84/pseudo-mercator",
+                        "wgs1984webmercatorauxiliarysphere",
+                        "wgs84/popularvisualisationpseudo-mercator",
+                        "webmercator",
+                        "mercator1sp"],
+                    102100: ["wgs84/pseudo-mercator",
+                        "wgs1984webmercatorauxiliarysphere",
+                        "wgs84/popularvisualisationpseudo-mercator",
+                        "webmercator",
+                        "mercator1sp"],
+                    4326: ["gcswgs1984",
+                        "dwgs1984",
+                        "wgs84",
+                        "wgs1984",
+                        "worldgeodeticsystem1984"] 
+                };                
+                if(self.props.uploadSR)
+                {
+                    var srs = self.props.uploadSR.split(',');
+                    var validsr = srs.length<1;
+                    for (var i=0; i<srs.length; i++){
+                        if(text.includes(srs[i])){
+                            validsr=true;
+                            break;
+                        }
+                    }
+                    if(!validsr){
+                        text = text.toLowerCase();
+                        text = text.replace(/_/g, '');
+                        text = text.replace(/\s/g, '');
+                        for (var i=0; i<srs.length; i++){
+                            var datum = datums[srs[i]];
+                            if(datum){
+                                for (var j=0; j<datum.length; j++){
+                                    if(text.includes(datum[j])){
+                                        validsr=true;
+                                        break;
+                                    }
+                                }
+                                if(validsr)break;
+                            }
+                        }
+                            
+                    }
+                    if(!validsr){
+                        //TODO should not be hardcoded
+                        document.getElementById("upload-status").innerHTML =
+                            '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or<br>WGS 84 (wkid 102100 (3857)), the data uploaded<br>was found outside the expected datums and<br>failed to upload, for further information<br>please reference knowledge article<br><a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84" target="_blank">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                        return false;
+                    }
+                }
+                var parms = {
+                    name: name,
+                    targetSR: self.state.view.extent.spatialReference,
+                    maxRecordCount: 1000,
+                    enforceInputFileSizeLimit: true,
+                    enforceOutputJsonSizeLimit: true,
+                };
+        
+                parms.generalize = true;
+                parms.maxAllowableOffset = 10;
+                parms.reducePrecision = true;
+                parms.numberOfDigitsAfterDecimal = 0;
+                var myContent = {
+                    filetype: "shapefile",
+                    publishParameters: JSON.stringify(parms),
+                    f: "json",
+                    'content-type': 'multipart/form-data',
+                };
+        
+                var portalUrl = "https://www.arcgis.com";
+        
+                var query = Object.keys(myContent)
+                    .map(k => escape(k) + '=' + escape(myContent[k]))
+                    .join('&');
+        
+                loadModules(['esri/request'])
+                    .then(([request]) => {
+                        request(portalUrl + "/sharing/rest/content/features/generate",
+                            {
+                                query: myContent,
+                                body: new FormData(form.form),
+                                //body: document.getElementById("uploadForm"),
+                                responseType: "json"
+                            })
+                            .then(function (response) {
+                                var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
+                                if(self.addShapefileToMap(response.data.featureCollection, layerName)) 
+                                    self.uploadPanel.current.toggle();
+                            })
                     })
-                    .then(function (response) {
-                        var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
-                        if(self.addShapefileToMap(response.data.featureCollection, layerName)) 
-                            self.uploadPanel.current.toggle();
-                    })
-            })
-
-
+            });
+        });
     }
 
     addShapefileToMap(featureCollection, layerName) {
