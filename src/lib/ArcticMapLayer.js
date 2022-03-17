@@ -142,7 +142,7 @@ class ArcticMapLayer extends React.Component {
                 }
 
                 self.layerRef = featureLayer;
-                self.state.map.add(featureLayer);
+                //self.state.map.add(featureLayer);
             }
 
             if (self.props.type === "group") {
@@ -211,7 +211,7 @@ class ArcticMapLayer extends React.Component {
                 });
 
                 self.layerRef = gmaplayer;
-                self.state.map.add(gmaplayer);
+                //self.state.map.add(gmaplayer);
             }
 
             if (self.props.type === "dynamic") {
@@ -281,7 +281,7 @@ class ArcticMapLayer extends React.Component {
                 });
 
                 self.layerRef = maplayer;
-                self.state.map.add(maplayer);
+                //self.state.map.add(maplayer);
             }
 
             if (self.props.type === "image") {
@@ -290,12 +290,12 @@ class ArcticMapLayer extends React.Component {
                     format: "jpgpng" // server exports in either jpg or png format
                 });
                 self.layerRef = imagelayer;
-                self.state.map.add(imagelayer);
+                //self.state.map.add(imagelayer);
             }
 
             if (self.props.type === "custom") {
                 self.layerRef = self.props.layerRef;
-                self.state.map.add(self.props.layerRef);
+                //self.state.map.add(self.props.layerRef);
             }
             // if (self.props.type === "geojson") {
 
@@ -374,8 +374,12 @@ class ArcticMapLayer extends React.Component {
             //     // self.state.map.add(imagelayer);
 
             // }
+            if(self.props.visible !== undefined && self.props.visible === "false"){
+                self.layerRef.visible = false;
 
+            }
 
+            self.state.map.add(self.layerRef);
             self.layerRef.when(function () {
                 setTimeout(() => {
                     var evt = new Event('ready', { bubbles: true });
@@ -476,6 +480,32 @@ class ArcticMapLayer extends React.Component {
             });
 
         }
+        /*else if (this.props.type === "feature") {
+
+            this.state.view.hitTest(event).then((htresponse) => {
+
+                // console.log("Identify on geojson");
+                //console.log(htresponse);
+                var mapPoint = event.mapPoint;
+                Case Length
+                /*self.layerRef.queryFeatures({
+                    //query object
+                    geometry: mapPoint,
+                    spatialRelationship: "intersects",
+                    returnGeometry: !self.state.blockSelect,
+                    outFields: ["*"],
+                  })
+                  .then((response) => {
+                    callback(response);
+                  });/*
+                //var response = {
+                //    layer: self.layerRef,
+                //    results: htresponse.results.map(r => { return { feature: r.graphic, layerName: self.layerRef.title }; }),
+                //}
+                //callback(response)
+            });
+
+        }/* */
         else {
 
 
