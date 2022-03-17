@@ -601,12 +601,12 @@ class ArcticMap extends React.Component {
         identLayers = identLayers.concat(self.state.map.amlayers);
 
         async.eachSeries(identLayers, function (layer, cb) {
-          if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group")
+          if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature")
           {
             cb();
             return;
           }
-          if((!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined) || layer.props.type === "geojson" || layer.props.type === "group"){
+          if((!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature")) || layer.props.type === "geojson" || layer.props.type === "group"){
             const visibleLayers = [];
             let noFilter = false;
             if(layer.props.sublayers){
