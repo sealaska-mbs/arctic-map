@@ -131,10 +131,7 @@ class ArcticMapLayer extends React.Component {
                     gmaplayer.layers.add(glayer);
                 }); 
                 
-                var featureLayer;
-                if(flayers.length>1)featureLayer = gmaplayer;
-                else featureLayer = gmaplayer.layers[0];
-
+                var featureLayer = gmaplayer;
                 featureLayer.opacity = trans;
 
                 if (self.props.title) {
@@ -480,32 +477,43 @@ class ArcticMapLayer extends React.Component {
             });
 
         }
-        /*else if (this.props.type === "feature") {
+        else if (this.props.type === "feature") {
 
             this.state.view.hitTest(event).then((htresponse) => {
 
                 // console.log("Identify on geojson");
                 //console.log(htresponse);
                 var mapPoint = event.mapPoint;
-                Case Length
-                /*self.layerRef.queryFeatures({
-                    //query object
-                    geometry: mapPoint,
-                    spatialRelationship: "intersects",
-                    returnGeometry: !self.state.blockSelect,
-                    outFields: ["*"],
-                  })
-                  .then((response) => {
-                    callback(response);
-                  });/*
-                //var response = {
-                //    layer: self.layerRef,
-                //    results: htresponse.results.map(r => { return { feature: r.graphic, layerName: self.layerRef.title }; }),
-                //}
-                //callback(response)
-            });
+                var layersLeft = self.layerRef.layers.length;
+                var responses = [];
+                self.layerRef.layers.map((layer) => {
+                    layer.queryFeatures({
+                        //query object
+                        geometry: mapPoint,
+                        spatialRelationship: "intersects",
+                        returnGeometry: !self.state.blockSelect,
+                        outFields: ["*"],
+                      })
+                      .then((response) => {
+                        responses = responses.concat(response.features);
+                        layersLeft--;
 
-        }/* */
+                        if(layersLeft<1){
+                            var res = responses.map(feat => {
+                                return {
+                                    feature:feat,
+                                    layerName:feat.layer.title,
+                                    layerId:feat.layer.layerId
+                                };
+
+                            });
+
+                            callback({results:res});
+                        } 
+                      });
+                });
+            });
+        }
         else {
 
 
