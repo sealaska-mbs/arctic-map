@@ -115,6 +115,8 @@ class ArcticMapBaseControl extends React.Component {
                     item.actionsSections = [ actions ];     
                 }
             });
+            layerList.selectionEnabled = true;
+            this.watchForLayerListChanges(layerList);
 
             layerList.on("trigger-action", function (event) {
                 if (event.action.id === "increase-opacity") {
@@ -222,7 +224,13 @@ class ArcticMapBaseControl extends React.Component {
         });
     }
 
-    removeLegendDuplicateLabels = () => {
+    watchForLayerListChanges = (layerList) => {
+        layerList.view.map.layers.on("after-changes", (event) => {
+            const viewModel = layerList.viewModel;
+        });
+    }
+
+   removeLegendDuplicateLabels = () => {
         setTimeout(() => {
             const elements = document.getElementsByClassName("esri-legend__layer-body");
             for (let i = 0; i < elements.length; i++) {
