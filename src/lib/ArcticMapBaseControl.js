@@ -226,7 +226,7 @@ class ArcticMapBaseControl extends React.Component {
 
     watchForLayerListChanges = (layerList) => {
         layerList.view.map.layers.on("after-changes", (event) => {
-            const viewModel = layerList.viewModel;
+            const viewModel = layerList.viewModel; 
         });
     }
 
