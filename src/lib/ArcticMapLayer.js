@@ -131,10 +131,7 @@ class ArcticMapLayer extends React.Component {
                     gmaplayer.layers.add(glayer);
                 }); 
                 
-                var featureLayer;
-                if(flayers.length>1)featureLayer = gmaplayer;
-                else featureLayer = gmaplayer.layers[0];
-
+                var featureLayer = gmaplayer;
                 featureLayer.opacity = trans;
 
                 if (self.props.title) {
@@ -142,7 +139,7 @@ class ArcticMapLayer extends React.Component {
                 }
 
                 self.layerRef = featureLayer;
-                self.state.map.add(featureLayer);
+                //self.state.map.add(featureLayer);
             }
 
             if (self.props.type === "group") {
@@ -211,7 +208,7 @@ class ArcticMapLayer extends React.Component {
                 });
 
                 self.layerRef = gmaplayer;
-                self.state.map.add(gmaplayer);
+                //self.state.map.add(gmaplayer);
             }
 
             if (self.props.type === "dynamic") {
@@ -281,7 +278,7 @@ class ArcticMapLayer extends React.Component {
                 });
 
                 self.layerRef = maplayer;
-                self.state.map.add(maplayer);
+                //self.state.map.add(maplayer);
             }
 
             if (self.props.type === "image") {
@@ -290,12 +287,12 @@ class ArcticMapLayer extends React.Component {
                     format: "jpgpng" // server exports in either jpg or png format
                 });
                 self.layerRef = imagelayer;
-                self.state.map.add(imagelayer);
+                //self.state.map.add(imagelayer);
             }
 
             if (self.props.type === "custom") {
                 self.layerRef = self.props.layerRef;
-                self.state.map.add(self.props.layerRef);
+                //self.state.map.add(self.props.layerRef);
             }
             // if (self.props.type === "geojson") {
 
@@ -374,8 +371,12 @@ class ArcticMapLayer extends React.Component {
             //     // self.state.map.add(imagelayer);
 
             // }
+            if(self.props.visible !== undefined && self.props.visible === "false"){
+                self.layerRef.visible = false;
 
+            }
 
+            self.state.map.add(self.layerRef);
             self.layerRef.when(function () {
                 setTimeout(() => {
                     var evt = new Event('ready', { bubbles: true });
@@ -475,6 +476,43 @@ class ArcticMapLayer extends React.Component {
                 callback(response)
             });
 
+        }
+        else if (this.props.type === "feature") {
+
+            this.state.view.hitTest(event).then((htresponse) => {
+
+                // console.log("Identify on geojson");
+                //console.log(htresponse);
+                var mapPoint = event.mapPoint;
+                var layersLeft = self.layerRef.layers.length;
+                var responses = [];
+                self.layerRef.layers.map((layer) => {
+                    layer.queryFeatures({
+                        //query object
+                        geometry: mapPoint,
+                        spatialRelationship: "intersects",
+                        returnGeometry: !self.state.blockSelect,
+                        outFields: ["*"],
+                      })
+                      .then((response) => {
+                        responses = responses.concat(response.features);
+                        layersLeft--;
+
+                        if(layersLeft<1){
+                            var res = responses.map(feat => {
+                                return {
+                                    feature:feat,
+                                    layerName:feat.layer.title,
+                                    layerId:feat.layer.layerId
+                                };
+
+                            });
+
+                            callback({results:res});
+                        } 
+                      });
+                });
+            });
         }
         else {
 
