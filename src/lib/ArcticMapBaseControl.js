@@ -230,7 +230,7 @@ class ArcticMapBaseControl extends React.Component {
         });
     }
 
-   removeLegendDuplicateLabels = () => {
+    removeLegendDuplicateLabels = () => {
         setTimeout(() => {
             const elements = document.getElementsByClassName("esri-legend__layer-body");
             for (let i = 0; i < elements.length; i++) {
