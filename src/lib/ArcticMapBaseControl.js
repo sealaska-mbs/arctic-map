@@ -226,7 +226,7 @@ class ArcticMapBaseControl extends React.Component {
 
     watchForLayerListChanges = (layerList) => {
         layerList.view.map.layers.on("after-changes", (event) => {
-            const viewModel = layerList.viewModel; 
+            const viewModel = layerList.viewModel;
         });
     }
 
@@ -276,7 +276,7 @@ class ArcticMapBaseControl extends React.Component {
                         <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
                     <ArcticMapPanel esriicon='collection' title='Layers' >
-                        <p>Toggle visibility of each data layer.</p>
+                    <p>Toggle visibility of each data layer.</p><p style={{backgroundColor: 'yellow'}}>Click, drag and drop layers to reorder.</p>
                         {this.state.canReset &&
                             <p><a href="#" style={{ color: '#71A3AF', textDecoration: 'none' }} onClick={this.props.reset}>
                                 <span style={{ height: "10px", width: "10px", marginRight: '10px', color: 'black' }} aria-hidden className="esri-icon esri-icon-trash" ></span>
