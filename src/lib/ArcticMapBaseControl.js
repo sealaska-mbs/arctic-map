@@ -76,6 +76,11 @@ class ArcticMapBaseControl extends React.Component {
                 listItemCreatedFunction: function (event) {
                     // only legend if imageFormat exist in TOC
                     var actions = [{
+                        title: "Labels on/off",
+                        className: "esri-icon-checkbox-checked",
+                        id: "toggle-labels"
+                    },
+                    {
                         title: "Increase opacity",
                         className: "esri-icon-up",
                         id: "increase-opacity"
@@ -119,6 +124,17 @@ class ArcticMapBaseControl extends React.Component {
             this.watchForLayerListChanges(layerList);
 
             layerList.on("trigger-action", function (event) {
+                if (event.action.id === "toggle-labels") {
+                    if (event.action.className === "esri-icon-checkbox-unchecked") {
+                        event.action.className = "esri-icon-checkbox-checked";
+                        event.item.layer.labelsVisible=true;
+                    }
+                    else {
+                        event.action.className = "esri-icon-checkbox-unchecked";
+                        event.item.layer.labelsVisible=false;
+                    }
+                    //console.log(event);
+                }
                 if (event.action.id === "increase-opacity") {
                     event.item.layer.opacity += 0.1;
                     event.item.layer.opacity >= 1 ? event.item.layer.opacity = 1:  event.item.layer.opacity;
