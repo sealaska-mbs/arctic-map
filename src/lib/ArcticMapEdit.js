@@ -467,9 +467,13 @@ class ArcticMapEdit extends React.Component {
             var gj = self.fc();
             var xmlDoc = parser.parseFromString(text, "text/xml");
             var Polygon = self.get(xmlDoc,"gml:Polygon");
+            var LineString = self.get(xmlDoc, "gml:LineString");
             var sr = 0;
             if(Polygon.length>0) {
                 var srp = Polygon[0].attributes["srsName"].nodeValue.split(":");
+                sr=srp[srp.length-1];
+            } else if (LineString.length>0) {
+                var srp = LineString[0].attributes["srsName"].nodeValue.split(":");
                 sr=srp[srp.length-1];
             }
             var featureMember = self.get(xmlDoc,"gml:featureMember");
@@ -506,7 +510,7 @@ class ArcticMapEdit extends React.Component {
 
     getGeometry(root) {
         
-        var geotypes = [ 'LineString','Polygon', 'Point', 'Track', 'gx:Track', 'gml:Polygon', 'trkpt'];
+        var geotypes = [ 'LineString', 'gml:LineString', 'Polygon', 'Point', 'Track', 'gx:Track', 'gml:Polygon', 'trkpt'];
         var geomNode, geomNodes, i, j, k, geoms = [], coordTimes = [];
         if (this.get1(root, 'MultiGeometry')) { return this.getGeometry(this.get1(root, 'MultiGeometry')); }
         if (this.get1(root, 'MultiTrack')) { return this.getGeometry(this.get1(root, 'MultiTrack')); }
@@ -536,6 +540,11 @@ class ArcticMapEdit extends React.Component {
                         geoms.push({
                             type: 'LineString',
                             coordinates: this.coord(this.nodeVal(this.get1(geomNode, 'coordinates')))
+                        });
+                    } else if (geotypes[i] === 'gml:LineString') {
+                        geoms.push({
+                            type: 'LineString',
+                            coordinates: this.coord(this.nodeVal(this.get1(geomNode, 'gml:coordinates')))
                         });
                     } else if (geotypes[i] === 'Polygon') {
                         var rings = this.get(geomNode, 'LinearRing'),
