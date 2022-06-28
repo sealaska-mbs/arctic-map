@@ -774,17 +774,19 @@ class ArcticMap extends React.Component {
 
           if (currentmode === "select") {
             var feature = null;
+            var fType = null;
             for (var idx = 0; idx<results.length && feature===null; idx++){
               feature = results[idx].feature;
+              fType = feature.geometry.type;
             }
 
             if (self.contextmenuPressed === true) {
 
-              self.state.map.editor.setEditFeature(feature, null, null, false, true, true);
+              self.state.map.editor.setEditFeature(feature, null, fType, false, true, true);
             }
             else {
 
-              self.state.map.editor.setEditFeature(feature, null, null, false, true);
+              self.state.map.editor.setEditFeature(feature, null, fType, false, true);
             }
           }
 
