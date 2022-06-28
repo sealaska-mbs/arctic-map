@@ -46,6 +46,7 @@ class ArcticMapEdit extends React.Component {
             "esri/widgets/Sketch/SketchViewModel",
             "esri/geometry/Geometry",
             "esri/geometry/Polygon",
+            "esri/geometry/Polyline",
             "esri/geometry/geometryEngine"
         ]).then(([
             Graphic,
@@ -53,6 +54,7 @@ class ArcticMapEdit extends React.Component {
             SketchViewModel,
             Geometry,
             Polygon,
+            Polyline,
             geometryEngine
         ]) => {
             const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
@@ -207,6 +209,10 @@ class ArcticMapEdit extends React.Component {
                         feature.geometry = new Polygon(feature.geometry);
                         feature.geometry.type = "polygon";
                     }
+                    if (type === "polyline") {
+                        feature.geometry = new Polyline(feature.geometry);
+                        feature.geometry.type = "polyline";
+                    }
                 }
 
                 this.state.sketchViewModel.cancel();
@@ -222,15 +228,18 @@ class ArcticMapEdit extends React.Component {
 
                 }
                 else {
-
-
-
-                    graphic = new Graphic({
-                        geometry: feature.geometry,
-                        symbol: this.state.sketchViewModel.polygonSymbol
-                    });
-                    
-
+                    if(feature.geometry.type === "polygon") {
+                        graphic = new Graphic({
+                            geometry: feature.geometry,
+                            symbol: this.state.sketchViewModel.polygonSymbol
+                        });
+                    }
+                    if(feature.geometry.type === "polyline") {
+                        graphic = new Graphic({
+                            geometry: feature.geometry,
+                            symbol: this.state.sketchViewModel.polylineSymbol
+                        });
+                    }
                 }
 
                 if (graphic.geometry === null) {
@@ -270,11 +279,18 @@ class ArcticMapEdit extends React.Component {
 
 
                         var merge = geometryEngine.union(geometrys);
-
-                        graphic = new Graphic({
-                            geometry: merge,
-                            symbol: this.state.sketchViewModel.polygonSymbol
-                        })
+                        if(merge.type ==="polygon"){
+                            graphic = new Graphic({
+                                geometry: merge,
+                                symbol: this.state.sketchViewModel.polygonSymbol
+                            });
+                        }
+                        if(merge.type ==="polyline"){
+                            graphic = new Graphic({
+                                geometry: merge,
+                                symbol: this.state.sketchViewModel.polylineSymbol
+                            });
+                        }
                         graphic.geometry.sourceLayer = feature.sourceLayer;
                         this.state.tempGraphicsLayer.graphics = [graphic]
                     }
@@ -1228,9 +1244,9 @@ class ArcticMapEdit extends React.Component {
             {this.props.upload &&
                 <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload GIS file" ref={this.uploadPanel}  >
                     <br />
-                    <p className={style.infoarea} >Do you already have a shape of your plot? Upload your file
-                        here. Supported file types:
-                        Shapefiles (.zip), kml, gml, gpx, and geojson
+                    <p className={style.infoarea} >Do you already have a shape of your case? Upload your file here. 
+                    Supported geometries: polygon and polyline. 
+                    Supported file types: Shapefiles (.zip), kml, gml, gpx, and geojson
                     </p>
                     <form encType="multipart/form-data" method="post" id="uploadForm">
                         <div className="field">
