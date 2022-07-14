@@ -292,7 +292,7 @@ class ArcticMapBaseControl extends React.Component {
                         <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
                     <ArcticMapPanel esriicon='collection' title='Layers' >
-                    <p>Toggle visibility of each data layer.</p><p style={{backgroundColor: 'yellow'}}>Click, drag and drop layers to reorder.</p>
+                    <p>Toggle visibility of each data layer.</p><p>Click, drag and drop layers to reorder.</p>
                         {this.state.canReset &&
                             <p><a href="#" style={{ color: '#71A3AF', textDecoration: 'none' }} onClick={this.props.reset}>
                                 <span style={{ height: "10px", width: "10px", marginRight: '10px', color: 'black' }} aria-hidden className="esri-icon esri-icon-trash" ></span>
