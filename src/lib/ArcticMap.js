@@ -56,37 +56,40 @@ class ArcticMap extends React.Component {
     self.childrenElements = [];
 
     var children = React.Children.map(this.props.children, function (child) {
-      if (child.type.displayName === 'ArcticMapLayer') {
-        return React.cloneElement(child, {
-          ref: (c) => { if (c) { self.layers.push(c) } }
-        })
-      } else if (child.type.displayName === 'ArcticMapEdit') {
-        // console.log(self.refs);
-        return React.cloneElement(child, {
-          am: self,
-          // ref: 'editor'
+      //console.log(child);
+      if(child){
+        if (child.type.displayName === 'ArcticMapLayer') {
+          return React.cloneElement(child, {
+            ref: (c) => { if (c) { self.layers.push(c) } }
+          })
+        } else if (child.type.displayName === 'ArcticMapEdit') {
+          // console.log(self.refs);
+          return React.cloneElement(child, {
+            am: self,
+            // ref: 'editor'
 
-        })
+          })
 
-      }
+        }
 
-      // else if (child.type.name === 'ArcticMapLLDSearch') {
+        // else if (child.type.name === 'ArcticMapLLDSearch') {
 
-      //   return React.cloneElement(child, {
-      //   })
+        //   return React.cloneElement(child, {
+        //   })
 
-      // } 
+        // } 
 
-      else {
-        return React.cloneElement(child, {
-          am: self,
+        else {
+          return React.cloneElement(child, {
+            am: self,
 
-          map: self.state.map,
-          view: self.state.view,
-          //ref: 'child-' + (index++)
-          ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
-        })
-      }
+            map: self.state.map,
+            view: self.state.view,
+            //ref: 'child-' + (index++)
+            ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
+          })
+        }
+    }
     })
 
     if (children) {
