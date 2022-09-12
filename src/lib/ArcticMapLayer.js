@@ -151,7 +151,8 @@ class ArcticMapLayer extends React.Component {
                 
                 var gmaplayer = new GroupLayer({
                     //url: self.props.src,
-                    opacity: gtrans
+                    opacity: gtrans,
+                    visibilityMode: "inherited"
 
                 });
                 if (self.props.title) {
