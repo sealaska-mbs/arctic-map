@@ -48,6 +48,10 @@ class ArcticMapPanel extends React.Component {
             hidden: !this.props.hidden ? false : true,
             open: this.props.open || false
         };
+
+        ArcticMapPanel.defaultProps= {
+            infoAreaText: {}
+        }
      
         if(props.map){
             this.map = props.map;
@@ -58,8 +62,6 @@ class ArcticMapPanel extends React.Component {
                 this.setState({ open: false });
             });
         }
-
-
     }
 
     componentDidMount() {
@@ -81,6 +83,7 @@ class ArcticMapPanel extends React.Component {
 
         return (<span visibility={this.state.hidden}><ArcticMapButton padtop={this.props.padtop} padbottom={this.props.padbottom} esriicon={this.props.esriicon} onclick={this.toggle.bind(this)} title={this.props.title} ></ArcticMapButton></span>);
     }
+
     renderPanel() {
         // refactor this
         if (this.state.open) {
@@ -93,8 +96,9 @@ class ArcticMapPanel extends React.Component {
                     this.props.title
                 ),
                 React.createElement(
-                    'span',
+                    'div',
                     { style: { position: 'absolute', top: '20px', right: '20px' } },
+
                     React.createElement(
                         'button',
                         {
@@ -109,11 +113,17 @@ class ArcticMapPanel extends React.Component {
                                'aria-hidden' : true,
                                className : 'esri-icon esri-icon-close'
                             },
-                            
                         )
                     )
                     //React.createElement(ArcticMapButton, { esriicon: 'close', onclick: this.toggle, style : { fontSize : '28px'} })
                 ),
+                
+                React.createElement(
+                    'p',
+                    { style: { width: "300px", paddingLeft: "20px", wordWrap: "break-word", margin: "0px", whiteSpace: "pre-line" } },
+                    this.props.infoAreaText
+                ),
+
                 React.createElement(
                     'div',
                     { style: styles.widgetContainer },

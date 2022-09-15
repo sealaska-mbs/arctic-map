@@ -4,7 +4,10 @@
   "description": "arctic-map",
   "author": "sealaska-mbs",
   "license": "MIT",
-  "repository": "sealaska-mbs/arctic-map",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sealaska-mbs/arctic-map.git"
+  },
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "example": "example/src/ArcticMap.js",
@@ -77,5 +80,12 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "bugs": {
+    "url": "https://github.com/sealaska-mbs/arctic-map/issues"
+  },
+  "homepage": "https://github.com/sealaska-mbs/arctic-map#readme",
+  "directories": {
+    "example": "example"
+  }
 }

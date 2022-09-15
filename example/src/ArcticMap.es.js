@@ -301,6 +301,10 @@ var ArcticMapPanel = function (_React$Component) {
             open: _this.props.open || false
         };
 
+        ArcticMapPanel.defaultProps = {
+            infoAreaText: {}
+        };
+
         if (props.map) {
             _this.map = props.map;
         }
@@ -310,7 +314,6 @@ var ArcticMapPanel = function (_React$Component) {
                 _this.setState({ open: false });
             });
         }
-
         return _this;
     }
 
@@ -340,12 +343,19 @@ var ArcticMapPanel = function (_React$Component) {
                 React.createElement(ArcticMapButton, { padtop: this.props.padtop, padbottom: this.props.padbottom, esriicon: this.props.esriicon, onclick: this.toggle.bind(this), title: this.props.title })
             );
         }
+
+        // renderInfoArea() {
+        //     return (
+        //         <div>{this.props.infoAreaText}</div>
+        //     )
+        // }
+
     }, {
         key: 'renderPanel',
         value: function renderPanel() {
             // refactor this
             if (this.state.open) {
-                var ele = React.createElement('div', { className: 'esri-widget', style: styles$1.rightWidgetFull }, React.createElement('h2', { style: { "paddingLeft": "20px", marginTop: '6px', fontSize: '28px', marginBottom: '10px' } }, this.props.title), React.createElement('span', { style: { position: 'absolute', top: '20px', right: '20px' } }, React.createElement('button', {
+                var ele = React.createElement('div', { className: 'esri-widget', style: styles$1.rightWidgetFull }, React.createElement('h2', { style: { "paddingLeft": "20px", marginTop: '6px', fontSize: '28px', marginBottom: '10px' } }, this.props.title), React.createElement('div', { style: { position: 'absolute', top: '20px', right: '20px' } }, React.createElement('button', {
                     onClick: this.toggle,
                     title: 'Close',
                     style: { border: 'none', background: 'transparent', cursor: 'pointer' }
@@ -355,6 +365,8 @@ var ArcticMapPanel = function (_React$Component) {
                     className: 'esri-icon esri-icon-close'
                 }))
                 //React.createElement(ArcticMapButton, { esriicon: 'close', onclick: this.toggle, style : { fontSize : '28px'} })
+                ), React.createElement('p', { style: { width: "300px", paddingLeft: "20px", wordWrap: "break-word", margin: "0px", whiteSpace: "pre-line" } }, this.props.infoAreaText
+                // this.renderInfoArea()
                 ), React.createElement('div', { style: styles$1.widgetContainer }, React.createElement('div', null, this.props.children)));
 
                 // <button style={style.arcticButton} onClick={this.fireclick.bind(this)} title={this.props.title} >
@@ -413,44 +425,47 @@ var ArcticMap = function (_React$Component) {
       self.childrenElements = [];
 
       var children = React.Children.map(this.props.children, function (child) {
-        if (child.type.displayName === 'ArcticMapLayer') {
-          return React.cloneElement(child, {
-            ref: function ref(c) {
-              if (c) {
-                self.layers.push(c);
-              }
-            }
-          });
-        } else if (child.type.displayName === 'ArcticMapEdit') {
-          // console.log(self.refs);
-          return React.cloneElement(child, {
-            am: self
-            // ref: 'editor'
-
-          });
-        }
-
-        // else if (child.type.name === 'ArcticMapLLDSearch') {
-
-        //   return React.cloneElement(child, {
-        //   })
-
-        // } 
-
-        else {
+        //console.log(child);
+        if (child) {
+          if (child.type.displayName === 'ArcticMapLayer') {
             return React.cloneElement(child, {
-              am: self,
-
-              map: self.state.map,
-              view: self.state.view,
-              //ref: 'child-' + (index++)
               ref: function ref(c) {
                 if (c) {
-                  self.childrenElements.push(c);
-                }return 'child-' + index++;
+                  self.layers.push(c);
+                }
               }
             });
+          } else if (child.type.displayName === 'ArcticMapEdit') {
+            // console.log(self.refs);
+            return React.cloneElement(child, {
+              am: self
+              // ref: 'editor'
+
+            });
           }
+
+          // else if (child.type.name === 'ArcticMapLLDSearch') {
+
+          //   return React.cloneElement(child, {
+          //   })
+
+          // } 
+
+          else {
+              return React.cloneElement(child, {
+                am: self,
+
+                map: self.state.map,
+                view: self.state.view,
+                //ref: 'child-' + (index++)
+                ref: function ref(c) {
+                  if (c) {
+                    self.childrenElements.push(c);
+                  }return 'child-' + index++;
+                }
+              });
+            }
+        }
       });
 
       if (children) {
@@ -900,10 +915,11 @@ var ArcticMap = function (_React$Component) {
           identLayers = identLayers.concat(self.state.map.amlayers);
 
           async.eachSeries(identLayers, function (layer, cb) {
-            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group") {
+            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature") {
               cb();
+              return;
             }
-            if (!layer.state.disablePopup && layer.layerRef.visible === true && layer.layerRef.sublayers !== undefined || layer.props.type === "geojson" || layer.props.type === "group") {
+            if (!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature") || layer.props.type === "geojson" || layer.props.type === "group") {
               var visibleLayers = [];
               var noFilter = false;
               if (layer.props.sublayers) {
@@ -914,28 +930,50 @@ var ArcticMap = function (_React$Component) {
                 });
               }
 
+              var isLayerVisible = function isLayerVisible(lyr) {
+                var isVisible = lyr.visible;
+                if (lyr.visible && lyr.parent && lyr.parent.title && lyr.parent.url) {
+                  isVisible = isLayerVisible(lyr.parent);
+                }
+                return isVisible;
+              };
+
               if (layer.layerRef.sublayers) {
-                layer.layerRef.sublayers.items.forEach(function (sub) {
-                  if (sub.visible && noFilter === false) {
+                layer.layerRef.allSublayers.forEach(function (sub) {
+                  if (!sub.sublayers && isLayerVisible(sub) && noFilter === false) {
                     visibleLayers.push(sub.url);
                   }
                 });
               }
+
               layer.identify(event, function (results) {
                 if (results) {
                   results.layer = layer;
-                  results.results.forEach(function (res) {
-                    if (visibleLayers.length > 0 && !visibleLayers.includes(results.layer.layerRef.url + '/' + res.layerId)) {
+
+                  if (visibleLayers.length > 0) {
+                    var rem = [];
+                    results.results.forEach(function (res) {
+                      if (visibleLayers.length > 0 && !visibleLayers.includes(results.layer.layerRef.url + '/' + res.layerId)) {
+                        rem.push(res.layerId);
+                      }
+                    });
+                    rem.forEach(function (remid) {
                       results.results.splice(results.results.findIndex(function (r) {
-                        return r.layerId === res.layerId;
-                      }));
-                    }
-                  });
+                        return r.layerId === remid;
+                      }), 1);
+                    });
+                  }
+
+                  //results.results.forEach(res =>{
+                  //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                  //  {
+                  //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
+                  //  }
+                  //})
+
                   if (results.results.length > 0) {
                     identresults.push(results);
                   }
-                } else {
-                  cb();
                 }
 
                 cb();
@@ -1052,16 +1090,18 @@ var ArcticMap = function (_React$Component) {
 
             if (currentmode === "select") {
               var feature = null;
+              var fType = null;
               for (var idx = 0; idx < results.length && feature === null; idx++) {
                 feature = results[idx].feature;
+                fType = feature.geometry.type;
               }
 
               if (self.contextmenuPressed === true) {
 
-                self.state.map.editor.setEditFeature(feature, null, null, false, true, true);
+                self.state.map.editor.setEditFeature(feature, null, fType, false, true, true);
               } else {
 
-                self.state.map.editor.setEditFeature(feature, null, null, false, true);
+                self.state.map.editor.setEditFeature(feature, null, fType, false, true);
               }
             }
 
@@ -1251,9 +1291,7 @@ var ArcticMapLayer = function (_React$Component) {
                         gmaplayer.layers.add(glayer);
                     });
 
-                    var featureLayer;
-                    if (flayers.length > 1) featureLayer = gmaplayer;else featureLayer = gmaplayer.layers[0];
-
+                    var featureLayer = gmaplayer;
                     featureLayer.opacity = trans;
 
                     if (self.props.title) {
@@ -1261,7 +1299,7 @@ var ArcticMapLayer = function (_React$Component) {
                     }
 
                     self.layerRef = featureLayer;
-                    self.state.map.add(featureLayer);
+                    //self.state.map.add(featureLayer);
                 }
 
                 if (self.props.type === "group") {
@@ -1312,22 +1350,23 @@ var ArcticMapLayer = function (_React$Component) {
                                 //sublayer.renderer = Renderer.fromJSON(renderer);
                             });
                             layerids.reverse();
-
-                            self.identifyTask = new IdentifyTask(src);
-                            self.params = new IdentifyParameters();
-                            self.params.tolerance = 3;
-                            self.params.layerIds = layerids;
-                            self.params.layerOption = "visible";
-                            self.params.width = self.state.view.width;
-                            self.params.height = self.state.view.height;
-                            self.params.returnGeometry = true;
-                            self.params.returnGeometry = !self.state.blockSelect;
-                            //  console.log(self.params);
+                            if (src === srcsplit[srcsplit.length - 1]) {
+                                self.identifyTask = new IdentifyTask(src);
+                                self.params = new IdentifyParameters();
+                                self.params.tolerance = 3;
+                                self.params.layerIds = layerids;
+                                self.params.layerOption = "visible";
+                                self.params.width = self.state.view.width;
+                                self.params.height = self.state.view.height;
+                                self.params.returnGeometry = true;
+                                self.params.returnGeometry = !self.state.blockSelect;
+                                //  console.log(self.params);
+                            }
                         });
                     });
 
                     self.layerRef = gmaplayer;
-                    self.state.map.add(gmaplayer);
+                    //self.state.map.add(gmaplayer);
                 }
 
                 if (self.props.type === "dynamic") {
@@ -1397,7 +1436,7 @@ var ArcticMapLayer = function (_React$Component) {
                     });
 
                     self.layerRef = maplayer;
-                    self.state.map.add(maplayer);
+                    //self.state.map.add(maplayer);
                 }
 
                 if (self.props.type === "image") {
@@ -1406,12 +1445,12 @@ var ArcticMapLayer = function (_React$Component) {
                         format: "jpgpng" // server exports in either jpg or png format
                     });
                     self.layerRef = imagelayer;
-                    self.state.map.add(imagelayer);
+                    //self.state.map.add(imagelayer);
                 }
 
                 if (self.props.type === "custom") {
                     self.layerRef = self.props.layerRef;
-                    self.state.map.add(self.props.layerRef);
+                    //self.state.map.add(self.props.layerRef);
                 }
                 // if (self.props.type === "geojson") {
 
@@ -1490,8 +1529,11 @@ var ArcticMapLayer = function (_React$Component) {
                 //     // self.state.map.add(imagelayer);
 
                 // }
+                if (self.props.visible !== undefined && self.props.visible === "false") {
+                    self.layerRef.visible = false;
+                }
 
-
+                self.state.map.add(self.layerRef);
                 self.layerRef.when(function () {
                     setTimeout(function () {
                         var evt = new Event('ready', { bubbles: true });
@@ -1594,6 +1636,40 @@ var ArcticMapLayer = function (_React$Component) {
                     };
                     callback(response);
                 });
+            } else if (this.props.type === "feature") {
+
+                this.state.view.hitTest(event).then(function (htresponse) {
+
+                    // console.log("Identify on geojson");
+                    //console.log(htresponse);
+                    var mapPoint = event.mapPoint;
+                    var layersLeft = self.layerRef.layers.length;
+                    var responses = [];
+                    self.layerRef.layers.map(function (layer) {
+                        layer.queryFeatures({
+                            //query object
+                            geometry: mapPoint,
+                            spatialRelationship: "intersects",
+                            returnGeometry: !self.state.blockSelect,
+                            outFields: ["*"]
+                        }).then(function (response) {
+                            responses = responses.concat(response.features);
+                            layersLeft--;
+
+                            if (layersLeft < 1) {
+                                var res = responses.map(function (feat) {
+                                    return {
+                                        feature: feat,
+                                        layerName: feat.layer.title,
+                                        layerId: feat.layer.layerId
+                                    };
+                                });
+
+                                callback({ results: res });
+                            }
+                        });
+                    });
+                });
             } else {
 
                 if (!this.params) {
@@ -1669,6 +1745,10 @@ var ArcticMapEdit = function (_React$Component) {
         };
 
         _this.uploadPanel = React.createRef();
+
+        ArcticMapEdit.defaultProps = {
+            uploadPanelInfoAreaText: "Do you already have a shape of your case? Upload your file here. Supported geometries: polygon and polyline. Supported file types: Shapefiles (.zip), kml, gml, gpx, and geojson."
+        };
         return _this;
     }
 
@@ -1683,14 +1763,15 @@ var ArcticMapEdit = function (_React$Component) {
             var _this2 = this;
 
             var self = this;
-            loadModules(["esri/Graphic", "esri/layers/GraphicsLayer", "esri/widgets/Sketch/SketchViewModel", "esri/geometry/Geometry", "esri/geometry/Polygon", "esri/geometry/geometryEngine"]).then(function (_ref) {
-                var _ref2 = slicedToArray(_ref, 6),
+            loadModules(["esri/Graphic", "esri/layers/GraphicsLayer", "esri/widgets/Sketch/SketchViewModel", "esri/geometry/Geometry", "esri/geometry/Polygon", "esri/geometry/Polyline", "esri/geometry/geometryEngine"]).then(function (_ref) {
+                var _ref2 = slicedToArray(_ref, 7),
                     Graphic = _ref2[0],
                     GraphicsLayer = _ref2[1],
                     SketchViewModel = _ref2[2],
                     Geometry = _ref2[3],
                     Polygon = _ref2[4],
-                    geometryEngine = _ref2[5];
+                    Polyline = _ref2[5],
+                    geometryEngine = _ref2[6];
 
                 var tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
                 self.setState({ tempGraphicsLayer: tempGraphicsLayer });
@@ -1797,7 +1878,6 @@ var ArcticMapEdit = function (_React$Component) {
 
                 //self.setUpClickHandler();
 
-
                 // scoped methods
                 self.setEditFeature = function (feature, nofire, type, zoomto, addto, trim) {
 
@@ -1832,6 +1912,10 @@ var ArcticMapEdit = function (_React$Component) {
                             feature.geometry = new Polygon(feature.geometry);
                             feature.geometry.type = "polygon";
                         }
+                        if (type === "polyline") {
+                            feature.geometry = new Polyline(feature.geometry);
+                            feature.geometry.type = "polyline";
+                        }
                     }
 
                     _this2.state.sketchViewModel.cancel();
@@ -1844,11 +1928,18 @@ var ArcticMapEdit = function (_React$Component) {
                     if (!feature.geometry.toJSON && feature.symbol) {
                         graphic = Graphic.fromJSON(feature);
                     } else {
-
-                        graphic = new Graphic({
-                            geometry: feature.geometry,
-                            symbol: _this2.state.sketchViewModel.polygonSymbol
-                        });
+                        if (feature.geometry.type === "polygon") {
+                            graphic = new Graphic({
+                                geometry: feature.geometry,
+                                symbol: _this2.state.sketchViewModel.polygonSymbol
+                            });
+                        }
+                        if (feature.geometry.type === "polyline") {
+                            graphic = new Graphic({
+                                geometry: feature.geometry,
+                                symbol: _this2.state.sketchViewModel.polylineSymbol
+                            });
+                        }
                     }
 
                     if (graphic.geometry === null) {
@@ -1886,11 +1977,18 @@ var ArcticMapEdit = function (_React$Component) {
                             });
 
                             var merge = geometryEngine.union(geometrys);
-
-                            graphic = new Graphic({
-                                geometry: merge,
-                                symbol: _this2.state.sketchViewModel.polygonSymbol
-                            });
+                            if (merge.type === "polygon") {
+                                graphic = new Graphic({
+                                    geometry: merge,
+                                    symbol: _this2.state.sketchViewModel.polygonSymbol
+                                });
+                            }
+                            if (merge.type === "polyline") {
+                                graphic = new Graphic({
+                                    geometry: merge,
+                                    symbol: _this2.state.sketchViewModel.polylineSymbol
+                                });
+                            }
                             graphic.geometry.sourceLayer = feature.sourceLayer;
                             _this2.state.tempGraphicsLayer.graphics = [graphic];
                         }
@@ -1922,12 +2020,9 @@ var ArcticMapEdit = function (_React$Component) {
 
                 self.setGeoJson = function (geojson) {
                     //var esrijson = geojsonToArcGIS(geojson);
-
-
                 };
                 self.setGeoJson = self.setGeoJson.bind(self);
             }); //.catch ((err) => console.error(err));
-
         }
     }, {
         key: "firenewfeature",
@@ -2048,8 +2143,7 @@ var ArcticMapEdit = function (_React$Component) {
                     var esrijson = geojsonToArcGIS(f);
                     features.push(esrijson);
                 });
-                self.addGeojsonToMap(features, file, "GPX");
-                self.uploadPanel.current.toggle();
+                if (self.addGeojsonToMap(features, file, "GPX")) self.uploadPanel.current.toggle();
             });
         }
     }, {
@@ -2078,6 +2172,15 @@ var ArcticMapEdit = function (_React$Component) {
                 var gj = self.fc();
                 var xmlDoc = parser.parseFromString(text, "text/xml");
                 var Polygon = self.get(xmlDoc, "gml:Polygon");
+                var LineString = self.get(xmlDoc, "gml:LineString");
+                var sr = 0;
+                if (Polygon.length > 0) {
+                    var srp = Polygon[0].attributes["srsName"].nodeValue.split(":");
+                    sr = srp[srp.length - 1];
+                } else if (LineString.length > 0) {
+                    var srp = LineString[0].attributes["srsName"].nodeValue.split(":");
+                    sr = srp[srp.length - 1];
+                }
                 var featureMember = self.get(xmlDoc, "gml:featureMember");
                 for (var j = 0; j < featureMember.length; j++) {
                     gj.features = gj.features.concat(self.getFeatureMember(featureMember[j]));
@@ -2086,10 +2189,10 @@ var ArcticMapEdit = function (_React$Component) {
 
                 gj.features.forEach(function (f) {
                     var esrijson = geojsonToArcGIS(f);
+                    esrijson.geometry.spatialReference.wkid = sr;
                     features.push(esrijson);
                 });
-                self.addGeojsonToMap(features, file, "GML");
-                self.uploadPanel.current.toggle();
+                if (self.addGeojsonToMap(features, file, "GML")) self.uploadPanel.current.toggle();
             });
         }
     }, {
@@ -2112,7 +2215,7 @@ var ArcticMapEdit = function (_React$Component) {
         key: "getGeometry",
         value: function getGeometry(root) {
 
-            var geotypes = ['LineString', 'Polygon', 'Point', 'Track', 'gx:Track', 'gml:Polygon', 'trkpt'];
+            var geotypes = ['LineString', 'gml:LineString', 'Polygon', 'Point', 'Track', 'gx:Track', 'gml:Polygon', 'trkpt'];
             var geomNode,
                 geomNodes,
                 i,
@@ -2154,6 +2257,11 @@ var ArcticMapEdit = function (_React$Component) {
                             geoms.push({
                                 type: 'LineString',
                                 coordinates: this.coord(this.nodeVal(this.get1(geomNode, 'coordinates')))
+                            });
+                        } else if (geotypes[i] === 'gml:LineString') {
+                            geoms.push({
+                                type: 'LineString',
+                                coordinates: this.coord(this.nodeVal(this.get1(geomNode, 'gml:coordinates')))
                             });
                         } else if (geotypes[i] === 'Polygon') {
                             var rings = this.get(geomNode, 'LinearRing'),
@@ -2346,11 +2454,9 @@ var ArcticMapEdit = function (_React$Component) {
 
                 gj.features.forEach(function (f) {
                     var esrijson = geojsonToArcGIS(f);
-
                     features.push(esrijson);
                 });
-                self.addGeojsonToMap(features, file, "KML");
-                self.uploadPanel.current.toggle();
+                if (self.addGeojsonToMap(features, file, "KML")) self.uploadPanel.current.toggle();
             });
         }
     }, {
@@ -2485,16 +2591,21 @@ var ArcticMapEdit = function (_React$Component) {
             this.readTextFile(form.files[0]).then(function (text) {
 
                 var geojson = JSON.parse(text);
+                var sr = 0;
+                if (geojson.crs && geojson.crs.properties) {
+                    var srp = geojson.crs.properties.name.split(":");
+                    sr = srp[srp.length - 1];
+                }
                 var features = [];
 
                 geojson.features.forEach(function (f) {
                     var esrijson = geojsonToArcGIS(f);
+                    esrijson.geometry.spatialReference.wkid = sr;
 
                     features.push(esrijson);
                 });
 
-                self.addGeojsonToMap(features, file, "GEOJSON");
-                self.uploadPanel.current.toggle();
+                if (self.addGeojsonToMap(features, file, "GEOJSON")) self.uploadPanel.current.toggle();
             });
         }
     }, {
@@ -2502,47 +2613,103 @@ var ArcticMapEdit = function (_React$Component) {
         value: function processShapeFile(fileName, form) {
 
             var self = this;
-            self.uploadPanel.current.toggle();
+            //self.uploadPanel.current.toggle();
             var name = fileName.split(".");
             name = name[0].replace("c:\\fakepath\\", "");
 
-            var parms = {
-                name: name,
-                targetSR: self.state.view.extent.spatialReference,
-                maxRecordCount: 1000,
-                enforceInputFileSizeLimit: true,
-                enforceOutputJsonSizeLimit: true
-            };
+            var fd = form.files[0];
+            var JSZip = require('jszip')();
 
-            parms.generalize = true;
-            parms.maxAllowableOffset = 10;
-            parms.reducePrecision = true;
-            parms.numberOfDigitsAfterDecimal = 0;
-            var myContent = {
-                filetype: "shapefile",
-                publishParameters: JSON.stringify(parms),
-                f: "json",
-                'content-type': 'multipart/form-data'
-            };
+            JSZip.loadAsync(fd).then(function (zipEntries) {
+                var prjfile = null;
+                zipEntries.forEach(function (rp, zipEntry) {
+                    if (zipEntry.name.indexOf(".prj") !== -1) {
+                        prjfile = zipEntry;
+                    }
+                });
+                if (prjfile == null) {
+                    document.getElementById("upload-status").innerHTML = '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or<br>WGS 84 (wkid 102100 (3857)), the data uploaded<br>was found outside the expected datums and<br>failed to upload, for further information<br>please reference knowledge article<br><a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84" target="_blank">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                    return;
+                }
+                prjfile.async('text').then(function (text) {
 
-            var portalUrl = "https://www.arcgis.com";
+                    var datums = {
+                        4269: ["nad83", "northamericandatum1983", "gcsnorthamerican1983", "dnorthamerican1983", "nad83(1986)", "nad83(1986)-latlon", "nad83(original)"],
+                        3857: ["wgs84/pseudo-mercator", "wgs1984webmercatorauxiliarysphere", "wgs84/popularvisualisationpseudo-mercator", "webmercator", "mercator1sp"],
+                        102100: ["wgs84/pseudo-mercator", "wgs1984webmercatorauxiliarysphere", "wgs84/popularvisualisationpseudo-mercator", "webmercator", "mercator1sp"],
+                        4326: ["gcswgs1984", "dwgs1984", "wgs84", "wgs1984", "worldgeodeticsystem1984"]
+                    };
+                    if (self.props.uploadSR) {
+                        var srs = self.props.uploadSR.split(',');
+                        var validsr = srs.length < 1;
+                        for (var i = 0; i < srs.length; i++) {
+                            if (text.includes(srs[i])) {
+                                validsr = true;
+                                break;
+                            }
+                        }
+                        if (!validsr) {
+                            text = text.toLowerCase();
+                            text = text.replace(/_/g, '');
+                            text = text.replace(/\s/g, '');
+                            for (var i = 0; i < srs.length; i++) {
+                                var datum = datums[srs[i]];
+                                if (datum) {
+                                    for (var j = 0; j < datum.length; j++) {
+                                        if (text.includes(datum[j])) {
+                                            validsr = true;
+                                            break;
+                                        }
+                                    }
+                                    if (validsr) break;
+                                }
+                            }
+                        }
+                        if (!validsr) {
+                            //TODO should not be hardcoded
+                            document.getElementById("upload-status").innerHTML = '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or<br>WGS 84 (wkid 102100 (3857)), the data uploaded<br>was found outside the expected datums and<br>failed to upload, for further information<br>please reference knowledge article<br><a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84" target="_blank">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                            return false;
+                        }
+                    }
+                    var parms = {
+                        name: name,
+                        targetSR: self.state.view.extent.spatialReference,
+                        maxRecordCount: 1000,
+                        enforceInputFileSizeLimit: true,
+                        enforceOutputJsonSizeLimit: true
+                    };
 
-            var query = Object.keys(myContent).map(function (k) {
-                return escape(k) + '=' + escape(myContent[k]);
-            }).join('&');
+                    parms.generalize = true;
+                    parms.maxAllowableOffset = 10;
+                    parms.reducePrecision = true;
+                    parms.numberOfDigitsAfterDecimal = 0;
+                    var myContent = {
+                        filetype: "shapefile",
+                        publishParameters: JSON.stringify(parms),
+                        f: "json",
+                        'content-type': 'multipart/form-data'
+                    };
 
-            loadModules(['esri/request']).then(function (_ref3) {
-                var _ref4 = slicedToArray(_ref3, 1),
-                    request = _ref4[0];
+                    var portalUrl = "https://www.arcgis.com";
 
-                request(portalUrl + "/sharing/rest/content/features/generate", {
-                    query: myContent,
-                    body: new FormData(form.form),
-                    //body: document.getElementById("uploadForm"),
-                    responseType: "json"
-                }).then(function (response) {
-                    var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
-                    self.addShapefileToMap(response.data.featureCollection, layerName);
+                    var query = Object.keys(myContent).map(function (k) {
+                        return escape(k) + '=' + escape(myContent[k]);
+                    }).join('&');
+
+                    loadModules(['esri/request']).then(function (_ref3) {
+                        var _ref4 = slicedToArray(_ref3, 1),
+                            request = _ref4[0];
+
+                        request(portalUrl + "/sharing/rest/content/features/generate", {
+                            query: myContent,
+                            body: new FormData(form.form),
+                            //body: document.getElementById("uploadForm"),
+                            responseType: "json"
+                        }).then(function (response) {
+                            var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
+                            if (self.addShapefileToMap(response.data.featureCollection, layerName)) self.uploadPanel.current.toggle();
+                        });
+                    });
                 });
             });
         }
@@ -2550,6 +2717,22 @@ var ArcticMapEdit = function (_React$Component) {
         key: "addShapefileToMap",
         value: function addShapefileToMap(featureCollection, layerName) {
             var self = this;
+            if (this.props.uploadSR) {
+                if (featureCollection.layers.length > 0 && featureCollection.layers[0].featureSet.features.length > 0) {
+                    var sr = featureCollection.layers[0].featureSet.features[0].geometry.spatialReference.wkid;
+                    var srs = this.props.uploadSR.split(',');
+                    var validsr = srs.length < 1;
+                    for (var i = 0; i < srs.length; i++) {
+                        if (sr == srs[i]) validsr = true;
+                    }
+
+                    if (!validsr) {
+                        //TODO should not be hardcoded
+                        document.getElementById("upload-status").innerHTML = '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or<br>WGS 84 (wkid 102100 (3857)), the data uploaded<br>was found outside the expected datums and<br>failed to upload, for further information<br>please reference knowledge article<br><a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84" target="_blank">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                        return false;
+                    }
+                }
+            }
             loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate']).then(function (_ref5) {
                 var _ref6 = slicedToArray(_ref5, 4),
                     Graphic = _ref6[0],
@@ -2609,11 +2792,29 @@ var ArcticMapEdit = function (_React$Component) {
 
                 self.state.map.amlayers.push(aml);
             });
+            return true;
         }
     }, {
         key: "addGeojsonToMap",
         value: function addGeojsonToMap(featureCollection, layerName, filetype) {
             var self = this;
+            if (this.props.uploadSR) {
+                if (featureCollection.length > 0) {
+                    var sr = featureCollection[0].geometry.spatialReference.wkid;
+                    var srs = this.props.uploadSR.split(',');
+                    var validsr = srs.length < 1;
+                    for (var i = 0; i < srs.length; i++) {
+                        if (sr == srs[i]) validsr = true;
+                    }
+
+                    if (!validsr) {
+                        //TODO should not be hardcoded
+                        document.getElementById("upload-status").innerHTML = '<p style="color:red">The expected datums are NAD 83 (wkid 4269) or<br>WGS 84 (wkid 102100 (3857)), the data uploaded<br>was found outside the expected datums and<br>failed to upload, for further information<br>please reference knowledge article<br><a href="https://qa-blm.cs32.force.com/s/article/Acceptable-Datums-in-MLRS-NAD83-and-WGS84" target="_blank">Acceptable Datums in MLRS - NAD83 and WGS84.</a></p>';
+                        return false;
+                    }
+                }
+            }
+
             loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate', "esri/renderers/SimpleRenderer"]).then(function (_ref7) {
                 var _ref8 = slicedToArray(_ref7, 5),
                     Graphic = _ref8[0],
@@ -2673,6 +2874,7 @@ var ArcticMapEdit = function (_React$Component) {
 
                 self.state.map.amlayers.push(aml);
             });
+            return true;
         }
     }, {
         key: "reset",
@@ -2702,7 +2904,6 @@ var ArcticMapEdit = function (_React$Component) {
             var children = React.Children.map(this.props.children, function (child) {
 
                 return React.cloneElement(child, {
-
                     map: self.state.map,
                     view: self.state.view,
                     //ref: 'child-' + (index++)
@@ -2730,13 +2931,9 @@ var ArcticMapEdit = function (_React$Component) {
                 children,
                 this.props.upload && React.createElement(
                     ArcticMapPanel,
-                    { hidden: this.state.hideEditors, esriicon: "upload", title: "Upload GIS file", ref: this.uploadPanel },
+                    { hidden: this.state.hideEditors, esriicon: "upload", title: "Upload GIS file", ref: this.uploadPanel,
+                        infoAreaText: this.props.uploadPanelInfoAreaText },
                     React.createElement("br", null),
-                    React.createElement(
-                        "p",
-                        { className: style$2.infoarea },
-                        "Do you already have a shape of your plot? Upload your file here. Supported file types: Shapefiles (.zip), kml, gml, gpx, and geojson"
-                    ),
                     React.createElement(
                         "form",
                         { encType: "multipart/form-data", method: "post", id: "uploadForm" },
@@ -2768,10 +2965,6 @@ var ArcticMapEdit = function (_React$Component) {
     }, {
         key: "render",
         value: function render() {
-
-            //return (<h2>Test</h2>);
-
-
             return React.createElement(
                 "span",
                 null,
@@ -3512,6 +3705,12 @@ var ArcticMapBaseControl = function (_React$Component) {
             });
         };
 
+        _this.watchForLayerListChanges = function (layerList) {
+            layerList.view.map.layers.on("after-changes", function (event) {
+                var viewModel = layerList.viewModel;
+            });
+        };
+
         _this.removeLegendDuplicateLabels = function () {
             setTimeout(function () {
                 var elements = document.getElementsByClassName("esri-legend__layer-body");
@@ -3519,11 +3718,20 @@ var ArcticMapBaseControl = function (_React$Component) {
                     if (elements[i].childNodes && elements[i].childNodes.length > 2) {
                         var element = elements[i];
                         var label = "";
+                        for (var _i = 0; _i < element.childNodes.length; _i++) {
+                            var childNodeI = element.childNodes[_i];
+                            for (var k = _i + 1; k < element.childNodes.length; k++) {
+                                var childNodeK = element.childNodes[k];
+                                if (element.childNodes[_i].innerText == element.childNodes[k].innerText) {
+                                    childNodeK.classList.add("arctic-map-hidden");
+                                }
+                            }
+                        }
                         for (var index = 0; index < element.childNodes.length; index++) {
                             var childNode = element.childNodes[index];
                             if (childNode.childNodes.length === 2) {
                                 var innerText = childNode.childNodes[1].innerText;
-                                if (innerText && innerText === label) {
+                                if (innerText && innerText === label && innerText !== '\t') {
                                     if (!childNode.classList.contains("arctic-map-hidden")) {
                                         childNode.classList.add("arctic-map-hidden");
                                     }
@@ -3590,6 +3798,10 @@ var ArcticMapBaseControl = function (_React$Component) {
                 listItemCreatedFunction: function listItemCreatedFunction(event) {
                     // only legend if imageFormat exist in TOC
                     var actions = [{
+                        title: "Labels on/off",
+                        className: "esri-icon-checkbox-checked",
+                        id: "toggle-labels"
+                    }, {
                         title: "Increase opacity",
                         className: "esri-icon-up",
                         id: "increase-opacity"
@@ -3616,14 +3828,31 @@ var ArcticMapBaseControl = function (_React$Component) {
                                 className: "esri-icon-table",
                                 id: "open-attribute-table"
                             });
+                            //actions.unshift({
+                            //    title: "Open Map Service",
+                            //    className: "esri-icon-launch-link-external",
+                            //    id: "open-map-service"
+                            //});
                         }
                     }
 
                     item.actionsSections = [actions];
                 }
             });
+            layerList.selectionEnabled = true;
+            _this.watchForLayerListChanges(layerList);
 
             layerList.on("trigger-action", function (event) {
+                if (event.action.id === "toggle-labels") {
+                    if (event.action.className === "esri-icon-checkbox-unchecked") {
+                        event.action.className = "esri-icon-checkbox-checked";
+                        event.item.layer.labelsVisible = true;
+                    } else {
+                        event.action.className = "esri-icon-checkbox-unchecked";
+                        event.item.layer.labelsVisible = false;
+                    }
+                    //console.log(event);
+                }
                 if (event.action.id === "increase-opacity") {
                     event.item.layer.opacity += 0.1;
                     event.item.layer.opacity >= 1 ? event.item.layer.opacity = 1 : event.item.layer.opacity;
@@ -3639,6 +3868,11 @@ var ArcticMapBaseControl = function (_React$Component) {
                         title: event.item.layer.title,
                         fields: self.getAttributeTableLayerFields(event.item.layer.url),
                         hiddenFields: self.getAttributeTableLayerHiddenFields(event.item.layer.url)
+                    });
+                }
+                if (event.action.id === "open-map-service") {
+                    self.props.openMapService({
+                        url: event.item.layer.url
                     });
                 }
             });
@@ -3700,6 +3934,11 @@ var ArcticMapBaseControl = function (_React$Component) {
                             'p',
                             null,
                             'Toggle visibility of each data layer.'
+                        ),
+                        React.createElement(
+                            'p',
+                            null,
+                            'Click, drag and drop layers to reorder.'
                         ),
                         this.state.canReset && React.createElement(
                             'p',
@@ -3820,10 +4059,16 @@ var ArcticMapLocator = function (_React$Component) {
                     });
                 }
 
+                var locationServicesEnabled = true;
+                if (self.props.locationServicesEnabled !== undefined) {
+                    locationServicesEnabled = self.props.locationServicesEnabled;
+                }
+
                 var searchWidget2 = new Search({
                     view: self.props.view,
                     sources: searchsources,
-                    includeDefaultSources: false // true will include standard locator
+                    includeDefaultSources: false, // true will include standard locator
+                    locationEnabled: locationServicesEnabled
                 });
 
                 self.props.view.ui.add(searchWidget2, {

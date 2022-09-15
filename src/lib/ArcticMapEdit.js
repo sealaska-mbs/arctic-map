@@ -28,9 +28,11 @@ class ArcticMapEdit extends React.Component {
         };
 
         this.uploadPanel = React.createRef();
+
+        ArcticMapEdit.defaultProps = {
+            uploadPanelInfoAreaText: "Do you already have a shape of your case? Upload your file here. Supported geometries: polygon and polyline. Supported file types: Shapefiles (.zip), kml, gml, gpx, and geojson."
+        }
     }
-
-
 
     componentWillUnmount() {
         this.props.view.graphics.remove(this.state.graphic);
@@ -114,18 +116,14 @@ class ArcticMapEdit extends React.Component {
                         this.setState({ hideEditors: true });
                     }
 
-
-
                     setTimeout(() => {
 
                         self.setState({ geojson: arcgisToGeoJSON(event.graphic.geometry.toJSON()), datajson: event.graphic.toJSON(), editing: false });
                         self.firenewfeature();
                     }, 1000);
 
-
                 }
             });
-
 
             sketchViewModel.on("update", (event) => {
                 self.setState({ editing: true });
@@ -160,12 +158,7 @@ class ArcticMapEdit extends React.Component {
 
                 // set the editGraphic to null update is complete or cancelled.
                 self.state.editGraphic = null;
-
-
-
             });
-
-
 
             this.top_right_node = document.createElement("div");
             self.state.view.ui.add(this.top_right_node, "top-right");
@@ -173,7 +166,6 @@ class ArcticMapEdit extends React.Component {
             self.setState({ loaded: true })
 
             //self.setUpClickHandler();
-
 
             // scoped methods
             self.setEditFeature = (feature, nofire, type, zoomto, addto, trim) => {
@@ -247,7 +239,6 @@ class ArcticMapEdit extends React.Component {
                     
                 }
 
-
                 if (trim) {
                     if (this.state.tempGraphicsLayer.graphics.items.length > 0) {
 
@@ -306,7 +297,6 @@ class ArcticMapEdit extends React.Component {
                     self.state.view.goTo(graphic);
                 }
 
-
                 var geometry = feature.geometry;
                 if (geometry && !geometry.toJSON) {
                     geometry = Geometry.fromJSON(geometry);
@@ -323,24 +313,16 @@ class ArcticMapEdit extends React.Component {
 
             };
 
-
             self.setEditFeature = self.setEditFeature.bind(self);
-
-
 
             self.setGeoJson = (geojson) => {
                 //var esrijson = geojsonToArcGIS(geojson);
-
-
             }
             self.setGeoJson = self.setGeoJson.bind(self);
 
-
         }); //.catch ((err) => console.error(err));
 
-
     }
-
 
     firenewfeature() {
         var self = this;
@@ -379,8 +361,6 @@ class ArcticMapEdit extends React.Component {
         this.setState({ editing: true });
     }
 
-
-
     fileUploaded(evt) {
         var self = this;
         var fileName = evt.target.value.toLowerCase();
@@ -411,10 +391,7 @@ class ArcticMapEdit extends React.Component {
             document.getElementById("upload-status").innerHTML =
                 '<p style="color:red">Only shapefile(.zip), .gml, .gpx, .kml, or .geojson are supported</p>'
         }
-
-
     }
-
 
     readTextFile(file) {
         return new Promise((res, rej) => {
@@ -460,6 +437,7 @@ class ArcticMapEdit extends React.Component {
                 self.uploadPanel.current.toggle();
         });
     }
+
     getTRKMember(root) {
         var geometryProperty = this.get(root, "trkseg");
         var geomsCoord = this.getGeometry(geometryProperty[0]);
@@ -615,6 +593,7 @@ class ArcticMapEdit extends React.Component {
             features: []
         }
     }
+
     xml2str(str) {
         var serializer;
         if (typeof XMLSerializer !== 'undefined') {
@@ -624,15 +603,12 @@ class ArcticMapEdit extends React.Component {
         if (str.xml !== undefined) return str.xml;
         return serializer.serializeToString(str);
     }
-
     okhash(x) {
         if (!x || !x.length) return 0;
         for (var i = 0, h = 0; i < x.length; i++) {
             h = ((h << 5) - h) + x.charCodeAt(i) | 0;
         } return h;
     }
-
-
     get(x, y) {return x.getElementsByTagName(y); }
     attr(x, y) { return x.getAttribute(y); }
     attrf(x, y) { return parseFloat(this.attr(x, y)); }
@@ -677,8 +653,6 @@ class ArcticMapEdit extends React.Component {
         var file = fileName.replace(/^.*[\\\/]/, '')
         var self = this;
 
-
-
         this.readTextFile(form.files[0]).then(text => {
             var parser = new DOMParser();
             var gj = self.fc()
@@ -718,7 +692,6 @@ class ArcticMapEdit extends React.Component {
                 self.uploadPanel.current.toggle();
 
         });
-
 
     }
     getPlacemark(root) {
@@ -1168,16 +1141,10 @@ class ArcticMapEdit extends React.Component {
         return true;
     }
 
-
-
-
-
-
     reset() {
         this.state.sketchViewModel.cancel();
         this.state.tempGraphicsLayer.removeAll();
         this.setState({ hideEditors: false, geojson: null });
-
     }
 
     setmaptoselect() {
@@ -1199,8 +1166,6 @@ class ArcticMapEdit extends React.Component {
         var children = React.Children.map(this.props.children, function (child) {
 
             return React.cloneElement(child, {
-
-
                 map: self.state.map,
                 view: self.state.view,
                 //ref: 'child-' + (index++)
@@ -1242,29 +1207,22 @@ class ArcticMapEdit extends React.Component {
             }
             {children}
             {this.props.upload &&
-                <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload GIS file" ref={this.uploadPanel}  >
+                <ArcticMapPanel hidden={this.state.hideEditors} esriicon="upload" title="Upload GIS file" ref={this.uploadPanel} 
+                infoAreaText={this.props.uploadPanelInfoAreaText}>
                     <br />
-                    <p className={style.infoarea} >Do you already have a shape of your case? Upload your file here. 
-                    Supported geometries: polygon and polyline. 
-                    Supported file types: Shapefiles (.zip), kml, gml, gpx, and geojson
-                    </p>
                     <form encType="multipart/form-data" method="post" id="uploadForm">
                         <div className="field">
                             <br/>
                             <label className={style.btm_primary_file}>
-                                <input type="file" name="file" id="inFile"  onChange={this.fileUploaded.bind(this)} />
+                                <input type="file" name="file" id="inFile" onChange={this.fileUploaded.bind(this)} />
                                 Upload File
                             </label>
                         </div>
                     </form>
                     <br />
                     <span id="upload-status"></span>
-
                 </ArcticMapPanel>}
             <ArcticMapButton esriicon="erase" onclick={this.reset.bind(this)} title="Clear selection" ></ArcticMapButton>
-
-
-
         </div>;
     }
 
@@ -1277,17 +1235,9 @@ class ArcticMapEdit extends React.Component {
         }
     }
 
-
     render() {
-
-        //return (<h2>Test</h2>);
-
-
         return (<span>
             {this.state.fileLayer}
-
-
-
         </span>);
     }
 
@@ -1353,7 +1303,6 @@ class ArcticMapEdit extends React.Component {
         //     selectedButton.classList.add("active");
         // }
     }
-
 
 }
 
