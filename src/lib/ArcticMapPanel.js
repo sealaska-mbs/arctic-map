@@ -50,7 +50,7 @@ class ArcticMapPanel extends React.Component {
         };
 
         ArcticMapPanel.defaultProps= {
-            infoAreaText: {}
+            infoAreaText: ""
         }
      
         if(props.map){

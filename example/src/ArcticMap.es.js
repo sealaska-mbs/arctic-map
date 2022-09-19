@@ -302,7 +302,7 @@ var ArcticMapPanel = function (_React$Component) {
         };
 
         ArcticMapPanel.defaultProps = {
-            infoAreaText: {}
+            infoAreaText: ""
         };
 
         if (props.map) {
@@ -343,13 +343,6 @@ var ArcticMapPanel = function (_React$Component) {
                 React.createElement(ArcticMapButton, { padtop: this.props.padtop, padbottom: this.props.padbottom, esriicon: this.props.esriicon, onclick: this.toggle.bind(this), title: this.props.title })
             );
         }
-
-        // renderInfoArea() {
-        //     return (
-        //         <div>{this.props.infoAreaText}</div>
-        //     )
-        // }
-
     }, {
         key: 'renderPanel',
         value: function renderPanel() {
@@ -365,9 +358,7 @@ var ArcticMapPanel = function (_React$Component) {
                     className: 'esri-icon esri-icon-close'
                 }))
                 //React.createElement(ArcticMapButton, { esriicon: 'close', onclick: this.toggle, style : { fontSize : '28px'} })
-                ), React.createElement('p', { style: { width: "300px", paddingLeft: "20px", wordWrap: "break-word", margin: "0px", whiteSpace: "pre-line" } }, this.props.infoAreaText
-                // this.renderInfoArea()
-                ), React.createElement('div', { style: styles$1.widgetContainer }, React.createElement('div', null, this.props.children)));
+                ), React.createElement('p', { style: { width: "300px", paddingLeft: "20px", wordWrap: "break-word", margin: "0px", whiteSpace: "pre-line" } }, this.props.infoAreaText), React.createElement('div', { style: styles$1.widgetContainer }, React.createElement('div', null, this.props.children)));
 
                 // <button style={style.arcticButton} onClick={this.fireclick.bind(this)} title={this.props.title} >
                 //     <span style={{ height: "15px", width: "15px" }} aria-hidden className={esriClassName} ></span>
