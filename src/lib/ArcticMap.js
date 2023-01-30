@@ -604,12 +604,14 @@ class ArcticMap extends React.Component {
         identLayers = identLayers.concat(self.state.map.amlayers);
 
         async.eachSeries(identLayers, function (layer, cb) {
-          if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature")
+          //console.log("Identify: Type - "+layer.props.type)
+          if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature" && layer.props.type !== "groupby")
           {
-            cb();
+            cb();   
             return;
           }
-          if((!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature")) || layer.props.type === "geojson" || layer.props.type === "group"){
+          if((!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature")) || layer.props.type === "geojson" || layer.props.type === "group" || layer.props.type === "groupby"){
+            //console.log("Identify: Type - "+layer.props.type)
             const visibleLayers = [];
             let noFilter = false;
             if(layer.props.sublayers){
@@ -622,6 +624,7 @@ class ArcticMap extends React.Component {
 
             const isLayerVisible = (lyr) => {
               let isVisible = lyr.visible;
+              //console.log(lyr.parent.url+" "+lyr.visible);
               if (lyr.visible && lyr.parent && lyr.parent.title && lyr.parent.url) {
                 isVisible = isLayerVisible(lyr.parent);
               }
@@ -638,6 +641,9 @@ class ArcticMap extends React.Component {
 
             layer.identify(event, function (results) {
               if (results) {
+                      //console.log(results);
+                      //console.log(layer);
+                      
                       results.layer = layer;
 
                       if(visibleLayers.length > 0){
@@ -672,6 +678,8 @@ class ArcticMap extends React.Component {
         }, function (err) {
           var results = identresults.map(function (ir) {
             ir.results.forEach(function (res) {
+              //console.log(ir.layer.props.title);
+              //console.log(res);
               res.layer = ir.layer;
               res.acres = -1;
               if (res.feature.geometry) {
