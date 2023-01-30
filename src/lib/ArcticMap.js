@@ -607,7 +607,7 @@ class ArcticMap extends React.Component {
           //console.log("Identify: Type - "+layer.props.type)
           if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature" && layer.props.type !== "groupby")
           {
-            cb();
+            cb();   
             return;
           }
           if((!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature")) || layer.props.type === "geojson" || layer.props.type === "group" || layer.props.type === "groupby"){
