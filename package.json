@@ -3,7 +3,7 @@
   "version": "1.1.117",
   "description": "arctic-map",
   "author": "sealaska-mbs",
-  "license": "MIT",   
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sealaska-mbs/arctic-map.git"
@@ -34,6 +34,7 @@
     "cssnano": "^4.1.8",
     "esri-loader": "3.0.0",
     "jszip": "^3.7.1",
+    "node": "^18.13.0",
     "original-fs": "^1.1.0",
     "prop-types": "^15.5.4",
     "react-arcgis": "^3.3.3",
