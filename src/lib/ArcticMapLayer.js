@@ -67,9 +67,11 @@ class ArcticMapLayer extends React.Component {
                    }
                    else if (child.type.displayName === 'ArcticMapLayer') {
                         var subchildren = [];
+                        //console.log(child.props.children);
                         child.props.children.forEach(function (subchild) {
                            if (subchild.type.displayName === 'ArcticMapLayerPopup') {
-                               subchildren.push(subchild);
+                              //console.log(subchild);
+                              subchildren.push(subchild);
                            }
                        })
                        children2 = subchildren;  
@@ -81,7 +83,7 @@ class ArcticMapLayer extends React.Component {
                else {
                    self.layerRenderers = children;
                }
-               console.log(self.layerRenderers);
+               //console.log(self.layerRenderers);
    
             var childrenEles = [];
             if (self.props.children) {
@@ -154,89 +156,122 @@ class ArcticMapLayer extends React.Component {
                 //self.state.map.add(featureLayer);
             }
 
-            if(this.props.type === "groupby") {
+            if(self.props.type === "groupby") {
                 var gtrans = 1;
                 if (self.props.transparency) {
                     gtrans = Number.parseFloat(self.props.transparency);
                 }
-                var children = [];
-                children = this.props.children;
-				//console.log("Children: "+children);
-                var srcsplit = [];
-				children.forEach(function (child) {
-					//console.log('props = '+child.props.src);
-                    srcsplit.push(child.props.src);
-				});
+                //var subChildren = [];
+
+                //const subChildren = React.Children.toArray(self.props.children);
+                
+                var subChildren = React.Children.map(self.props.children, function (child) {
+                    return new ArcticMapLayer(child.props)
+//                    return React.cloneElement(child, {
+//                        layerRef: null,
+//                        // ref: 'editor'
+//            
+//                      });
+                });
+
+                self.children = subChildren;
+                //return React.cloneElement(self.props.children, {
+                //    ref: (c) => { if (c) { subChildren.push(c) } }
+                //  });        
+                //subChildren = self.props.children.map(children, (child) => {return cloneElement(child);})
+                //subChildren = self.children;
+
+				//console.log("subChildren ",subChildren);
                 
                 var gbmaplayer = new GroupLayer({
                     opacity: gtrans,
-                    visibilityMode: "inherited"
+                    visibilityMode: "inherited",
+                    visible: self.props.visible
 
                 });
                 if (self.props.title) {
                     gbmaplayer.title = self.props.title;
                 }
 
-                var idx = 0;
-                children.forEach(function (child) {
-                    var glayer = new MapImageLayer({
-                        url: child.props.src,
-                        opacity: gtrans,
-                        title: child.props.title
+                subChildren.forEach(function (child) {
+                    //console.log(child);
+                    if (child.props.type === "dynamic") {
 
-                    });
-
-                    if(self.props.sublayers && self.props.sublayers.length>idx){
-                        glayer.sublayers = self.props.sublayers[idx];
-                        idx++;
-                    }
-
-                    gbmaplayer.layers.add(glayer);
-
-                    glayer.when(() => {
-                        var layerids = [];                 
-                        glayer.allSublayers.items.forEach(sublayer => {
-                            layerids.push(sublayer.id);
-                            sublayer.when(function(e){
-                                if(self.props.sublayers !== undefined){
-                                    self.props.sublayers.forEach(sub => {
-                                        if(sub.isVisible === false && (e.id === sub.id)){
-                                            e.visible = false;
-                                        }
-                                    });
-                                }
-                            });
-                            var renderer = renderers.find(r => {
-                                if (r.props.layer === sublayer.title || r.props.layer === `${sublayer.id}`) {
-                                    return r;
-                                }
-                            });
-                            if (renderer !== undefined) {
-                                sublayer.renderer = renderer.props.style;
-                                if (renderer.props.displayTitle !== undefined) {
-                                    sublayer.title = renderer.props.displayTitle;
-                                }
-                            }    
+                        var trans = 1;
+                        if (child.props.transparency) {
+                            trans = Number.parseFloat(child.props.transparency);
+                        }
+        
+                        var maplayer = new MapImageLayer({
+                            url: child.props.src,
+                            opacity: trans
                         });
-                        layerids.reverse();
-                        //console.log("LayerIDs: "+layerids);
-                        //if(child.props.src===srcsplit[srcsplit.length-1]){
-                            //console.log("Identify: "+child.props.src);
-                                self.identifyTask = new IdentifyTask(child.props.src);
-                                self.params = new IdentifyParameters();
-                                self.params.tolerance = 3;
-                                self.params.layerIds = layerids;
-                                self.params.layerOption = "visible";
-                                self.params.width = self.state.view.width;
-                                self.params.height = self.state.view.height;
-                                self.params.returnGeometry = true;
-                                self.params.returnGeometry = !self.state.blockSelect;
-                        //}
-                    });
-
+                        
+                        if(child.props.sublayers) {
+                            maplayer.sublayers = child.props.sublayers;
+                        }
+        
+                        if (child.props.childsrc);
+        
+                        if (child.props.title) {
+        
+                            maplayer.title = child.props.title;
+                        }
+        
+                        maplayer.on("layerview-create", function (event) {
+                            // console.lof("Layerview:" , event)
+                        });
+        
+                        maplayer.when(() => {
+                            var layerids = [];
+                            maplayer.allSublayers.items.forEach(sublayer => {
+                                layerids.push(sublayer.id);
+                                sublayer.when(function(e){
+                                    if(child.props.sublayers !== undefined){
+                                        child.props.sublayers.forEach(sub => {
+                                            if(sub.isVisible === false && (e.id === sub.id)){
+                                                e.visible = false;
+                                            }
+                                        });
+                                    }
+                                });
+                                var renderer = renderers.find(r => {
+                                    if (r.props.layer === sublayer.title || r.props.layer === `${sublayer.id}`) {
+                                        return r;
+                                    }
+                                });
+                                if (renderer !== undefined) {
+                                    sublayer.renderer = renderer.props.style;
+                                    if (renderer.props.displayTitle !== undefined) {
+                                        sublayer.title = renderer.props.displayTitle;
+                                    }
+                                }
+                                //sublayer.renderer = Renderer.fromJSON(renderer);
+                            });
+                            //console.log("maplayer",maplayer);
+                            //layerids.reverse();
+        
+                            child.identifyTask = new IdentifyTask(child.props.src);
+                            child.params = new IdentifyParameters();
+                            child.params.tolerance = 3;
+                            child.params.layerIds = layerids;
+                            child.params.layerOption = "visible";
+                            child.params.width = self.state.view.width;
+                            child.params.height = self.state.view.height;
+                            child.params.returnGeometry = true;
+                            child.params.returnGeometry = !self.state.blockSelect;
+                        });
+        
+                        child.layerRef = maplayer;
+                        //child.state.map.add(maplayer);
+                    }
+        
+                    gbmaplayer.layers.push(maplayer);
+                    //console.log(child);
                 });
 
                 self.layerRef = gbmaplayer;
+                //console.log("self.layerRef",self.layerRef);
                 //self.state.map.add(gbmaplayer);
             }
             
@@ -363,7 +398,7 @@ class ArcticMapLayer extends React.Component {
                         }
                         //sublayer.renderer = Renderer.fromJSON(renderer);
                     });
-                    layerids.reverse();
+                    //layerids.reverse();
 
                     self.identifyTask = new IdentifyTask(self.props.src);
                     self.params = new IdentifyParameters();
@@ -377,6 +412,7 @@ class ArcticMapLayer extends React.Component {
                 });
 
                 self.layerRef = maplayer;
+                //console.log("DynSelf", self);
                 //self.state.map.add(maplayer);
             }
 
@@ -499,6 +535,7 @@ class ArcticMapLayer extends React.Component {
     }
 
     renderPopupTitle(feature, result){
+        console.log("renderTitle", result)
         if(result.layerId !== undefined && this.layerRenderers) {
             var popupTitle = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
             if (popupTitle  && result.layerId == popupTitle.props.layerid) {
@@ -515,7 +552,7 @@ class ArcticMapLayer extends React.Component {
     }
 
     renderPopup(feature, result) {
-
+        console.log("renderPopup",result);
 
         if (result.layerId !== undefined && this.layerRenderers) {
             var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
@@ -613,20 +650,42 @@ class ArcticMapLayer extends React.Component {
                 });
             });
         }
+        else if (this.props.type === "groupby") {
+            //console.log("groupby Identify",this);
+            //var allResponse = [];
+            self.children.forEach(function (item,index) {
+                //var allResponse = [];
+                item.params.geometry = event.mapPoint;
+                item.params.mapExtent = self.state.view.extent;
+//                item.props = self.props.children[index].props;
+                //console.log("item",item);
+                item.identifyTask.execute(item.params).then(function (response) {
+                    response.layer=item;
+                    response.layer.layerRef = self.layerRef;
+                    response.layer.layerRenderers = item.props.children;
+                    //allResponse.push(response);
+                    if(response.results.length >0){
+                        //console.log(response);
+                        callback(response);
+                    }
+                });//.then(function (){
+                    //callback(allResponse);
+                //});
+            });
+//            callback(allResponse);
+        }   
         else {
-
-
+            //console.log("regular Identify",this);
             if (!this.params) { callback(null); return; }
 
             this.params.geometry = event.mapPoint;
             this.params.mapExtent = this.state.view.extent;
+            //console.log("params", this);
             //this.params.returnGeometry = true;
             //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
                 //console.log("identifyTask here",response );
                 callback(response);
-
-
             });
         }
     }
