@@ -697,7 +697,7 @@ class ArcticMap extends React.Component {
                             {
                               rem.push(res.layerId);
                             }
-                            console.log("rem", rem);
+                            console.log("rem", rem); 
                           });
                           rem.forEach(remid =>{
                             results2.results.splice(results2.results.findIndex(r => r.layerId === remid), 1);

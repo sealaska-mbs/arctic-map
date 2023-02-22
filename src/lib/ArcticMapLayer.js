@@ -647,7 +647,7 @@ class ArcticMapLayer extends React.Component {
                             callback({results:res});
                         } 
                       });
-                });
+                }); 
             });
         }
         else if (this.props.type === "groupby") {
