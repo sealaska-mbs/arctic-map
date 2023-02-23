@@ -56,7 +56,6 @@ class ArcticMap extends React.Component {
     self.childrenElements = [];
 
     var children = React.Children.map(this.props.children, function (child) {
-      //console.log(child);
       if(child){
         if (child.type.displayName === 'ArcticMapLayer') {
           return React.cloneElement(child, {
@@ -492,6 +491,8 @@ class ArcticMap extends React.Component {
             });
         
             identLayers = identLayers.concat(self.state.map.amlayers);
+            //console.log("amlayers");
+            //console.log(self.state.map.amlayers);
         
             async.eachSeries(identLayers, function (layer, cb) {
               if(!layer.state.disablePopup){   
@@ -602,18 +603,32 @@ class ArcticMap extends React.Component {
         });
 
         identLayers = identLayers.concat(self.state.map.amlayers);
+        
+        //console.log("IdentLayers: ",identLayers);
+        //console.log(this.state.map.allLayers.items);
+/*        this.state.map.allLayers.items.forEach((item) => {
+          //console.log(item.title+" - "+item.type);
+          if (item.visible === true && item.sublayers !== undefined && (item.type==="map-image" || item.type === "feature" || item.type === "graphics") ) {
+            //console.log(item.title);
+            item.sublayers.items.forEach((subItems) => {
+              if (subItems.visible === true) {
+                console.log(subItems.url);
+              }
+            })
+            //console.log(item.url);
+          }
 
+        });
+*/
         async.eachSeries(identLayers, function (layer, cb) {
-          //console.log("Identify: Type - "+layer.props.type)
           if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature" && layer.props.type !== "groupby")
           {
             cb();   
             return;
           }
           if((!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature")) || layer.props.type === "geojson" || layer.props.type === "group" || layer.props.type === "groupby"){
-            //console.log("Identify: Type - "+layer.props.type)
             const visibleLayers = [];
-            let noFilter = false;
+            let noFilter = false; 
             if(layer.props.sublayers){
               layer.props.sublayers.forEach(s => {
                 if(s.nofilter === true){
@@ -624,7 +639,6 @@ class ArcticMap extends React.Component {
 
             const isLayerVisible = (lyr) => {
               let isVisible = lyr.visible;
-              //console.log(lyr.parent.url+" "+lyr.visible);
               if (lyr.visible && lyr.parent && lyr.parent.title && lyr.parent.url) {
                 isVisible = isLayerVisible(lyr.parent);
               }
@@ -638,55 +652,57 @@ class ArcticMap extends React.Component {
                 }
               });
             }
+             if (layer.props.type === "groupby"){
+              var subLayers = [];
+              subLayers = layer.layerRef.layers.items;
+              subLayers.forEach((sub) => {
+                if (sub.sublayers){
+                  sub.sublayers.items.forEach((subSub) => {
+                    if (subSub.visible === true){
+                      visibleLayers.push(subSub.url);
+                    }
+                  });
+                }
+              })
+            }
+            
+            layer.identify(event, function (resultslist) {
+              resultslist.forEach(results => {
 
-            layer.identify(event, function (results) {
-              if (results) {
-                      //console.log(results);
-                      //console.log(layer);
-                      
-                      results.layer = layer;
-
-                      if(visibleLayers.length > 0){
-                        var rem = [];
-                        results.results.forEach(res =>{
-                          if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                          {
-                            rem.push(res.layerId);
-                          }
-                        });
-                        rem.forEach(remid =>{
-                          results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
-                        });
-                        
+                if (results) {
+                  if(visibleLayers.length > 0){
+                    var rem = [];
+                    results.results.forEach(res =>{
+                      if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                      {
+                        rem.push(res.layerId);
                       }
+                    });
+                    rem.forEach(remid =>{
+                      results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
+                    });                      
+                  }
 
-                      //results.results.forEach(res =>{
-                      //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                      //  {
-                      //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
-                      //  }
-                      //})
-
-                      if(results.results.length > 0){
-                        identresults.push(results);
-                      }
-              }
-
+                  if(results.results.length > 0)
+                  {
+                    identresults.push(results);
+                  }
+                }
+              });
               cb();
             });
-          }
-        }, function (err) {
-          var results = identresults.map(function (ir) {
+          } 
+        }, function (err) { 
+          var results = [];
+          results = identresults.map(function (ir) {
             ir.results.forEach(function (res) {
-              //console.log(ir.layer.props.title);
-              //console.log(res);
               res.layer = ir.layer;
               res.acres = -1;
               if (res.feature.geometry) {
                 res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
               }
-            });
-            return ir.results;
+           });
+           return ir.results;
           }) || [].reduce(function (a, b) {
             return a.concat(b);
           });
@@ -717,7 +733,7 @@ class ArcticMap extends React.Component {
               if(feature.attributes !== null){
                 feature.attributes.layerName = layerName;
               }
-
+              
               if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
                 const sublayer = result.layer.layerRef.allSublayers.find(l => l.id === result.layerId);
                 if (sublayer) {
@@ -781,7 +797,7 @@ class ArcticMap extends React.Component {
               });
             }
             self.setState({ loading: false });
-          }
+          } //current mode identify
 
           if (currentmode === "select") {
             var feature = null;
@@ -799,18 +815,19 @@ class ArcticMap extends React.Component {
 
               self.state.map.editor.setEditFeature(feature, null, fType, false, true);
             }
-          }
+          } //current mode select
 
 
           //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
-        });
+          /**/
+        }); //function(err)
 
         // self.layers.forEach(layer => {
         //     layer.identify(event);
         // })
         //}, 100);
 
-      })
+      }) //view.onClick
 
       // Add widget to the top right corner of the view
       // self.state.view.ui.add(layerList, 'top-left')
@@ -868,6 +885,138 @@ class ArcticMap extends React.Component {
         }
       }, 500)
     })
+  }
+
+  identPostProcess (identresults) { 
+    var results = [];
+    results = identresults.map(function (ir) {
+      ir.results.forEach(function (res) {
+        res.layer = ir.layer;
+        res.acres = -1;
+        if (res.feature.geometry) {
+          res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
+        }
+     });
+     //results.push(ir.results); 
+     return ir.results;
+    }) || [].reduce(function (a, b) {
+      return a.concat(b);
+    });
+    self.setState({ loading: false });
+    results = results.flat();
+
+    results = results.sort(function (r1, r2) {
+      if(r1.acres < 0 && r2.acres < 0) return 0;
+      if(r1.acres < 0) return 1;
+      if(r2.acres < 0) return -1;
+      if (r1.acres > r2.acres) {
+        return 1;
+      }
+      if (r2.acres > r1.acres) {
+        return -1;
+      }
+      return 0;
+      //r.feature.attributes.Shape_Area
+    });
+
+    if (currentmode === "identify") {
+
+      //results = results.reverse();
+      var popupresults = results.map(function (result) {
+        var feature = result.feature;
+        var layerName = result.layerName;
+
+        if(feature.attributes !== null){
+          feature.attributes.layerName = layerName;
+        }
+        
+        console.log("result", result);
+
+        if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
+          const sublayer = result.layer.layerRef.allSublayers.find(l => l.id === result.layerId);
+          if (sublayer) {
+            feature.attributes.layerUrl = sublayer.url;
+          }
+        }
+
+        if(result.layer.layerRenderers){
+          //console.log("result.layer  this.layerRenderers", result);
+          var popupDisable = result.layer.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
+          //console.log("result.layer  popupDisable", popupDisable.props);
+          if (popupDisable  && result.layerId == popupDisable.props.layerid) {
+            //console.log("result.layer  popupDisable", popupDisable.props);
+            if (popupDisable.props.disabled == "true") {
+              return null;
+            }
+          }
+        }
+
+        var PTActions = [];
+        if(!result.layer.state.blockSelect)
+        {
+          PTActions = [];
+        } else {
+          PTActions = [{ title: "Select", id: "select-action" }];
+        }
+
+        feature.popupTemplate = { // autocasts as new PopupTemplate()
+          //title: layerName,
+          title: result.layer.renderPopupTitle(feature, result),
+          content: result.layer.renderPopup(feature, result),
+          actions: PTActions
+        };
+
+        return feature;
+      });
+
+      // remove the disabled popup layer
+      for(var i=popupresults.length-1;i>=0;i--){
+        if(popupresults[i]==null){
+          popupresults.splice(i, 1);
+        }
+      }
+      //popupresults.forEach( function (result) {
+      //  if (result == null) {
+      //    popupresults.pop();
+      //  } 
+      //});
+
+      if (popupresults.length > 0) {
+        view.popup.close();
+        view.popup.currentSearchResultFeature = null;
+        self.state.view.popup.open({
+          features: popupresults,
+          location: event.mapPoint
+        });
+        // popupresults[0].setCurrentPopup();
+
+        self.state.view.popup.on('trigger-action', function (e) {
+          if (e.action.id === 'select-action');
+        });
+      }
+      self.setState({ loading: false });
+    } //current mode identify
+
+    if (currentmode === "select") {
+      var feature = null;
+      var fType = null;
+      for (var idx = 0; idx<results.length && feature===null; idx++){
+        feature = results[idx].feature;
+        fType = feature.geometry.type;
+      }
+
+      if (self.contextmenuPressed === true) {
+
+        self.state.map.editor.setEditFeature(feature, null, fType, false, true, true);
+      }
+      else {
+
+        self.state.map.editor.setEditFeature(feature, null, fType, false, true);
+      }
+    } //current mode select
+
+
+    //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
   }
 }
 
