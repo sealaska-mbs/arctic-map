@@ -606,15 +606,15 @@ class ArcticMapLayer extends React.Component {
                 //console.log(htresponse);
                 var mapPoint = event.mapPoint;
                 var response = {
-                    layer: self.layerRef,
+                    layer: self,
                     results: htresponse.results.map(r => { return { feature: r.graphic, layerName: self.layerRef.title }; }),
                 }
-                callback(response)
+                callback([response])
             });
 
         }
         else if (this.props.type === "feature") {
-
+            //this probably has errors but we are not using it 
             this.state.view.hitTest(event).then((htresponse) => {
 
                 // console.log("Identify on geojson");
@@ -652,27 +652,36 @@ class ArcticMapLayer extends React.Component {
         }
         else if (this.props.type === "groupby") {
             //console.log("groupby Identify",this);
-            //var allResponse = [];
-            self.children.forEach(function (item,index) {
+            var allResponse = [];
+            Promise.allSettled(self.children.map(function (item,index) {
                 //var allResponse = [];
-                item.params.geometry = event.mapPoint;
-                item.params.mapExtent = self.state.view.extent;
-//                item.props = self.props.children[index].props;
-                //console.log("item",item);
-                item.identifyTask.execute(item.params).then(function (response) {
-                    response.layer=item;
-                    response.layer.layerRef = self.layerRef;
-                    response.layer.layerRenderers = item.props.children;
-                    //allResponse.push(response);
-                    if(response.results.length >0){
+                return new Promise((res, rej) => {
+                    item.params.geometry = event.mapPoint;
+                    item.params.mapExtent = self.state.view.extent;
+                //                item.props = self.props.children[index].props;
+                    //console.log("item",item);
+                    item.identifyTask.execute(item.params).then(function (response) {
+                        response.layer=item;
+                        response.layer.layerRef = self.layerRef;
+                        response.layer.layerRenderers = item.props.children;
+                        allResponse.push(response);
+                        res();
+                    });
+                    
+                });
+
+ 
+                    //if(response.results.length >0){
                         //console.log(response);
-                        callback(response);
-                    }
-                });//.then(function (){
+                        //callback(response);
+                    //}
+                //});//.then(function (){
                     //callback(allResponse);
                 //});
-            });
-//            callback(allResponse);
+
+
+            })).then(() => {callback(allResponse);});
+            
         }   
         else {
             //console.log("regular Identify",this);
@@ -685,7 +694,8 @@ class ArcticMapLayer extends React.Component {
             //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
                 //console.log("identifyTask here",response );
-                callback(response);
+                response.layer = self;
+                callback([response]);
             });
         }
     }

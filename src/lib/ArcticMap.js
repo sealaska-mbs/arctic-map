@@ -621,7 +621,7 @@ class ArcticMap extends React.Component {
 
         });
 */
-        async.eachSeries(identLayers, function iteratee(layer, cb) {
+        async.eachSeries(identLayers, function (layer, cb) {
           if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature" && layer.props.type !== "groupby")
           {
             cb();   
@@ -655,6 +655,7 @@ class ArcticMap extends React.Component {
             }
              if (layer.props.type === "groupby"){
               var subLayers = [];
+              console.log("subLayers",layer);
               subLayers = layer.layerRef.layers.items;
               //console.log("subLayers",subLayers);
               subLayers.forEach((sub) => {
@@ -671,7 +672,7 @@ class ArcticMap extends React.Component {
             //console.log("map",self);
             
             switch(layer.props.type) {
-              case "groupby":
+              case "groupbyx":
                   var subLayers = [];
                   var results2 = [];
                   subLayers = layer.children;
@@ -683,7 +684,6 @@ class ArcticMap extends React.Component {
                     //layer.identifyTask = sub.identifyTask;
                     layer.src = sub.url;
                     layer.layerRef = sub.layerRef;
-                    setTimeout(
                     layer.identify(event, function (results2) {
                     if (results2) {
                       results2.layer = sub;
@@ -712,51 +712,59 @@ class ArcticMap extends React.Component {
                         
                       //}
                     } //if results2 
-                  }), 500);//identify
+                  });//identify
+                  //cb();
                 }); //subLayer forEach
-                //cb();
+                cb();
                 break;
               default:
-                layer.identify(event, function (results) {
-                  if (results) {
-                    console.log("RESULTS",results);
-                    //console.log(layer);
-                    
-                    results.layer = layer;
+                layer.identify(event, function (resultslist) {
+                  resultslist.forEach(results => {
 
-                    if(visibleLayers.length > 0){
-                      var rem = [];
-                      results.results.forEach(res =>{
-                        if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                        {
-                          rem.push(res.layerId);
-                        }
-                      });
-                      //console.log("OTHERrem",rem);
-                      rem.forEach(remid =>{
-                        results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
-                      });                      
+                    if (results) {
+                      console.log("RESULTS",results);
+                      //console.log(layer);
+                      
+                      results.layer = layer;
+  
+                      if(visibleLayers.length > 0){
+                        var rem = [];
+                        results.results.forEach(res =>{
+                          if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                          {
+                            rem.push(res.layerId);
+                          }
+                        });
+                        //console.log("OTHERrem",rem);
+                        rem.forEach(remid =>{
+                          results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
+                        });                      
+                      }
+  
+                      //results.results.forEach(res =>{
+                      //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                      //  {
+                      //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
+                      //  }
+                      //})
+                      //console.log("OtherResults",results);
+  
+                      if(results.results.length > 0)
+                      {
+                        identresults.push(results);
+                      }
                     }
 
-                    //results.results.forEach(res =>{
-                    //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                    //  {
-                    //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
-                    //  }
-                    //})
-                    //console.log("OtherResults",results);
 
-                    if(results.results.length > 0)
-                    {
-                      identresults.push(results);
-                    }
-                  }
-                  //cb();
+
+                  });
+                  
+                  cb();
                 });
             }
           } 
-          cb();
-          return;
+          //cb();
+          //return;
         }, function (err) { 
           //identPostProcess(identresults);
           //window.stupidresults = identresults;
