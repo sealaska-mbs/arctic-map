@@ -666,70 +666,31 @@ class ArcticMap extends React.Component {
               })
             }
             
-            switch(layer.props.type) {
-              case "groupbyx":
-                  var subLayers = [];
-                  var results2 = [];
-                  subLayers = layer.children;
-                  subLayers.forEach((sub) => {
-                    layer.params = sub.params;
-                    layer.params.maExtent = self.state.view.extent;
-                    layer.src = sub.url;
-                    layer.layerRef = sub.layerRef;
-                    layer.identify(event, function (results2) {
-                    if (results2) {
-                      results2.layer = sub;
-                      results2.layer.state = sub.state;
-                      if(visibleLayers.length > 0)
-                      {
-                        var rem = [];
-                          results2.results.forEach(res =>{
-                            if(visibleLayers.length > 0 && !visibleLayers.includes(`${results2.layer.layerRef.url}/${res.layerId}`))
-                            {
-                              rem.push(res.layerId);
-                            }
-                          });
-                          rem.forEach(remid =>{
-                            results2.results.splice(results2.results.findIndex(r => r.layerId === remid), 1);
-                          });
-                      }
-                      
-                      if (results2.results.length > 0) {  
-                          identresults.push(results2);
-                        }
-                        
-                    } //if results2 
-                  });//identify
-                }); //subLayer forEach
-                cb();
-                break;
-              default:
-                layer.identify(event, function (resultslist) {
-                  resultslist.forEach(results => {
+            layer.identify(event, function (resultslist) {
+              resultslist.forEach(results => {
 
-                    if (results) {
-                      if(visibleLayers.length > 0){
-                        var rem = [];
-                        results.results.forEach(res =>{
-                          if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                          {
-                            rem.push(res.layerId);
-                          }
-                        });
-                        rem.forEach(remid =>{
-                          results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
-                        });                      
-                      }
-  
-                      if(results.results.length > 0)
+                if (results) {
+                  if(visibleLayers.length > 0){
+                    var rem = [];
+                    results.results.forEach(res =>{
+                      if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
                       {
-                        identresults.push(results);
+                        rem.push(res.layerId);
                       }
-                    }
-                  });
-                  cb();
-                });
-            }
+                    });
+                    rem.forEach(remid =>{
+                      results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
+                    });                      
+                  }
+
+                  if(results.results.length > 0)
+                  {
+                    identresults.push(results);
+                  }
+                }
+              });
+              cb();
+            });
           } 
         }, function (err) { 
           var results = [];

@@ -161,27 +161,11 @@ class ArcticMapLayer extends React.Component {
                 if (self.props.transparency) {
                     gtrans = Number.parseFloat(self.props.transparency);
                 }
-                //var subChildren = [];
-
-                //const subChildren = React.Children.toArray(self.props.children);
-                
                 var subChildren = React.Children.map(self.props.children, function (child) {
                     return new ArcticMapLayer(child.props)
-//                    return React.cloneElement(child, {
-//                        layerRef: null,
-//                        // ref: 'editor'
-//            
-//                      });
                 });
 
                 self.children = subChildren;
-                //return React.cloneElement(self.props.children, {
-                //    ref: (c) => { if (c) { subChildren.push(c) } }
-                //  });        
-                //subChildren = self.props.children.map(children, (child) => {return cloneElement(child);})
-                //subChildren = self.children;
-
-				//console.log("subChildren ",subChildren);
                 
                 var gbmaplayer = new GroupLayer({
                     opacity: gtrans,
@@ -194,7 +178,6 @@ class ArcticMapLayer extends React.Component {
                 }
 
                 subChildren.forEach(function (child) {
-                    //console.log(child);
                     if (child.props.type === "dynamic") {
 
                         var trans = 1;
@@ -219,7 +202,6 @@ class ArcticMapLayer extends React.Component {
                         }
         
                         maplayer.on("layerview-create", function (event) {
-                            // console.lof("Layerview:" , event)
                         });
         
                         maplayer.when(() => {
@@ -246,10 +228,7 @@ class ArcticMapLayer extends React.Component {
                                         sublayer.title = renderer.props.displayTitle;
                                     }
                                 }
-                                //sublayer.renderer = Renderer.fromJSON(renderer);
                             });
-                            //console.log("maplayer",maplayer);
-                            //layerids.reverse();
         
                             child.identifyTask = new IdentifyTask(child.props.src);
                             child.params = new IdentifyParameters();
@@ -263,16 +242,12 @@ class ArcticMapLayer extends React.Component {
                         });
         
                         child.layerRef = maplayer;
-                        //child.state.map.add(maplayer);
                     }
         
                     gbmaplayer.layers.push(maplayer);
-                    //console.log(child);
                 });
 
                 self.layerRef = gbmaplayer;
-                //console.log("self.layerRef",self.layerRef);
-                //self.state.map.add(gbmaplayer);
             }
             
             if (self.props.type === "group") {
