@@ -412,7 +412,6 @@ class ArcticMapLayer extends React.Component {
                 });
 
                 self.layerRef = maplayer;
-                //console.log("DynSelf", self);
                 //self.state.map.add(maplayer);
             }
 
@@ -535,7 +534,6 @@ class ArcticMapLayer extends React.Component {
     }
 
     renderPopupTitle(feature, result){
-        console.log("renderTitle", result)
         if(result.layerId !== undefined && this.layerRenderers) {
             var popupTitle = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
             if (popupTitle  && result.layerId == popupTitle.props.layerid) {
@@ -651,49 +649,27 @@ class ArcticMapLayer extends React.Component {
             });
         }
         else if (this.props.type === "groupby") {
-            //console.log("groupby Identify",this);
             var allResponse = [];
             Promise.allSettled(self.children.map(function (item,index) {
-                //var allResponse = [];
                 return new Promise((res, rej) => {
                     item.params.geometry = event.mapPoint;
                     item.params.mapExtent = self.state.view.extent;
-                //                item.props = self.props.children[index].props;
-                    //console.log("item",item);
                     item.identifyTask.execute(item.params).then(function (response) {
                         response.layer=item;
-                        response.layer.layerRef = self.layerRef;
                         response.layer.layerRenderers = item.props.children;
                         allResponse.push(response);
                         res();
                     });
                     
                 });
-
- 
-                    //if(response.results.length >0){
-                        //console.log(response);
-                        //callback(response);
-                    //}
-                //});//.then(function (){
-                    //callback(allResponse);
-                //});
-
-
             })).then(() => {callback(allResponse);});
-            
         }   
         else {
-            //console.log("regular Identify",this);
             if (!this.params) { callback(null); return; }
 
             this.params.geometry = event.mapPoint;
             this.params.mapExtent = this.state.view.extent;
-            //console.log("params", this);
-            //this.params.returnGeometry = true;
-            //document.getElementById("viewDiv").style.cursor = "wait";
             this.identifyTask.execute(this.params).then(function (response) {
-                //console.log("identifyTask here",response );
                 response.layer = self;
                 callback([response]);
             });

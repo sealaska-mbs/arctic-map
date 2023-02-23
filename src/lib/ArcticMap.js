@@ -56,7 +56,6 @@ class ArcticMap extends React.Component {
     self.childrenElements = [];
 
     var children = React.Children.map(this.props.children, function (child) {
-      //console.log(child);
       if(child){
         if (child.type.displayName === 'ArcticMapLayer') {
           return React.cloneElement(child, {
@@ -655,9 +654,7 @@ class ArcticMap extends React.Component {
             }
              if (layer.props.type === "groupby"){
               var subLayers = [];
-              console.log("subLayers",layer);
               subLayers = layer.layerRef.layers.items;
-              //console.log("subLayers",subLayers);
               subLayers.forEach((sub) => {
                 if (sub.sublayers){
                   sub.sublayers.items.forEach((subSub) => {
@@ -668,27 +665,21 @@ class ArcticMap extends React.Component {
                 }
               })
             }
-            //console.log("visibleLayers", visibleLayers);
-            //console.log("map",self);
             
             switch(layer.props.type) {
               case "groupbyx":
                   var subLayers = [];
                   var results2 = [];
                   subLayers = layer.children;
-                  //console.log("subLayers",subLayers);
                   subLayers.forEach((sub) => {
-                    //console.log("sub of subLayers",sub);
                     layer.params = sub.params;
                     layer.params.maExtent = self.state.view.extent;
-                    //layer.identifyTask = sub.identifyTask;
                     layer.src = sub.url;
                     layer.layerRef = sub.layerRef;
                     layer.identify(event, function (results2) {
                     if (results2) {
                       results2.layer = sub;
                       results2.layer.state = sub.state;
-                      //console.log("Results2",results2);    
                       if(visibleLayers.length > 0)
                       {
                         var rem = [];
@@ -697,23 +688,18 @@ class ArcticMap extends React.Component {
                             {
                               rem.push(res.layerId);
                             }
-                            console.log("rem", rem); 
                           });
                           rem.forEach(remid =>{
                             results2.results.splice(results2.results.findIndex(r => r.layerId === remid), 1);
                           });
                       }
                       
-                      //console.log("results2", results2);
                       if (results2.results.length > 0) {  
-                          console.log("results2",results2)
                           identresults.push(results2);
                         }
                         
-                      //}
                     } //if results2 
                   });//identify
-                  //cb();
                 }); //subLayer forEach
                 cb();
                 break;
@@ -722,11 +708,6 @@ class ArcticMap extends React.Component {
                   resultslist.forEach(results => {
 
                     if (results) {
-                      console.log("RESULTS",results);
-                      //console.log(layer);
-                      
-                      results.layer = layer;
-  
                       if(visibleLayers.length > 0){
                         var rem = [];
                         results.results.forEach(res =>{
@@ -735,69 +716,37 @@ class ArcticMap extends React.Component {
                             rem.push(res.layerId);
                           }
                         });
-                        //console.log("OTHERrem",rem);
                         rem.forEach(remid =>{
                           results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
                         });                      
                       }
-  
-                      //results.results.forEach(res =>{
-                      //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                      //  {
-                      //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
-                      //  }
-                      //})
-                      //console.log("OtherResults",results);
   
                       if(results.results.length > 0)
                       {
                         identresults.push(results);
                       }
                     }
-
-
-
                   });
-                  
                   cb();
                 });
             }
           } 
-          //cb();
-          //return;
         }, function (err) { 
-          //identPostProcess(identresults);
-          //window.stupidresults = identresults;
-          console.log("isArray", Array.isArray(identresults));
-          console.log("identresults", identresults);
-          console.log("identresultsLength", identresults.length);
-          //var i = 0;
-          setTimeout(() => {console.log("waiting..."),1500});
-          for (var i = 0; i< identresults.length; i++ ){
-            console.log("theRes",i);
-          }
           var results = [];
           results = identresults.map(function (ir) {
-            console.log("ir", ir.results.length);
             ir.results.forEach(function (res) {
-              //console.log(ir.layer.props.title);
-              //console.log(res);
               res.layer = ir.layer;
               res.acres = -1;
               if (res.feature.geometry) {
                 res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
               }
            });
-           //results.push(ir.results); 
            return ir.results;
           }) || [].reduce(function (a, b) {
             return a.concat(b);
           });
-          console.log("identresults2", identresults);
           self.setState({ loading: false });
-          console.log("unflat", results);
           results = results.flat();
-          console.log("flatResults",results);
 
           results = results.sort(function (r1, r2) {
             if(r1.acres < 0 && r2.acres < 0) return 0;
@@ -824,8 +773,6 @@ class ArcticMap extends React.Component {
                 feature.attributes.layerName = layerName;
               }
               
-              console.log("result", result);
-
               if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
                 const sublayer = result.layer.layerRef.allSublayers.find(l => l.id === result.layerId);
                 if (sublayer) {
@@ -980,18 +927,9 @@ class ArcticMap extends React.Component {
   }
 
   identPostProcess (identresults) { 
-    window.stupidresults = identresults;
-    console.log("identresults", identresults);
-    //var i = 0;
-    for (var i = 0; i< identresults.length; i++ ){
-      console.log("theRes",i);
-    }
     var results = [];
     results = identresults.map(function (ir) {
-      console.log("ir", ir.results.length);
       ir.results.forEach(function (res) {
-        //console.log(ir.layer.props.title);
-        //console.log(res);
         res.layer = ir.layer;
         res.acres = -1;
         if (res.feature.geometry) {
@@ -1003,11 +941,8 @@ class ArcticMap extends React.Component {
     }) || [].reduce(function (a, b) {
       return a.concat(b);
     });
-    console.log("identresults2", identresults);
     self.setState({ loading: false });
-    console.log("unflat", results);
     results = results.flat();
-    console.log("flatResults",results);
 
     results = results.sort(function (r1, r2) {
       if(r1.acres < 0 && r2.acres < 0) return 0;
