@@ -4,7 +4,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var React = _interopDefault(require('react'));
+var React = require('react');
+var React__default = _interopDefault(React);
 var async = require('async');
 var async__default = _interopDefault(async);
 var ReactDOM = _interopDefault(require('react-dom'));
@@ -191,18 +192,18 @@ var ArcticMapButton = function (_React$Component) {
 
                 var esriClassName = 'esri-icon esri-icon-' + this.props.esriicon;
 
-                return React.createElement(
+                return React__default.createElement(
                     'button',
                     { style: style.arcticButton, onClick: this.fireclick.bind(this), title: this.props.title },
-                    React.createElement('span', { style: { height: "15px", width: "15px" }, 'aria-hidden': true, className: esriClassName })
+                    React__default.createElement('span', { style: { height: "15px", width: "15px" }, 'aria-hidden': true, className: esriClassName })
                 );
             } else {
-                return React.createElement('div', null);
+                return React__default.createElement('div', null);
             }
         }
     }]);
     return ArcticMapButton;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapButton.displayName = 'ArcticMapButton';
 
@@ -240,10 +241,10 @@ var ArcticMapLoader = function (_React$Component) {
 
             if (this.props.loading === true) {
 
-                return React.createElement(
+                return React__default.createElement(
                     'div',
                     { style: style.bg },
-                    React.createElement(
+                    React__default.createElement(
                         'h1',
                         { style: loadingtext },
                         'Working...'
@@ -254,7 +255,7 @@ var ArcticMapLoader = function (_React$Component) {
         }
     }]);
     return ArcticMapLoader;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapLoader.displayName = 'ArcticMapLoader';
 
@@ -344,10 +345,10 @@ var ArcticMapPanel = function (_React$Component) {
         key: 'render',
         value: function render() {
 
-            return React.createElement(
+            return React__default.createElement(
                 'span',
                 { visibility: this.state.hidden },
-                React.createElement(ArcticMapButton, { padtop: this.props.padtop, padbottom: this.props.padbottom, esriicon: this.props.esriicon, onclick: this.toggle.bind(this), title: this.props.title })
+                React__default.createElement(ArcticMapButton, { padtop: this.props.padtop, padbottom: this.props.padbottom, esriicon: this.props.esriicon, onclick: this.toggle.bind(this), title: this.props.title })
             );
         }
     }, {
@@ -355,17 +356,17 @@ var ArcticMapPanel = function (_React$Component) {
         value: function renderPanel() {
             // refactor this
             if (this.state.open) {
-                var ele = React.createElement('div', { className: 'esri-widget', style: styles$1.rightWidgetFull }, React.createElement('h2', { style: { "paddingLeft": "20px", marginTop: '6px', fontSize: '28px', marginBottom: '10px' } }, this.props.title), React.createElement('div', { style: { position: 'absolute', top: '20px', right: '20px' } }, React.createElement('button', {
+                var ele = React__default.createElement('div', { className: 'esri-widget', style: styles$1.rightWidgetFull }, React__default.createElement('h2', { style: { "paddingLeft": "20px", marginTop: '6px', fontSize: '28px', marginBottom: '10px' } }, this.props.title), React__default.createElement('div', { style: { position: 'absolute', top: '20px', right: '20px' } }, React__default.createElement('button', {
                     onClick: this.toggle,
                     title: 'Close',
                     style: { border: 'none', background: 'transparent', cursor: 'pointer' }
-                }, React.createElement('span', {
+                }, React__default.createElement('span', {
                     style: { fontSize: '28px' },
                     'aria-hidden': true,
                     className: 'esri-icon esri-icon-close'
                 }))
                 //React.createElement(ArcticMapButton, { esriicon: 'close', onclick: this.toggle, style : { fontSize : '28px'} })
-                ), React.createElement('p', { style: { width: "300px", paddingLeft: "20px", wordWrap: "break-word", margin: "0px", whiteSpace: "pre-line" } }, this.props.infoAreaText), React.createElement('div', { style: styles$1.widgetContainer }, React.createElement('div', null, this.props.children)));
+                ), React__default.createElement('p', { style: { width: "300px", paddingLeft: "20px", wordWrap: "break-word", margin: "0px", whiteSpace: "pre-line" } }, this.props.infoAreaText), React__default.createElement('div', { style: styles$1.widgetContainer }, React__default.createElement('div', null, this.props.children)));
 
                 // <button style={style.arcticButton} onClick={this.fireclick.bind(this)} title={this.props.title} >
                 //     <span style={{ height: "15px", width: "15px" }} aria-hidden className={esriClassName} ></span>
@@ -373,13 +374,13 @@ var ArcticMapPanel = function (_React$Component) {
 
                 ReactDOM.render(ele, this.renderEle);
             } else {
-                var eleempty = React.createElement('span', null);
+                var eleempty = React__default.createElement('span', null);
                 ReactDOM.render(eleempty, this.renderEle);
             }
         }
     }]);
     return ArcticMapPanel;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapPanel.displayName = 'ArcticMapPanel';
 
@@ -422,11 +423,10 @@ var ArcticMap = function (_React$Component) {
       this.layers = [];
       self.childrenElements = [];
 
-      var children = React.Children.map(this.props.children, function (child) {
-        //console.log(child);
+      var children = React__default.Children.map(this.props.children, function (child) {
         if (child) {
           if (child.type.displayName === 'ArcticMapLayer') {
-            return React.cloneElement(child, {
+            return React__default.cloneElement(child, {
               ref: function ref(c) {
                 if (c) {
                   self.layers.push(c);
@@ -435,7 +435,7 @@ var ArcticMap = function (_React$Component) {
             });
           } else if (child.type.displayName === 'ArcticMapEdit') {
             // console.log(self.refs);
-            return React.cloneElement(child, {
+            return React__default.cloneElement(child, {
               am: self
               // ref: 'editor'
 
@@ -450,7 +450,7 @@ var ArcticMap = function (_React$Component) {
           // } 
 
           else {
-              return React.cloneElement(child, {
+              return React__default.cloneElement(child, {
                 am: self,
 
                 map: self.state.map,
@@ -471,7 +471,7 @@ var ArcticMap = function (_React$Component) {
           return l.type.displayName === 'ArcticMapEdit';
         }).reverse();
       } else {
-        children = React.createElement('div', null);
+        children = React__default.createElement('div', null);
       }
 
       // console.log(this.props.children);
@@ -480,12 +480,12 @@ var ArcticMap = function (_React$Component) {
       // });
 
 
-      return React.createElement(
+      return React__default.createElement(
         reactArcgis.Map,
         { 'class': 'full-screen-map',
           mapProperties: { basemap: this.state.basemap }, onLoad: this.handleMapLoad, onClick: this.handleMapClick },
         children,
-        React.createElement(ArcticMapLoader, { loading: this.state.loading })
+        React__default.createElement(ArcticMapLoader, { loading: this.state.loading })
       );
     }
   }, {
@@ -808,6 +808,8 @@ var ArcticMap = function (_React$Component) {
               });
 
               identLayers = identLayers.concat(self.state.map.amlayers);
+              //console.log("amlayers");
+              //console.log(self.state.map.amlayers);
 
               async__default.eachSeries(identLayers, function (layer, cb) {
                 if (!layer.state.disablePopup) {
@@ -912,12 +914,28 @@ var ArcticMap = function (_React$Component) {
 
           identLayers = identLayers.concat(self.state.map.amlayers);
 
+          //console.log("IdentLayers: ",identLayers);
+          //console.log(this.state.map.allLayers.items);
+          /*        this.state.map.allLayers.items.forEach((item) => {
+                    //console.log(item.title+" - "+item.type);
+                    if (item.visible === true && item.sublayers !== undefined && (item.type==="map-image" || item.type === "feature" || item.type === "graphics") ) {
+                      //console.log(item.title);
+                      item.sublayers.items.forEach((subItems) => {
+                        if (subItems.visible === true) {
+                          console.log(subItems.url);
+                        }
+                      })
+                      //console.log(item.url);
+                    }
+          
+                  });
+          */
           async__default.eachSeries(identLayers, function (layer, cb) {
-            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature") {
+            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature" && layer.props.type !== "groupby") {
               cb();
               return;
             }
-            if (!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature") || layer.props.type === "geojson" || layer.props.type === "group") {
+            if (!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature") || layer.props.type === "geojson" || layer.props.type === "group" || layer.props.type === "groupby") {
               var visibleLayers = [];
               var noFilter = false;
               if (layer.props.sublayers) {
@@ -943,42 +961,49 @@ var ArcticMap = function (_React$Component) {
                   }
                 });
               }
-
-              layer.identify(event, function (results) {
-                if (results) {
-                  results.layer = layer;
-
-                  if (visibleLayers.length > 0) {
-                    var rem = [];
-                    results.results.forEach(function (res) {
-                      if (visibleLayers.length > 0 && !visibleLayers.includes(results.layer.layerRef.url + '/' + res.layerId)) {
-                        rem.push(res.layerId);
+              if (layer.props.type === "groupby") {
+                var subLayers = [];
+                subLayers = layer.layerRef.layers.items;
+                subLayers.forEach(function (sub) {
+                  if (sub.sublayers) {
+                    sub.sublayers.items.forEach(function (subSub) {
+                      if (subSub.visible === true) {
+                        visibleLayers.push(subSub.url);
                       }
                     });
-                    rem.forEach(function (remid) {
-                      results.results.splice(results.results.findIndex(function (r) {
-                        return r.layerId === remid;
-                      }), 1);
-                    });
                   }
+                });
+              }
 
-                  //results.results.forEach(res =>{
-                  //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                  //  {
-                  //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
-                  //  }
-                  //})
+              layer.identify(event, function (resultslist) {
+                resultslist.forEach(function (results) {
 
-                  if (results.results.length > 0) {
-                    identresults.push(results);
+                  if (results) {
+                    if (visibleLayers.length > 0) {
+                      var rem = [];
+                      results.results.forEach(function (res) {
+                        if (visibleLayers.length > 0 && !visibleLayers.includes(results.layer.layerRef.url + '/' + res.layerId)) {
+                          rem.push(res.layerId);
+                        }
+                      });
+                      rem.forEach(function (remid) {
+                        results.results.splice(results.results.findIndex(function (r) {
+                          return r.layerId === remid;
+                        }), 1);
+                      });
+                    }
+
+                    if (results.results.length > 0) {
+                      identresults.push(results);
+                    }
                   }
-                }
-
+                });
                 cb();
               });
             }
           }, function (err) {
-            var results = identresults.map(function (ir) {
+            var results = [];
+            results = identresults.map(function (ir) {
               ir.results.forEach(function (res) {
                 res.layer = ir.layer;
                 res.acres = -1;
@@ -1084,7 +1109,7 @@ var ArcticMap = function (_React$Component) {
                 });
               }
               self.setState({ loading: false });
-            }
+            } //current mode identify
 
             if (currentmode === "select") {
               var feature = null;
@@ -1101,16 +1126,18 @@ var ArcticMap = function (_React$Component) {
 
                 self.state.map.editor.setEditFeature(feature, null, fType, false, true);
               }
-            }
+            } //current mode select
+
 
             //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
-          });
+            /**/
+          }); //function(err)
 
           // self.layers.forEach(layer => {
           //     layer.identify(event);
           // })
           //}, 100);
-        });
+        }); //view.onClick
 
         // Add widget to the top right corner of the view
         // self.state.view.ui.add(layerList, 'top-left')
@@ -1167,9 +1194,144 @@ var ArcticMap = function (_React$Component) {
         }, 500);
       });
     }
+  }, {
+    key: 'identPostProcess',
+    value: function identPostProcess(identresults) {
+      var results = [];
+      results = identresults.map(function (ir) {
+        ir.results.forEach(function (res) {
+          res.layer = ir.layer;
+          res.acres = -1;
+          if (res.feature.geometry) {
+            res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
+          }
+        });
+        //results.push(ir.results); 
+        return ir.results;
+      }) || [].reduce(function (a, b) {
+        return a.concat(b);
+      });
+      self.setState({ loading: false });
+      results = results.flat();
+
+      results = results.sort(function (r1, r2) {
+        if (r1.acres < 0 && r2.acres < 0) return 0;
+        if (r1.acres < 0) return 1;
+        if (r2.acres < 0) return -1;
+        if (r1.acres > r2.acres) {
+          return 1;
+        }
+        if (r2.acres > r1.acres) {
+          return -1;
+        }
+        return 0;
+        //r.feature.attributes.Shape_Area
+      });
+
+      if (currentmode === "identify") {
+
+        //results = results.reverse();
+        var popupresults = results.map(function (result) {
+          var feature = result.feature;
+          var layerName = result.layerName;
+
+          if (feature.attributes !== null) {
+            feature.attributes.layerName = layerName;
+          }
+
+          console.log("result", result);
+
+          if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
+            var sublayer = result.layer.layerRef.allSublayers.find(function (l) {
+              return l.id === result.layerId;
+            });
+            if (sublayer) {
+              feature.attributes.layerUrl = sublayer.url;
+            }
+          }
+
+          if (result.layer.layerRenderers) {
+            //console.log("result.layer  this.layerRenderers", result);
+            var popupDisable = result.layer.layerRenderers.find(function (l) {
+              return l.props.layerid === result.layerId.toString();
+            });
+            //console.log("result.layer  popupDisable", popupDisable.props);
+            if (popupDisable && result.layerId == popupDisable.props.layerid) {
+              //console.log("result.layer  popupDisable", popupDisable.props);
+              if (popupDisable.props.disabled == "true") {
+                return null;
+              }
+            }
+          }
+
+          var PTActions = [];
+          if (!result.layer.state.blockSelect) {
+            PTActions = [];
+          } else {
+            PTActions = [{ title: "Select", id: "select-action" }];
+          }
+
+          feature.popupTemplate = { // autocasts as new PopupTemplate()
+            //title: layerName,
+            title: result.layer.renderPopupTitle(feature, result),
+            content: result.layer.renderPopup(feature, result),
+            actions: PTActions
+          };
+
+          return feature;
+        });
+
+        // remove the disabled popup layer
+        for (var i = popupresults.length - 1; i >= 0; i--) {
+          if (popupresults[i] == null) {
+            popupresults.splice(i, 1);
+          }
+        }
+        //popupresults.forEach( function (result) {
+        //  if (result == null) {
+        //    popupresults.pop();
+        //  } 
+        //});
+
+        if (popupresults.length > 0) {
+          view.popup.close();
+          view.popup.currentSearchResultFeature = null;
+          self.state.view.popup.open({
+            features: popupresults,
+            location: event.mapPoint
+          });
+          // popupresults[0].setCurrentPopup();
+
+          self.state.view.popup.on('trigger-action', function (e) {
+            if (e.action.id === 'select-action') ;
+          });
+        }
+        self.setState({ loading: false });
+      } //current mode identify
+
+      if (currentmode === "select") {
+        var feature = null;
+        var fType = null;
+        for (var idx = 0; idx < results.length && feature === null; idx++) {
+          feature = results[idx].feature;
+          fType = feature.geometry.type;
+        }
+
+        if (self.contextmenuPressed === true) {
+
+          self.state.map.editor.setEditFeature(feature, null, fType, false, true, true);
+        } else {
+
+          self.state.map.editor.setEditFeature(feature, null, fType, false, true);
+        }
+      } //current mode select
+
+
+      //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+    }
   }]);
   return ArcticMap;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMap.displayName = 'ArcticMap';
 
@@ -1178,6 +1340,8 @@ var ArcticMapLayer = function (_React$Component) {
 
     function ArcticMapLayer(props) {
         classCallCheck(this, ArcticMapLayer);
+
+        //        console.log(props)
 
         var _this = possibleConstructorReturn(this, (ArcticMapLayer.__proto__ || Object.getPrototypeOf(ArcticMapLayer)).call(this, props));
 
@@ -1203,6 +1367,7 @@ var ArcticMapLayer = function (_React$Component) {
             var _this2 = this;
 
             var self = this;
+            //        console.log("ComponentDidMount: "+this.props.title);
             reactArcgis.loadModules(['esri/Graphic', "esri/layers/FeatureLayer", "esri/layers/MapImageLayer", "esri/layers/ImageryLayer", "esri/layers/GraphicsLayer", "esri/tasks/IdentifyTask", "esri/tasks/support/IdentifyParameters", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol", "esri/layers/GroupLayer", "esri/renderers/Renderer"]).then(function (_ref) {
                 var _ref2 = slicedToArray(_ref, 11),
                     Graphic = _ref2[0],
@@ -1219,17 +1384,31 @@ var ArcticMapLayer = function (_React$Component) {
 
                 // Create a polygon geometry
 
-
-                var children = React.Children.map(_this2.props.children, function (child) {
+                var children2 = [];
+                var children = React__default.Children.map(_this2.props.children, function (child) {
                     if (child.type.displayName === 'ArcticMapLayerPopup') {
                         return child;
                         // return React.cloneElement(child, {
                         //     // ref: 'editor'
                         //   })
+                    } else if (child.type.displayName === 'ArcticMapLayer') {
+                        var subchildren = [];
+                        //console.log(child.props.children);
+                        child.props.children.forEach(function (subchild) {
+                            if (subchild.type.displayName === 'ArcticMapLayerPopup') {
+                                //console.log(subchild);
+                                subchildren.push(subchild);
+                            }
+                        });
+                        children2 = subchildren;
                     }
                 });
-
-                self.layerRenderers = children;
+                if (children2.length > 0) {
+                    self.layerRenderers = children2;
+                } else {
+                    self.layerRenderers = children;
+                }
+                //console.log(self.layerRenderers);
 
                 var childrenEles = [];
                 if (self.props.children) {
@@ -1300,6 +1479,99 @@ var ArcticMapLayer = function (_React$Component) {
                     //self.state.map.add(featureLayer);
                 }
 
+                if (self.props.type === "groupby") {
+                    var gtrans = 1;
+                    if (self.props.transparency) {
+                        gtrans = Number.parseFloat(self.props.transparency);
+                    }
+                    var subChildren = React__default.Children.map(self.props.children, function (child) {
+                        return new ArcticMapLayer(child.props);
+                    });
+
+                    self.children = subChildren;
+
+                    var gbmaplayer = new GroupLayer({
+                        opacity: gtrans,
+                        visibilityMode: "inherited",
+                        visible: self.props.visible
+
+                    });
+                    if (self.props.title) {
+                        gbmaplayer.title = self.props.title;
+                    }
+
+                    subChildren.forEach(function (child) {
+                        if (child.props.type === "dynamic") {
+
+                            var trans = 1;
+                            if (child.props.transparency) {
+                                trans = Number.parseFloat(child.props.transparency);
+                            }
+
+                            var maplayer = new MapImageLayer({
+                                url: child.props.src,
+                                opacity: trans
+                            });
+
+                            if (child.props.sublayers) {
+                                maplayer.sublayers = child.props.sublayers;
+                            }
+
+                            if (child.props.childsrc) ;
+
+                            if (child.props.title) {
+
+                                maplayer.title = child.props.title;
+                            }
+
+                            maplayer.on("layerview-create", function (event) {});
+
+                            maplayer.when(function () {
+                                var layerids = [];
+                                maplayer.allSublayers.items.forEach(function (sublayer) {
+                                    layerids.push(sublayer.id);
+                                    sublayer.when(function (e) {
+                                        if (child.props.sublayers !== undefined) {
+                                            child.props.sublayers.forEach(function (sub) {
+                                                if (sub.isVisible === false && e.id === sub.id) {
+                                                    e.visible = false;
+                                                }
+                                            });
+                                        }
+                                    });
+                                    var renderer = renderers.find(function (r) {
+                                        if (r.props.layer === sublayer.title || r.props.layer === '' + sublayer.id) {
+                                            return r;
+                                        }
+                                    });
+                                    if (renderer !== undefined) {
+                                        sublayer.renderer = renderer.props.style;
+                                        if (renderer.props.displayTitle !== undefined) {
+                                            sublayer.title = renderer.props.displayTitle;
+                                        }
+                                    }
+                                });
+
+                                child.identifyTask = new IdentifyTask(child.props.src);
+                                child.params = new IdentifyParameters();
+                                child.params.tolerance = 3;
+                                child.params.layerIds = layerids;
+                                child.params.layerOption = "visible";
+                                child.params.width = self.state.view.width;
+                                child.params.height = self.state.view.height;
+                                child.params.returnGeometry = true;
+                                child.params.returnGeometry = !self.state.blockSelect;
+                            });
+
+                            child.layerRef = maplayer;
+                        }
+
+                        gbmaplayer.layers.push(maplayer);
+                    });
+
+                    self.layerRef = gbmaplayer;
+                }
+
                 if (self.props.type === "group") {
                     var gtrans = 1;
                     if (self.props.transparency) {
@@ -1309,7 +1581,8 @@ var ArcticMapLayer = function (_React$Component) {
 
                     var gmaplayer = new GroupLayer({
                         //url: self.props.src,
-                        opacity: gtrans
+                        opacity: gtrans,
+                        visibilityMode: "inherited"
 
                     });
                     if (self.props.title) {
@@ -1358,7 +1631,7 @@ var ArcticMapLayer = function (_React$Component) {
                                 self.params.height = self.state.view.height;
                                 self.params.returnGeometry = true;
                                 self.params.returnGeometry = !self.state.blockSelect;
-                                //  console.log(self.params);
+                                //console.log(self.params);
                             }
                         });
                     });
@@ -1420,7 +1693,7 @@ var ArcticMapLayer = function (_React$Component) {
                             }
                             //sublayer.renderer = Renderer.fromJSON(renderer);
                         });
-                        layerids.reverse();
+                        //layerids.reverse();
 
                         self.identifyTask = new IdentifyTask(self.props.src);
                         self.params = new IdentifyParameters();
@@ -1576,6 +1849,7 @@ var ArcticMapLayer = function (_React$Component) {
     }, {
         key: 'renderPopup',
         value: function renderPopup(feature, result) {
+            console.log("renderPopup", result);
 
             if (result.layerId !== undefined && this.layerRenderers) {
                 var popuprender = this.layerRenderers.find(function (l) {
@@ -1627,15 +1901,15 @@ var ArcticMapLayer = function (_React$Component) {
                     //console.log(htresponse);
                     var mapPoint = event.mapPoint;
                     var response = {
-                        layer: self.layerRef,
+                        layer: self,
                         results: htresponse.results.map(function (r) {
                             return { feature: r.graphic, layerName: self.layerRef.title };
                         })
                     };
-                    callback(response);
+                    callback([response]);
                 });
             } else if (this.props.type === "feature") {
-
+                //this probably has errors but we are not using it 
                 this.state.view.hitTest(event).then(function (htresponse) {
 
                     // console.log("Identify on geojson");
@@ -1668,19 +1942,32 @@ var ArcticMapLayer = function (_React$Component) {
                         });
                     });
                 });
+            } else if (this.props.type === "groupby") {
+                var allResponse = [];
+                Promise.allSettled(self.children.map(function (item, index) {
+                    return new Promise(function (res, rej) {
+                        item.params.geometry = event.mapPoint;
+                        item.params.mapExtent = self.state.view.extent;
+                        item.identifyTask.execute(item.params).then(function (response) {
+                            response.layer = item;
+                            response.layer.layerRenderers = item.props.children;
+                            allResponse.push(response);
+                            res();
+                        });
+                    });
+                })).then(function () {
+                    callback(allResponse);
+                });
             } else {
-
                 if (!this.params) {
                     callback(null);return;
                 }
 
                 this.params.geometry = event.mapPoint;
                 this.params.mapExtent = this.state.view.extent;
-                //this.params.returnGeometry = true;
-                //document.getElementById("viewDiv").style.cursor = "wait";
                 this.identifyTask.execute(this.params).then(function (response) {
-                    //console.log("identifyTask here",response );
-                    callback(response);
+                    response.layer = self;
+                    callback([response]);
                 });
             }
         }
@@ -1708,14 +1995,14 @@ var ArcticMapLayer = function (_React$Component) {
                 self.params.mapExtent = self.state.view.extent;
                 self.identifyTask.execute(self.params).then(function (response) {
                     self.params.layerIds = layerids;
-                    console.log("identifyArea", response);
+                    //console.log("identifyArea", response)
                     callback(response);
                 });
             });
         }
     }]);
     return ArcticMapLayer;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapLayer.displayName = "ArcticMapLayer";
 
@@ -1742,7 +2029,7 @@ var ArcticMapEdit = function (_React$Component) {
             hidden: !_this.props.hidden ? false : true
         };
 
-        _this.uploadPanel = React.createRef();
+        _this.uploadPanel = React__default.createRef();
 
         ArcticMapEdit.defaultProps = {
             uploadPanelInfoAreaText: "Do you already have a shape of your case? Upload your file here. Supported geometries: polygon and polyline. Supported file types: Shapefiles (.zip), kml, gml, gpx, and geojson."
@@ -2899,9 +3186,9 @@ var ArcticMapEdit = function (_React$Component) {
         value: function widgetRender() {
 
             var self = this;
-            var children = React.Children.map(this.props.children, function (child) {
+            var children = React__default.Children.map(this.props.children, function (child) {
 
-                return React.cloneElement(child, {
+                return React__default.cloneElement(child, {
                     map: self.state.map,
                     view: self.state.view,
                     //ref: 'child-' + (index++)
@@ -2910,47 +3197,47 @@ var ArcticMapEdit = function (_React$Component) {
             });
 
             if (this.state.hidden === true) {
-                return React.createElement("div", { id: "topbar" });
+                return React__default.createElement("div", { id: "topbar" });
             }
 
-            return React.createElement(
+            return React__default.createElement(
                 "div",
                 { id: "topbar" },
-                this.state.hideEditors === false && React.createElement(
+                this.state.hideEditors === false && React__default.createElement(
                     "span",
                     null,
-                    React.createElement(ArcticMapButton, { showactive: this.props.am.state.mode === "select", esriicon: "cursor", title: "Left click to select / Right click to deselect", onclick: this.setmaptoselect.bind(this) }),
-                    this.props.point && React.createElement(ArcticMapButton, { esriicon: "blank-map-pin", onclick: this.addPointClick.bind(this), title: "Draw point" }),
-                    this.props.line && React.createElement(ArcticMapButton, { esriicon: "polyline", onclick: this.addLineClick.bind(this), title: "Draw polyline" }),
-                    this.props.polygon && React.createElement(ArcticMapButton, { esriicon: "polygon", onclick: this.addPolyClick.bind(this), title: "Draw polygon" }),
-                    this.props.square && React.createElement(ArcticMapButton, { esriicon: "checkbox-unchecked", onclick: this.addRecClick.bind(this), title: "Draw rectangle" }),
-                    this.props.circle && React.createElement(ArcticMapButton, { esriicon: "radio-unchecked", onclick: this.addCircleClick.bind(this), title: "Draw circle" })
+                    React__default.createElement(ArcticMapButton, { showactive: this.props.am.state.mode === "select", esriicon: "cursor", title: "Left click to select / Right click to deselect", onclick: this.setmaptoselect.bind(this) }),
+                    this.props.point && React__default.createElement(ArcticMapButton, { esriicon: "blank-map-pin", onclick: this.addPointClick.bind(this), title: "Draw point" }),
+                    this.props.line && React__default.createElement(ArcticMapButton, { esriicon: "polyline", onclick: this.addLineClick.bind(this), title: "Draw polyline" }),
+                    this.props.polygon && React__default.createElement(ArcticMapButton, { esriicon: "polygon", onclick: this.addPolyClick.bind(this), title: "Draw polygon" }),
+                    this.props.square && React__default.createElement(ArcticMapButton, { esriicon: "checkbox-unchecked", onclick: this.addRecClick.bind(this), title: "Draw rectangle" }),
+                    this.props.circle && React__default.createElement(ArcticMapButton, { esriicon: "radio-unchecked", onclick: this.addCircleClick.bind(this), title: "Draw circle" })
                 ),
                 children,
-                this.props.upload && React.createElement(
+                this.props.upload && React__default.createElement(
                     ArcticMapPanel,
                     { hidden: this.state.hideEditors, esriicon: "upload", title: "Upload GIS file", ref: this.uploadPanel,
                         infoAreaText: this.props.uploadPanelInfoAreaText },
-                    React.createElement("br", null),
-                    React.createElement(
+                    React__default.createElement("br", null),
+                    React__default.createElement(
                         "form",
                         { encType: "multipart/form-data", method: "post", id: "uploadForm" },
-                        React.createElement(
+                        React__default.createElement(
                             "div",
                             { className: "field" },
-                            React.createElement("br", null),
-                            React.createElement(
+                            React__default.createElement("br", null),
+                            React__default.createElement(
                                 "label",
                                 { className: style$2.btm_primary_file },
-                                React.createElement("input", { type: "file", name: "file", id: "inFile", onChange: this.fileUploaded.bind(this) }),
+                                React__default.createElement("input", { type: "file", name: "file", id: "inFile", onChange: this.fileUploaded.bind(this) }),
                                 "Upload File"
                             )
                         )
                     ),
-                    React.createElement("br", null),
-                    React.createElement("span", { id: "upload-status" })
+                    React__default.createElement("br", null),
+                    React__default.createElement("span", { id: "upload-status" })
                 ),
-                React.createElement(ArcticMapButton, { esriicon: "erase", onclick: this.reset.bind(this), title: "Clear selection" })
+                React__default.createElement(ArcticMapButton, { esriicon: "erase", onclick: this.reset.bind(this), title: "Clear selection" })
             );
         }
     }, {
@@ -2963,7 +3250,7 @@ var ArcticMapEdit = function (_React$Component) {
     }, {
         key: "render",
         value: function render() {
-            return React.createElement(
+            return React__default.createElement(
                 "span",
                 null,
                 this.state.fileLayer
@@ -3038,7 +3325,7 @@ var ArcticMapEdit = function (_React$Component) {
         }
     }]);
     return ArcticMapEdit;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapEdit.displayName = 'ArcticMapEdit';
 
@@ -3477,17 +3764,17 @@ var ArcticMapLLDSearch = function (_React$Component) {
     }, {
         key: "widgetRender",
         value: function widgetRender() {
-            return React.createElement(
+            return React__default.createElement(
                 "div",
                 { className: style$3.lldsearchbar },
-                React.createElement(
+                React__default.createElement(
                     "div",
                     { style: { display: 'inline-block', height: '32px', marginTop: '0px' } },
-                    React.createElement("input", { style: { display: 'inline-block', height: '32px', verticalAlign: 'top' }, value: this.state.searchinput, onChange: this.handleChange, type: "text", placeholder: "Find legal land description", "aria-label": "Search", className: "esri-input", title: "Find leagal land desription" }),
-                    React.createElement(
+                    React__default.createElement("input", { style: { display: 'inline-block', height: '32px', verticalAlign: 'top' }, value: this.state.searchinput, onChange: this.handleChange, type: "text", placeholder: "Find legal land description", "aria-label": "Search", className: "esri-input", title: "Find leagal land desription" }),
+                    React__default.createElement(
                         "div",
                         { style: { display: 'inline-block', width: '32px', height: '32px', verticalAlign: 'top' }, role: "button", title: "Search", className: "esri-search__submit-button esri-widget--button", onClick: this.searchLLD.bind(this) },
-                        React.createElement("span", { style: { display: 'block', paddingTop: '8px' }, "aria-hidden": "true", role: "presentation", className: "esri-icon-search" })
+                        React__default.createElement("span", { style: { display: 'block', paddingTop: '8px' }, "aria-hidden": "true", role: "presentation", className: "esri-icon-search" })
                     )
                 )
             );
@@ -3499,7 +3786,7 @@ var ArcticMapLLDSearch = function (_React$Component) {
         }
     }]);
     return ArcticMapLLDSearch;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapLLDSearch.displayName = 'ArcticMapLLDSearch';
 
@@ -3515,7 +3802,7 @@ var ArcticMapLayerPopup = function (_React$Component) {
         key: 'render',
         value: function render() {
 
-            return React.createElement('span', null);
+            return React__default.createElement('span', null);
         }
     }, {
         key: 'renderPopup',
@@ -3526,7 +3813,7 @@ var ArcticMapLayerPopup = function (_React$Component) {
         }
     }]);
     return ArcticMapLayerPopup;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapLayerPopup.displayName = 'ArcticMapLayerPopup';
 
@@ -3563,7 +3850,7 @@ var ArcticMapControlArea = function (_React$Component) {
 
             var self = this;
 
-            var children = React.Children.map(this.props.children, function (child) {
+            var children = React__default.Children.map(this.props.children, function (child) {
 
                 // else if (child.type.name === 'ArcticMapLLDSearch') {
 
@@ -3573,7 +3860,7 @@ var ArcticMapControlArea = function (_React$Component) {
                 // } 
 
 
-                return React.cloneElement(child, {
+                return React__default.cloneElement(child, {
                     am: self.props.am,
                     map: self.props.am.state.map,
                     view: self.props.am.state.view
@@ -3583,7 +3870,7 @@ var ArcticMapControlArea = function (_React$Component) {
                 });
             });
 
-            return React.createElement(
+            return React__default.createElement(
                 'span',
                 { className: 'arcticmap-area' },
                 children
@@ -3592,11 +3879,11 @@ var ArcticMapControlArea = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            return React.createElement('span', null);
+            return React__default.createElement('span', null);
         }
     }]);
     return ArcticMapControlArea;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapControlArea.displayName = 'ArcticMapControlArea';
 
@@ -3625,15 +3912,15 @@ var ArcticMapIdentify = function (_React$Component) {
 
       //cursor
 
-      return React.createElement(
+      return React__default.createElement(
         'span',
         null,
-        React.createElement(ArcticMapButton, { showactive: this.props.am.state.mode === "description", esriicon: 'description', title: 'Information', onclick: this.setmaptoidentify.bind(this) })
+        React__default.createElement(ArcticMapButton, { showactive: this.props.am.state.mode === "description", esriicon: 'description', title: 'Information', onclick: this.setmaptoidentify.bind(this) })
       );
     }
   }]);
   return ArcticMapIdentify;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapIdentify.displayName = 'ArcticMapIdentify';
 
@@ -3905,60 +4192,60 @@ var ArcticMapBaseControl = function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            return React.createElement(
+            return React__default.createElement(
                 'div',
                 null,
-                React.createElement(
+                React__default.createElement(
                     ArcticMapControlArea,
                     { am: this.props.am, view: this.props.view, location: 'top-left' },
-                    React.createElement('div', { ref: function ref(e) {
+                    React__default.createElement('div', { ref: function ref(e) {
                             e && e.appendChild(_this2.zoomControlDiv);
                         } })
                 ),
-                React.createElement(
+                React__default.createElement(
                     ArcticMapControlArea,
                     { am: this.props.am, view: this.props.view, location: 'bottom-right', className: styles.ArcticMap },
-                    React.createElement(
+                    React__default.createElement(
                         ArcticMapPanel,
                         { esriicon: 'layer-list', title: 'Legend', ontoggle: this.removeLegendDuplicateLabels.bind(this) },
-                        React.createElement('div', { ref: function ref(e) {
+                        React__default.createElement('div', { ref: function ref(e) {
                                 e && e.appendChild(_this2.legendDiv);
                             } })
                     ),
-                    React.createElement(
+                    React__default.createElement(
                         ArcticMapPanel,
                         { esriicon: 'collection', title: 'Layers' },
-                        React.createElement(
+                        React__default.createElement(
                             'p',
                             null,
                             'Toggle visibility of each data layer.'
                         ),
-                        React.createElement(
+                        React__default.createElement(
                             'p',
                             null,
                             'Click, drag and drop layers to reorder.'
                         ),
-                        this.state.canReset && React.createElement(
+                        this.state.canReset && React__default.createElement(
                             'p',
                             null,
-                            React.createElement(
+                            React__default.createElement(
                                 'a',
                                 { href: '#', style: { color: '#71A3AF', textDecoration: 'none' }, onClick: this.props.reset },
-                                React.createElement('span', { style: { height: "10px", width: "10px", marginRight: '10px', color: 'black' }, 'aria-hidden': true, className: 'esri-icon esri-icon-trash' }),
+                                React__default.createElement('span', { style: { height: "10px", width: "10px", marginRight: '10px', color: 'black' }, 'aria-hidden': true, className: 'esri-icon esri-icon-trash' }),
                                 'Reset to Default Data Visibility'
                             )
                         ),
-                        React.createElement('div', { ref: function ref(e) {
+                        React__default.createElement('div', { ref: function ref(e) {
                                 e && e.appendChild(_this2.layersDiv);
                             } })
                     ),
-                    React.createElement(ArcticMapButton, { esriicon: 'basemap', title: 'Basemaps', onclick: this.basemapclick.bind(this) })
+                    React__default.createElement(ArcticMapButton, { esriicon: 'basemap', title: 'Basemaps', onclick: this.basemapclick.bind(this) })
                 )
             );
         }
     }]);
     return ArcticMapBaseControl;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapBaseControl.displayName = "ArcticMapBaseControl";
 
@@ -3980,11 +4267,11 @@ var ArcticMapLayerRenderer = function (_React$Component) {
     createClass(ArcticMapLayerRenderer, [{
         key: 'render',
         value: function render() {
-            return React.createElement('span', null);
+            return React__default.createElement('span', null);
         }
     }]);
     return ArcticMapLayerRenderer;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapLayerRenderer.displayName = 'ArcticMapLayerRenderer';
 
@@ -4095,7 +4382,7 @@ var ArcticMapLocator = function (_React$Component) {
         }
     }]);
     return ArcticMapLocator;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapLocator.displayName = "ArcticMapLocator";
 
@@ -4183,11 +4470,11 @@ var ArcticMapDatagrid = function (_React$Component) {
     key: 'render',
     value: function render() {
 
-      return React.createElement('div', { id: 'arcticmapdatagrid', className: styles$2.gridcontainer });
+      return React__default.createElement('div', { id: 'arcticmapdatagrid', className: styles$2.gridcontainer });
     }
   }]);
   return ArcticMapDatagrid;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapDatagrid.displayName = "ArcticMapDatagrid";
 
@@ -4270,10 +4557,10 @@ var ArcticMapDGridPanel = function (_React$Component) {
         key: 'render',
         value: function render() {
 
-            return React.createElement(
+            return React__default.createElement(
                 'span',
                 { visibility: this.state.hidden },
-                React.createElement(ArcticMapButton, { padtop: this.props.padtop, padbottom: this.props.padbottom, esriicon: this.props.esriicon, onclick: this.toggle.bind(this), title: this.props.title })
+                React__default.createElement(ArcticMapButton, { padtop: this.props.padtop, padbottom: this.props.padbottom, esriicon: this.props.esriicon, onclick: this.toggle.bind(this), title: this.props.title })
             );
         }
     }, {
@@ -4281,17 +4568,17 @@ var ArcticMapDGridPanel = function (_React$Component) {
         value: function renderPanel() {
             // refactor this
             if (this.state.open) {
-                var ele = React.createElement('div', { className: 'esri-widget', style: styles$3.rightWidgetFull }, React.createElement('h2', { style: { "paddingLeft": "20px", marginTop: '6px', fontSize: '15px', marginBottom: '10px' } }, this.props.title), React.createElement('span', { style: { position: 'absolute', top: '20px', right: '20px' } }, React.createElement('button', {
+                var ele = React__default.createElement('div', { className: 'esri-widget', style: styles$3.rightWidgetFull }, React__default.createElement('h2', { style: { "paddingLeft": "20px", marginTop: '6px', fontSize: '15px', marginBottom: '10px' } }, this.props.title), React__default.createElement('span', { style: { position: 'absolute', top: '20px', right: '20px' } }, React__default.createElement('button', {
                     onClick: this.toggle,
                     title: 'Close',
                     style: { border: 'none', background: 'transparent', cursor: 'pointer' }
-                }, React.createElement('span', {
+                }, React__default.createElement('span', {
                     style: { fontSize: '15px' },
                     'aria-hidden': true,
                     className: 'esri-icon esri-icon-close'
                 }))
                 //React.createElement(ArcticMapButton, { esriicon: 'close', onclick: this.toggle, style : { fontSize : '28px'} })
-                ), React.createElement('div', { style: styles$3.widgetContainer }, React.createElement('div', null, this.props.children)));
+                ), React__default.createElement('div', { style: styles$3.widgetContainer }, React__default.createElement('div', null, this.props.children)));
 
                 // <button style={style.arcticButton} onClick={this.fireclick.bind(this)} title={this.props.title} >
                 //     <span style={{ height: "15px", width: "15px" }} aria-hidden className={esriClassName} ></span>
@@ -4299,13 +4586,13 @@ var ArcticMapDGridPanel = function (_React$Component) {
 
                 ReactDOM.render(ele, this.renderEle);
             } else {
-                var eleempty = React.createElement('span', null);
+                var eleempty = React__default.createElement('span', null);
                 ReactDOM.render(eleempty, this.renderEle);
             }
         }
     }]);
     return ArcticMapDGridPanel;
-}(React.Component);
+}(React__default.Component);
 
 ArcticMapDGridPanel.displayName = 'ArcticMapDGriPanel';
 

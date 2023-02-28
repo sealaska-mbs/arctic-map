@@ -416,7 +416,6 @@ var ArcticMap = function (_React$Component) {
       self.childrenElements = [];
 
       var children = React.Children.map(this.props.children, function (child) {
-        //console.log(child);
         if (child) {
           if (child.type.displayName === 'ArcticMapLayer') {
             return React.cloneElement(child, {
@@ -801,6 +800,8 @@ var ArcticMap = function (_React$Component) {
               });
 
               identLayers = identLayers.concat(self.state.map.amlayers);
+              //console.log("amlayers");
+              //console.log(self.state.map.amlayers);
 
               async.eachSeries(identLayers, function (layer, cb) {
                 if (!layer.state.disablePopup) {
@@ -905,12 +906,28 @@ var ArcticMap = function (_React$Component) {
 
           identLayers = identLayers.concat(self.state.map.amlayers);
 
+          //console.log("IdentLayers: ",identLayers);
+          //console.log(this.state.map.allLayers.items);
+          /*        this.state.map.allLayers.items.forEach((item) => {
+                    //console.log(item.title+" - "+item.type);
+                    if (item.visible === true && item.sublayers !== undefined && (item.type==="map-image" || item.type === "feature" || item.type === "graphics") ) {
+                      //console.log(item.title);
+                      item.sublayers.items.forEach((subItems) => {
+                        if (subItems.visible === true) {
+                          console.log(subItems.url);
+                        }
+                      })
+                      //console.log(item.url);
+                    }
+          
+                  });
+          */
           async.eachSeries(identLayers, function (layer, cb) {
-            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature") {
+            if (layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature" && layer.props.type !== "groupby") {
               cb();
               return;
             }
-            if (!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature") || layer.props.type === "geojson" || layer.props.type === "group") {
+            if (!layer.state.disablePopup && layer.layerRef.visible === true && (layer.layerRef.sublayers !== undefined || layer.props.type === "feature") || layer.props.type === "geojson" || layer.props.type === "group" || layer.props.type === "groupby") {
               var visibleLayers = [];
               var noFilter = false;
               if (layer.props.sublayers) {
@@ -936,42 +953,49 @@ var ArcticMap = function (_React$Component) {
                   }
                 });
               }
-
-              layer.identify(event, function (results) {
-                if (results) {
-                  results.layer = layer;
-
-                  if (visibleLayers.length > 0) {
-                    var rem = [];
-                    results.results.forEach(function (res) {
-                      if (visibleLayers.length > 0 && !visibleLayers.includes(results.layer.layerRef.url + '/' + res.layerId)) {
-                        rem.push(res.layerId);
+              if (layer.props.type === "groupby") {
+                var subLayers = [];
+                subLayers = layer.layerRef.layers.items;
+                subLayers.forEach(function (sub) {
+                  if (sub.sublayers) {
+                    sub.sublayers.items.forEach(function (subSub) {
+                      if (subSub.visible === true) {
+                        visibleLayers.push(subSub.url);
                       }
                     });
-                    rem.forEach(function (remid) {
-                      results.results.splice(results.results.findIndex(function (r) {
-                        return r.layerId === remid;
-                      }), 1);
-                    });
                   }
+                });
+              }
 
-                  //results.results.forEach(res =>{
-                  //  if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                  //  {
-                  //    results.results.splice(results.results.findIndex(r => r.layerId === res.layerId));
-                  //  }
-                  //})
+              layer.identify(event, function (resultslist) {
+                resultslist.forEach(function (results) {
 
-                  if (results.results.length > 0) {
-                    identresults.push(results);
+                  if (results) {
+                    if (visibleLayers.length > 0) {
+                      var rem = [];
+                      results.results.forEach(function (res) {
+                        if (visibleLayers.length > 0 && !visibleLayers.includes(results.layer.layerRef.url + '/' + res.layerId)) {
+                          rem.push(res.layerId);
+                        }
+                      });
+                      rem.forEach(function (remid) {
+                        results.results.splice(results.results.findIndex(function (r) {
+                          return r.layerId === remid;
+                        }), 1);
+                      });
+                    }
+
+                    if (results.results.length > 0) {
+                      identresults.push(results);
+                    }
                   }
-                }
-
+                });
                 cb();
               });
             }
           }, function (err) {
-            var results = identresults.map(function (ir) {
+            var results = [];
+            results = identresults.map(function (ir) {
               ir.results.forEach(function (res) {
                 res.layer = ir.layer;
                 res.acres = -1;
@@ -1077,7 +1101,7 @@ var ArcticMap = function (_React$Component) {
                 });
               }
               self.setState({ loading: false });
-            }
+            } //current mode identify
 
             if (currentmode === "select") {
               var feature = null;
@@ -1094,16 +1118,18 @@ var ArcticMap = function (_React$Component) {
 
                 self.state.map.editor.setEditFeature(feature, null, fType, false, true);
               }
-            }
+            } //current mode select
+
 
             //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
-          });
+            /**/
+          }); //function(err)
 
           // self.layers.forEach(layer => {
           //     layer.identify(event);
           // })
           //}, 100);
-        });
+        }); //view.onClick
 
         // Add widget to the top right corner of the view
         // self.state.view.ui.add(layerList, 'top-left')
@@ -1160,6 +1186,141 @@ var ArcticMap = function (_React$Component) {
         }, 500);
       });
     }
+  }, {
+    key: 'identPostProcess',
+    value: function identPostProcess(identresults) {
+      var results = [];
+      results = identresults.map(function (ir) {
+        ir.results.forEach(function (res) {
+          res.layer = ir.layer;
+          res.acres = -1;
+          if (res.feature.geometry) {
+            res.acres = geometryEngine.geodesicArea(res.feature.geometry, 'acres');
+          }
+        });
+        //results.push(ir.results); 
+        return ir.results;
+      }) || [].reduce(function (a, b) {
+        return a.concat(b);
+      });
+      self.setState({ loading: false });
+      results = results.flat();
+
+      results = results.sort(function (r1, r2) {
+        if (r1.acres < 0 && r2.acres < 0) return 0;
+        if (r1.acres < 0) return 1;
+        if (r2.acres < 0) return -1;
+        if (r1.acres > r2.acres) {
+          return 1;
+        }
+        if (r2.acres > r1.acres) {
+          return -1;
+        }
+        return 0;
+        //r.feature.attributes.Shape_Area
+      });
+
+      if (currentmode === "identify") {
+
+        //results = results.reverse();
+        var popupresults = results.map(function (result) {
+          var feature = result.feature;
+          var layerName = result.layerName;
+
+          if (feature.attributes !== null) {
+            feature.attributes.layerName = layerName;
+          }
+
+          console.log("result", result);
+
+          if (result.layer.layerRef && result.layer.layerRef.allSublayers && result.layer.layerRef.allSublayers.length > 0) {
+            var sublayer = result.layer.layerRef.allSublayers.find(function (l) {
+              return l.id === result.layerId;
+            });
+            if (sublayer) {
+              feature.attributes.layerUrl = sublayer.url;
+            }
+          }
+
+          if (result.layer.layerRenderers) {
+            //console.log("result.layer  this.layerRenderers", result);
+            var popupDisable = result.layer.layerRenderers.find(function (l) {
+              return l.props.layerid === result.layerId.toString();
+            });
+            //console.log("result.layer  popupDisable", popupDisable.props);
+            if (popupDisable && result.layerId == popupDisable.props.layerid) {
+              //console.log("result.layer  popupDisable", popupDisable.props);
+              if (popupDisable.props.disabled == "true") {
+                return null;
+              }
+            }
+          }
+
+          var PTActions = [];
+          if (!result.layer.state.blockSelect) {
+            PTActions = [];
+          } else {
+            PTActions = [{ title: "Select", id: "select-action" }];
+          }
+
+          feature.popupTemplate = { // autocasts as new PopupTemplate()
+            //title: layerName,
+            title: result.layer.renderPopupTitle(feature, result),
+            content: result.layer.renderPopup(feature, result),
+            actions: PTActions
+          };
+
+          return feature;
+        });
+
+        // remove the disabled popup layer
+        for (var i = popupresults.length - 1; i >= 0; i--) {
+          if (popupresults[i] == null) {
+            popupresults.splice(i, 1);
+          }
+        }
+        //popupresults.forEach( function (result) {
+        //  if (result == null) {
+        //    popupresults.pop();
+        //  } 
+        //});
+
+        if (popupresults.length > 0) {
+          view.popup.close();
+          view.popup.currentSearchResultFeature = null;
+          self.state.view.popup.open({
+            features: popupresults,
+            location: event.mapPoint
+          });
+          // popupresults[0].setCurrentPopup();
+
+          self.state.view.popup.on('trigger-action', function (e) {
+            if (e.action.id === 'select-action') ;
+          });
+        }
+        self.setState({ loading: false });
+      } //current mode identify
+
+      if (currentmode === "select") {
+        var feature = null;
+        var fType = null;
+        for (var idx = 0; idx < results.length && feature === null; idx++) {
+          feature = results[idx].feature;
+          fType = feature.geometry.type;
+        }
+
+        if (self.contextmenuPressed === true) {
+
+          self.state.map.editor.setEditFeature(feature, null, fType, false, true, true);
+        } else {
+
+          self.state.map.editor.setEditFeature(feature, null, fType, false, true);
+        }
+      } //current mode select
+
+
+      //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+    }
   }]);
   return ArcticMap;
 }(React.Component);
@@ -1171,6 +1332,8 @@ var ArcticMapLayer = function (_React$Component) {
 
     function ArcticMapLayer(props) {
         classCallCheck(this, ArcticMapLayer);
+
+        //        console.log(props)
 
         var _this = possibleConstructorReturn(this, (ArcticMapLayer.__proto__ || Object.getPrototypeOf(ArcticMapLayer)).call(this, props));
 
@@ -1196,6 +1359,7 @@ var ArcticMapLayer = function (_React$Component) {
             var _this2 = this;
 
             var self = this;
+            //        console.log("ComponentDidMount: "+this.props.title);
             loadModules(['esri/Graphic', "esri/layers/FeatureLayer", "esri/layers/MapImageLayer", "esri/layers/ImageryLayer", "esri/layers/GraphicsLayer", "esri/tasks/IdentifyTask", "esri/tasks/support/IdentifyParameters", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol", "esri/layers/GroupLayer", "esri/renderers/Renderer"]).then(function (_ref) {
                 var _ref2 = slicedToArray(_ref, 11),
                     Graphic = _ref2[0],
@@ -1212,17 +1376,31 @@ var ArcticMapLayer = function (_React$Component) {
 
                 // Create a polygon geometry
 
-
+                var children2 = [];
                 var children = React.Children.map(_this2.props.children, function (child) {
                     if (child.type.displayName === 'ArcticMapLayerPopup') {
                         return child;
                         // return React.cloneElement(child, {
                         //     // ref: 'editor'
                         //   })
+                    } else if (child.type.displayName === 'ArcticMapLayer') {
+                        var subchildren = [];
+                        //console.log(child.props.children);
+                        child.props.children.forEach(function (subchild) {
+                            if (subchild.type.displayName === 'ArcticMapLayerPopup') {
+                                //console.log(subchild);
+                                subchildren.push(subchild);
+                            }
+                        });
+                        children2 = subchildren;
                     }
                 });
-
-                self.layerRenderers = children;
+                if (children2.length > 0) {
+                    self.layerRenderers = children2;
+                } else {
+                    self.layerRenderers = children;
+                }
+                //console.log(self.layerRenderers);
 
                 var childrenEles = [];
                 if (self.props.children) {
@@ -1293,6 +1471,99 @@ var ArcticMapLayer = function (_React$Component) {
                     //self.state.map.add(featureLayer);
                 }
 
+                if (self.props.type === "groupby") {
+                    var gtrans = 1;
+                    if (self.props.transparency) {
+                        gtrans = Number.parseFloat(self.props.transparency);
+                    }
+                    var subChildren = React.Children.map(self.props.children, function (child) {
+                        return new ArcticMapLayer(child.props);
+                    });
+
+                    self.children = subChildren;
+
+                    var gbmaplayer = new GroupLayer({
+                        opacity: gtrans,
+                        visibilityMode: "inherited",
+                        visible: self.props.visible
+
+                    });
+                    if (self.props.title) {
+                        gbmaplayer.title = self.props.title;
+                    }
+
+                    subChildren.forEach(function (child) {
+                        if (child.props.type === "dynamic") {
+
+                            var trans = 1;
+                            if (child.props.transparency) {
+                                trans = Number.parseFloat(child.props.transparency);
+                            }
+
+                            var maplayer = new MapImageLayer({
+                                url: child.props.src,
+                                opacity: trans
+                            });
+
+                            if (child.props.sublayers) {
+                                maplayer.sublayers = child.props.sublayers;
+                            }
+
+                            if (child.props.childsrc) ;
+
+                            if (child.props.title) {
+
+                                maplayer.title = child.props.title;
+                            }
+
+                            maplayer.on("layerview-create", function (event) {});
+
+                            maplayer.when(function () {
+                                var layerids = [];
+                                maplayer.allSublayers.items.forEach(function (sublayer) {
+                                    layerids.push(sublayer.id);
+                                    sublayer.when(function (e) {
+                                        if (child.props.sublayers !== undefined) {
+                                            child.props.sublayers.forEach(function (sub) {
+                                                if (sub.isVisible === false && e.id === sub.id) {
+                                                    e.visible = false;
+                                                }
+                                            });
+                                        }
+                                    });
+                                    var renderer = renderers.find(function (r) {
+                                        if (r.props.layer === sublayer.title || r.props.layer === '' + sublayer.id) {
+                                            return r;
+                                        }
+                                    });
+                                    if (renderer !== undefined) {
+                                        sublayer.renderer = renderer.props.style;
+                                        if (renderer.props.displayTitle !== undefined) {
+                                            sublayer.title = renderer.props.displayTitle;
+                                        }
+                                    }
+                                });
+
+                                child.identifyTask = new IdentifyTask(child.props.src);
+                                child.params = new IdentifyParameters();
+                                child.params.tolerance = 3;
+                                child.params.layerIds = layerids;
+                                child.params.layerOption = "visible";
+                                child.params.width = self.state.view.width;
+                                child.params.height = self.state.view.height;
+                                child.params.returnGeometry = true;
+                                child.params.returnGeometry = !self.state.blockSelect;
+                            });
+
+                            child.layerRef = maplayer;
+                        }
+
+                        gbmaplayer.layers.push(maplayer);
+                    });
+
+                    self.layerRef = gbmaplayer;
+                }
+
                 if (self.props.type === "group") {
                     var gtrans = 1;
                     if (self.props.transparency) {
@@ -1302,7 +1573,8 @@ var ArcticMapLayer = function (_React$Component) {
 
                     var gmaplayer = new GroupLayer({
                         //url: self.props.src,
-                        opacity: gtrans
+                        opacity: gtrans,
+                        visibilityMode: "inherited"
 
                     });
                     if (self.props.title) {
@@ -1351,7 +1623,7 @@ var ArcticMapLayer = function (_React$Component) {
                                 self.params.height = self.state.view.height;
                                 self.params.returnGeometry = true;
                                 self.params.returnGeometry = !self.state.blockSelect;
-                                //  console.log(self.params);
+                                //console.log(self.params);
                             }
                         });
                     });
@@ -1413,7 +1685,7 @@ var ArcticMapLayer = function (_React$Component) {
                             }
                             //sublayer.renderer = Renderer.fromJSON(renderer);
                         });
-                        layerids.reverse();
+                        //layerids.reverse();
 
                         self.identifyTask = new IdentifyTask(self.props.src);
                         self.params = new IdentifyParameters();
@@ -1569,6 +1841,7 @@ var ArcticMapLayer = function (_React$Component) {
     }, {
         key: 'renderPopup',
         value: function renderPopup(feature, result) {
+            console.log("renderPopup", result);
 
             if (result.layerId !== undefined && this.layerRenderers) {
                 var popuprender = this.layerRenderers.find(function (l) {
@@ -1620,15 +1893,15 @@ var ArcticMapLayer = function (_React$Component) {
                     //console.log(htresponse);
                     var mapPoint = event.mapPoint;
                     var response = {
-                        layer: self.layerRef,
+                        layer: self,
                         results: htresponse.results.map(function (r) {
                             return { feature: r.graphic, layerName: self.layerRef.title };
                         })
                     };
-                    callback(response);
+                    callback([response]);
                 });
             } else if (this.props.type === "feature") {
-
+                //this probably has errors but we are not using it 
                 this.state.view.hitTest(event).then(function (htresponse) {
 
                     // console.log("Identify on geojson");
@@ -1661,19 +1934,32 @@ var ArcticMapLayer = function (_React$Component) {
                         });
                     });
                 });
+            } else if (this.props.type === "groupby") {
+                var allResponse = [];
+                Promise.allSettled(self.children.map(function (item, index) {
+                    return new Promise(function (res, rej) {
+                        item.params.geometry = event.mapPoint;
+                        item.params.mapExtent = self.state.view.extent;
+                        item.identifyTask.execute(item.params).then(function (response) {
+                            response.layer = item;
+                            response.layer.layerRenderers = item.props.children;
+                            allResponse.push(response);
+                            res();
+                        });
+                    });
+                })).then(function () {
+                    callback(allResponse);
+                });
             } else {
-
                 if (!this.params) {
                     callback(null);return;
                 }
 
                 this.params.geometry = event.mapPoint;
                 this.params.mapExtent = this.state.view.extent;
-                //this.params.returnGeometry = true;
-                //document.getElementById("viewDiv").style.cursor = "wait";
                 this.identifyTask.execute(this.params).then(function (response) {
-                    //console.log("identifyTask here",response );
-                    callback(response);
+                    response.layer = self;
+                    callback([response]);
                 });
             }
         }
@@ -1701,7 +1987,7 @@ var ArcticMapLayer = function (_React$Component) {
                 self.params.mapExtent = self.state.view.extent;
                 self.identifyTask.execute(self.params).then(function (response) {
                     self.params.layerIds = layerids;
-                    console.log("identifyArea", response);
+                    //console.log("identifyArea", response)
                     callback(response);
                 });
             });
