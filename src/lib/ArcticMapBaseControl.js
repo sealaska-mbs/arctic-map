@@ -31,11 +31,13 @@ class ArcticMapBaseControl extends React.Component {
             'esri/widgets/LayerList',
             'esri/widgets/Legend',
             'esri/widgets/BasemapGallery',
+            'esri/request',
         ]).then(([
             Zoom,
             LayerList,
             Legend,
             BasemapGallery,
+            esriRequest,
         ]) => {
 
             self.props.view.on('click', (event) => {
@@ -91,18 +93,89 @@ class ArcticMapBaseControl extends React.Component {
                         id: "decrease-opacity"
                     }];
                     
-                    const item = event.item
-                    if (item.layer.imageFormat) {
-                        //const item = event.item
-                        item.panel = {
-                            content: 'legend',
-                            open: false
+                    const item = event.item;
+                    //console.log("item", item);
+                        if (item.layer.imageFormat && item.parent) {
+                                // make a request to the server to retrieve the layer image url
+                                esriRequest(item.layer.url + "/legend", {
+                                    query: {
+                                        f: 'json'
+                                    },
+                                    responseType: "json"
+                                }).then(function (response) {
+                                    //console.log("response",response);
+                                    var aDiv = document.createElement("Div");
+
+                                    // build unique url for the legend symbol
+                                    for (let i = 0; i < response.data.layers.length; i++) {
+                                        var layerNum = i;
+
+                                        //console.log("iLayer", layerNum, response.data.layers[layerNum]); 
+                                        if (response.data.layers[layerNum].legend.length === 1){
+                                            let img = document.createElement("img");
+                                            img.contentType = "image/png";
+                                            img.style.margin = "5px";
+                                            img.width = response.data.layers[layerNum].legend[0].width;
+                                            img.height = response.data.layers[layerNum].legend[0].height;
+                                            img.src = 'data:image/png;base64,'+response.data.layers[layerNum].legend[0].imageData;
+                                            //console.log("img", img);    
+                                            // assign image to the sublayers in layerlist
+                                            var para = document.createElement("P");
+                                            para.style.margin = "5px";
+                                            para.style.verticalAlign = "middle";
+                                            var theLabel = response.data.layers[layerNum].layerName;
+                                            var t =  document.createTextNode(theLabel);
+                                            para.appendChild(img);
+                                            para.appendChild(t);                                         
+                                            aDiv.appendChild(para);
+                                            item.panel = {
+                                                className: "esri-icon-layer-list",
+                                                content: [aDiv],
+                                                open: false
+                                            }
+                                        }
+                                        else if (response.data.layers[layerNum].legend.length > 1){
+                                            for (let j = 0; j < response.data.layers[layerNum].legend.length; j++) {
+                                                var legendNum = j;
+                                                let img = document.createElement("img");
+                                                img.contentType = "image/png";
+                                                img.style.margin = "5px";
+                                                img.width = response.data.layers[layerNum].legend[legendNum].width;
+                                                img.height = response.data.layers[layerNum].legend[legendNum].height;
+                                                img.src = 'data:image/png;base64,'+response.data.layers[layerNum].legend[legendNum].imageData;
+                                                //console.log("img", img);
+                                                var para = document.createElement("P");
+                                                para.style.margin = "5px";
+                                                para.style.verticalAlign = "middle";
+                                                var theLabel = response.data.layers[layerNum].legend[legendNum].label;
+                                                t =  document.createTextNode(theLabel);
+                                                para.appendChild(img);
+                                                para.appendChild(t);                                         
+                                                aDiv.appendChild(para);
+                                            }
+                                            item.panel = {
+                                                className: "esri-icon-layer-list",
+                                                content: [aDiv],
+                                                open: false
+                                            }        
+                                        }
+
+                                    };
+                            });
                         }
-                        item.panel.watch('open', (isOpen) => {
-                            self.removeLegendDuplicateLabels();
-                        });
-                    }
-                    else{
+                        else if (item.layer.imageFormat) {
+							item.panel = {
+								content: 'legend',
+								open: false
+							}
+							item.panel.watch('open', (isOpen) => {
+								self.removeLegendDuplicateLabels();
+								//console.log("panel", item);
+								layerList.renderNow();
+							});
+                        }                    
+                    else {
+                        //console.log("NotImageItem",item);
                         if (self.canShowAttributeTable(item.layer.url)) {
                             actions.unshift({
                                 title: "Open Attribute Table",
@@ -242,6 +315,7 @@ class ArcticMapBaseControl extends React.Component {
 
     watchForLayerListChanges = (layerList) => {
         layerList.view.map.layers.on("after-changes", (event) => {
+            //console.log("viewModel",layerList.viewModel);
             const viewModel = layerList.viewModel;
         });
     }
