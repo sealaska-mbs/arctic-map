@@ -94,7 +94,7 @@ class ArcticMapBaseControl extends React.Component {
                     }];
                     
                     const item = event.item;
-                    console.log("item", item);
+                    //console.log("item", item);
                         if (item.layer.imageFormat && item.parent) {
                                 // make a request to the server to retrieve the layer image url
                                 esriRequest(item.layer.url + "/legend", {
@@ -103,16 +103,14 @@ class ArcticMapBaseControl extends React.Component {
                                     },
                                     responseType: "json"
                                 }).then(function (response) {
-                                    console.log("response",response);
+                                    //console.log("response",response);
                                     var aDiv = document.createElement("Div");
 
                                     // build unique url for the legend symbol
                                     for (let i = 0; i < response.data.layers.length; i++) {
                                         var layerNum = i;
-                                        //var theLabel = "";
-                                        //var t;
 
-                                        console.log("iLayer", layerNum, response.data.layers[layerNum]); 
+                                        //console.log("iLayer", layerNum, response.data.layers[layerNum]); 
                                         if (response.data.layers[layerNum].legend.length === 1){
                                             let img = document.createElement("img");
                                             img.contentType = "image/png";
@@ -145,7 +143,7 @@ class ArcticMapBaseControl extends React.Component {
                                                 img.width = response.data.layers[layerNum].legend[legendNum].width;
                                                 img.height = response.data.layers[layerNum].legend[legendNum].height;
                                                 img.src = 'data:image/png;base64,'+response.data.layers[layerNum].legend[legendNum].imageData;
-                                                console.log("img", img);
+                                                //console.log("img", img);
                                                 var para = document.createElement("P");
                                                 para.style.margin = "5px";
                                                 para.style.verticalAlign = "middle";
