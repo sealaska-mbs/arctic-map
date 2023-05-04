@@ -289,6 +289,10 @@ class ArcticMapBaseControl extends React.Component {
     }
 
     watchForLegendChanges = (legend) => {
+        
+        this.getGroupLayerSymbology(legend);
+
+        //console.log("legendLayers", legend.view.map.layers)
         legend.watch('activeLayerInfos.length', (len) => {
             this.removeLegendDuplicateLabels();
         });
@@ -299,6 +303,7 @@ class ArcticMapBaseControl extends React.Component {
         });
         legend.view.map.layers.on("after-changes", (event) => {
             legend.view.map.layers.forEach((layer) => {
+                //console.log("layer", layer);
                 if (layer.allSublayers) {
                     layer.allSublayers.forEach((subLayer) => {
                         subLayer.watch('visible', (visible) => {
@@ -323,6 +328,7 @@ class ArcticMapBaseControl extends React.Component {
     removeLegendDuplicateLabels = () => {
         setTimeout(() => {
             const elements = document.getElementsByClassName("esri-legend__layer-body");
+            //console.log("elements", elements);
             for (let i = 0; i < elements.length; i++) {
                 if (elements[i].childNodes && elements[i].childNodes.length > 2) {
                     const element = elements[i];
@@ -351,6 +357,20 @@ class ArcticMapBaseControl extends React.Component {
                 }
             }
         }, 2000);
+    }
+
+    getGroupLayerSymbology = (legend) => {
+        const elements = document.getElementsByClassName("esri-legend__layer-body");
+        //console.log("elements", elements);
+        for (let index = 0; index < elements.length; index++) {
+            const childNode = elements.childNodes[index];
+            //console.log("childNode", childNode.innerText);
+        }
+        legend.view.map.layers.forEach((layer) => {
+        if (layer.type==="group") {
+            //console.log("groupLayer", layer);
+        }
+        });
     }
 
     render() {

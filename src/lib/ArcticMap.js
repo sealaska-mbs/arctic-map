@@ -264,6 +264,7 @@ class ArcticMap extends React.Component {
       // 'esri/tasks/Locator',
       'esri/geometry/geometryEngine',
       'esri/tasks/support/IdentifyParameters',
+      //'esri.rest.support.IdentifyParameters',
       'esri/request',
       'esri/geometry/Polygon',
 

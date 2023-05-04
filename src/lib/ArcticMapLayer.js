@@ -37,6 +37,7 @@ class ArcticMapLayer extends React.Component {
             "esri/layers/GraphicsLayer",
             "esri/tasks/IdentifyTask",
             "esri/tasks/support/IdentifyParameters",
+            //"esri/rest/support/IdentifyParameters",
             "esri/geometry/Point",
             "esri/symbols/SimpleMarkerSymbol",
             "esri/layers/GroupLayer",
