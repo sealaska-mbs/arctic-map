@@ -2,7 +2,22 @@ import React from 'react';
 import async from 'async';
 import './ArcticMap.css';
 
-import { Map, loadModules } from 'react-arcgis'
+//import { Map, loadModules } from 'react-arcgis'
+import * as geometry from '@arcgis/core/geometry.js';
+import Graphic from '@arcgis/core/Graphic.js';
+import Map from '@arcgis/core/Map.js';
+import Locate from '@arcgis/core/widgets/Locate.js';
+import BasemapGallery from '@arcgis/core/widgets/BasemapGallery.js';
+import Home from '@arcgis/core/widgets/Home.js';
+import Search from '@arcgis/core/widgets/Search.js';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer.js';
+import * as locator from '@arcgis/core/rest/locator.js';
+import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
+import IdentifyParameters from '@arcgis/core/rest/support/IdentifyParameters.js';
+import esriRequest from '@arcgis/core/request.js';
+import Polygon from '@arcgis/core/geometry/Polygon.js';
+import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol.js';
+
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapLoader from './ArcticMapLoader';
 import ArcticMapPanel from './ArcticMapPanel';
@@ -101,7 +116,7 @@ class ArcticMap extends React.Component {
 
 
 
-    // console.log(this.props.children);
+     console.log(this.props.children);
     // this.props.children.forEach((child) =>{
     //         child.ref = (c) => {this.layers.push(c) };
     // });
@@ -207,15 +222,15 @@ class ArcticMap extends React.Component {
       [pt2.x, pt2.y],
       [pt2.x, pt1.y]
     ]
-    loadModules([
-      'esri/geometry/Polygon',
-      'esri/Graphic'
-
-    ]).then(([
-      Polygon,
-      Graphic
-
-    ]) => {
+//    loadModules([
+//      'esri/geometry/Polygon',
+//      'esri/Graphic'
+//
+//    ]).then(([
+//      Polygon,
+//      Graphic
+//
+//    ]) => {
       const tempPolygon = new Polygon({
         hasz: false,
         hasm: false,
@@ -237,7 +252,7 @@ class ArcticMap extends React.Component {
       if(event.action==="end"){
         view.graphics.removeAll();
       }
-    })
+//    })
   }
 
 
@@ -253,36 +268,36 @@ class ArcticMap extends React.Component {
     view.zoom = parseInt(centerSplit[2]);
     self.cntrlIsPressed = false;
 
-    loadModules([
-
-      'esri/widgets/Locate',
-      'esri/widgets/BasemapGallery',
-      'esri/widgets/Home',
-
-      'esri/widgets/Search',
-      'esri/layers/FeatureLayer',
-      // 'esri/tasks/Locator',
-      'esri/geometry/geometryEngine',
-      'esri/tasks/support/IdentifyParameters',
-      //'esri.rest.support.IdentifyParameters',
-      'esri/request',
-      'esri/geometry/Polygon',
-
-    ]).then(([
-
-      Locate,
-      BasemapGallery,
-      Home,
-
-      Search,
-      FeatureLayer,
-      // Locator,
-      geometryEngine,
-      IdentifyParameters,
-      Request,
-      Polygon,
-
-    ]) => {
+//    loadModules([
+//
+//      'esri/widgets/Locate',
+//      'esri/widgets/BasemapGallery',
+//      'esri/widgets/Home',
+//
+//      'esri/widgets/Search',
+//      'esri/layers/FeatureLayer',
+//      // 'esri/tasks/Locator',
+//      'esri/geometry/geometryEngine',
+//      'esri/tasks/support/IdentifyParameters',
+//      //'esri.rest.support.IdentifyParameters',
+//      'esri/request',
+//      'esri/geometry/Polygon',
+//
+//    ]).then(([
+//
+//      Locate,
+//      BasemapGallery,
+//      Home,
+//
+//      Search,
+//      FeatureLayer,
+//      // Locator,
+//      geometryEngine,
+//      IdentifyParameters,
+//      Request,
+//      Polygon,
+//
+//    ]) => {
       window._request = Request;
       window._map = self;
       self.request = Request;
@@ -353,8 +368,8 @@ class ArcticMap extends React.Component {
           }else{
             graphicTemplate.actions = [];
           }
-          loadModules(['esri/symbols/SimpleFillSymbol'])
-                .then(([SimpleFillSymbol]) => {
+//          loadModules(['esri/symbols/SimpleFillSymbol'])
+//                .then(([SimpleFillSymbol]) => {
                     var symbol = new SimpleFillSymbol({
                         color: [135, 206, 235, 0.5],
                         style: "solid",
@@ -371,7 +386,7 @@ class ArcticMap extends React.Component {
                       view.graphics.removeAll();
                       view.popup.content.graphic = null;
                     }                    
-                })
+//                })
           //self.state.view.goTo(graphic);
         }
       })
@@ -885,7 +900,7 @@ class ArcticMap extends React.Component {
           self.props.onmapready(evt);
         }
       }, 500)
-    })
+//    })
   }
 
   identPostProcess (identresults) { 
