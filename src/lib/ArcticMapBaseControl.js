@@ -1,10 +1,17 @@
 import React from "react";
 import ReactDOM from 'react-dom'
-import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
+import geojsonToArcGIS from '@esri/arcgis-to-geojson-utils';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapControlArea from './ArcticMapControlArea';
-import { loadModules } from 'react-arcgis';
+
+//import { loadModules } from 'react-arcgis';
+import Zoom from '@arcgis/core/widgets/Zoom.js';
+import LayerList from '@arcgis/core/widgets/LayerList.js';
+import Legend from '@arcgis/core/widgets/Legend.js';
+import BasemapGallery from '@arcgis/core/widgets/BasemapGallery.js';
+import esriRequest from '@arcgis/core/request.js';
+
 import styles from './ArcticMap.css';
 
 
@@ -26,19 +33,19 @@ class ArcticMapBaseControl extends React.Component {
         this.legendDiv = document.createElement("div");
 
 
-        loadModules([
-            'esri/widgets/Zoom',
-            'esri/widgets/LayerList',
-            'esri/widgets/Legend',
-            'esri/widgets/BasemapGallery',
-            'esri/request',
-        ]).then(([
-            Zoom,
-            LayerList,
-            Legend,
-            BasemapGallery,
-            esriRequest,
-        ]) => {
+//        loadModules([
+//            'esri/widgets/Zoom',
+//            'esri/widgets/LayerList',
+//            'esri/widgets/Legend',
+//            'esri/widgets/BasemapGallery',
+//            'esri/request',
+//        ]).then(([
+//            Zoom,
+//            LayerList,
+//            Legend,
+//            BasemapGallery,
+//            esriRequest,
+//        ]) => {
 
             self.props.view.on('click', (event) => {
 
@@ -234,7 +241,7 @@ class ArcticMapBaseControl extends React.Component {
             //self.state.view.ui.add(layerList, 'top-left')
             //var joined = self.state.renderElements.concat(self.zoomControlDiv);
             this.setState({ renderElements: self.state.renderElements.concat(self.zoomControlDiv) })
-        })
+//        })
 
     }
 

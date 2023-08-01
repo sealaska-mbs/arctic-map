@@ -1,14 +1,25 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { arcgisToGeoJSON } from '@esri/arcgis-to-geojson-utils';
+import arcgisToGeoJSON from '@esri/arcgis-to-geojson-utils';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapLayer from './ArcticMapLayer';
-import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
+import geojsonToArcGIS from '@esri/arcgis-to-geojson-utils';
 import style from  './ArcticMapEdit.css';
-import {
-    loadModules
-} from 'react-arcgis';
+
+//import { loadModules } from 'react-arcgis';
+import Graphic from '@arcgis/core/Graphic.js';
+import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer.js';
+import SketchViewModel from '@arcgis/core/widgets/Sketch/SketchViewModel.js';
+import Geometry from '@arcgis/core/geometry/Geometry.js';
+import Polygon from '@arcgis/core/geometry/Polygon.js';
+import Polyline from '@arcgis/core/geometry/Polyline.js';
+import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js'
+import esriRequest from '@arcgis/core/request.js';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer.js';
+import Field from '@arcgis/core/layers/support/Field.js';
+import PopupTemplate from '@arcgis/core/PopupTemplate.js';
+import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer.js';
 
 
 class ArcticMapEdit extends React.Component {
@@ -43,22 +54,22 @@ class ArcticMapEdit extends React.Component {
 
 
         var self = this;
-        loadModules(["esri/Graphic",
-            "esri/layers/GraphicsLayer",
-            "esri/widgets/Sketch/SketchViewModel",
-            "esri/geometry/Geometry",
-            "esri/geometry/Polygon",
-            "esri/geometry/Polyline",
-            "esri/geometry/geometryEngine"
-        ]).then(([
-            Graphic,
-            GraphicsLayer,
-            SketchViewModel,
-            Geometry,
-            Polygon,
-            Polyline,
-            geometryEngine
-        ]) => {
+//        loadModules(["esri/Graphic",
+//            "esri/layers/GraphicsLayer",
+//            "esri/widgets/Sketch/SketchViewModel",
+//            "esri/geometry/Geometry",
+//            "esri/geometry/Polygon",
+//            "esri/geometry/Polyline",
+//            "esri/geometry/geometryEngine"
+//        ]).then(([
+//            Graphic,
+//            GraphicsLayer,
+//            SketchViewModel,
+//            Geometry,
+//            Polygon,
+//            Polyline,
+//            geometryEngine
+//        ]) => {
             const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
             self.setState({ tempGraphicsLayer });
 
@@ -320,7 +331,7 @@ class ArcticMapEdit extends React.Component {
             }
             self.setGeoJson = self.setGeoJson.bind(self);
 
-        }); //.catch ((err) => console.error(err));
+//        }); //.catch ((err) => console.error(err));
 
     }
 
@@ -953,8 +964,8 @@ class ArcticMapEdit extends React.Component {
                     .map(k => escape(k) + '=' + escape(myContent[k]))
                     .join('&');
         
-                loadModules(['esri/request'])
-                    .then(([request]) => {
+//                loadModules(['esri/request'])
+//                    .then(([request]) => {
                         request(portalUrl + "/sharing/rest/content/features/generate",
                             {
                                 query: myContent,
@@ -967,7 +978,7 @@ class ArcticMapEdit extends React.Component {
                                 if(self.addShapefileToMap(response.data.featureCollection, layerName)) 
                                     self.uploadPanel.current.toggle();
                             })
-                    })
+//                    })
             });
         });
     }
@@ -993,8 +1004,8 @@ class ArcticMapEdit extends React.Component {
                 }
             }
         }
-        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate'])
-            .then(([Graphic, FeatureLayer, Field, PopupTemplate]) => {
+//        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate'])
+//            .then(([Graphic, FeatureLayer, Field, PopupTemplate]) => {
                 var sourceGraphics = [];
                 var layers = featureCollection.layers.map(function (layer) {
 
@@ -1050,7 +1061,7 @@ class ArcticMapEdit extends React.Component {
 
                 self.state.map.amlayers.push(aml);
 
-            });
+//            });
         return true;
     }
 
@@ -1077,8 +1088,8 @@ class ArcticMapEdit extends React.Component {
             }
         }
 
-        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate', "esri/renderers/SimpleRenderer"])
-            .then(([Graphic, FeatureLayer, Field, PopupTemplate, SimpleRenderer]) => {
+//        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate', "esri/renderers/SimpleRenderer"])
+//            .then(([Graphic, FeatureLayer, Field, PopupTemplate, SimpleRenderer]) => {
                 var sourceGraphics = [];
                 var symbol = {
                     type: "simple-fill", // autocasts as new SimpleFillSymbol()
@@ -1137,7 +1148,7 @@ class ArcticMapEdit extends React.Component {
                 aml.layerRef.title = props.title;
 
                 self.state.map.amlayers.push(aml);
-            });
+//            });
         return true;
     }
 

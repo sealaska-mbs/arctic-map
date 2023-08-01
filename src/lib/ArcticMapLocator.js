@@ -1,9 +1,15 @@
 import React from "react";
 import ReactDOM from 'react-dom'
 
-import {
-    loadModules
-} from 'react-arcgis';
+//import { loadModules } from 'react-arcgis';
+import Locate from '@arcgis/core/widgets/Locate.js';
+import BasemapGallery from '@arcgis/core/widgets/BasemapGallery.js';
+import Home from '@arcgis/core/widgets/Home.js';
+import Search from '@arcgis/core/widgets/Search.js';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer.js';
+import * as locator from '@arcgis/core/rest/locator.js';
+import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
+import esriRequest from '@arcgis/core/request.js';
 
 
 class ArcticMapLocator extends React.Component {
@@ -19,38 +25,38 @@ class ArcticMapLocator extends React.Component {
 
     componentDidMount() {
         var self = this;
-        loadModules([
-
-            'esri/widgets/Locate',
-            'esri/widgets/BasemapGallery',
-            'esri/widgets/Home',
-      
-            'esri/widgets/Search',
-            'esri/layers/FeatureLayer',
-            'esri/tasks/Locator',
-            'esri/geometry/geometryEngine',
-      
-            "esri/request",
-      
-          ]).then(([
-      
-            Locate,
-            BasemapGallery,
-            Home,
-      
-            Search,
-            FeatureLayer,
-            Locator,
-            geometryEngine,
-      
-            Request,
-      
-          ]) => {
+//        loadModules([
+//
+//            'esri/widgets/Locate',
+//            'esri/widgets/BasemapGallery',
+//            'esri/widgets/Home',
+//      
+//            'esri/widgets/Search',
+//            'esri/layers/FeatureLayer',
+//            'esri/tasks/Locator',
+//            'esri/geometry/geometryEngine',
+//      
+//            "esri/request",
+//      
+//          ]).then(([
+//     
+//            Locate,
+//            BasemapGallery,
+//            Home,
+//      
+//            Search,
+//            FeatureLayer,
+//            Locator,
+//            geometryEngine,
+//      
+//            Request,
+//      
+//          ]) => {
             var searchsources = []
             
             
             var devaultSource = {
-              locator: new Locator({ url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer" }),
+              locator: new locator({ url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer" }),
               singleLineFieldName: "SingleLine",
               name: "Standard Geocoder",
               placeholder: "Find address",
@@ -119,7 +125,7 @@ class ArcticMapLocator extends React.Component {
                 // });
               });
 
-        });
+//        });
 
 
     }

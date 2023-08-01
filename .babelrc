@@ -1,11 +1,9 @@
 {
   "presets": [
-    ["env", {
-      "modules": false,
-      "blacklist": ["useStrict"]
-    }],
-    "stage-0",
-    "react"
+    "@babel/preset-react",
+    ["@babel/preset-env",  {
+      "modules": false
+    }]
     
   ]
 }

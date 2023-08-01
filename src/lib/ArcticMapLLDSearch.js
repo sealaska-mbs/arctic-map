@@ -6,9 +6,13 @@ import ReactDOM from "react-dom";
 
 import style from './ArcticMapLLDSearch.css';
 
-import {
-    loadModules
-} from 'react-arcgis';
+//import { loadModules } from 'react-arcgis';
+import  Graphic from '@arcgis/core/Graphic.js';
+import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
+import Geometry from '@arcgis/core/geometry/Geometry.js';
+import Polygon from '@arcgis/core/geometry/Polygon.js';
+import SearchSource from '@arcgis/core/widgets/Search/SearchSource.js';
+import esriRequest from '@arcgis/core/request.js'
 
 class ArcticMapLLDSearch extends React.Component {
 static displayName = 'ArcticMapLLDSearch';
@@ -30,22 +34,22 @@ static displayName = 'ArcticMapLLDSearch';
 
     componentDidMount() {
         var self = this;
-        loadModules(['esri/Graphic',
-            "esri/geometry/geometryEngine",
-            'esri/geometry/Geometry',
-            'esri/geometry/Polygon',
-            "esri/widgets/Search/SearchSource",
-            'esri/request'
-
-        ]).then(([
-            Graphic,
-            geometryEngine,
-            Geometry,
-            Polygon,
-            SearchSource,
-            esriRequest
-
-        ]) => {
+//        loadModules(['esri/Graphic',
+//            "esri/geometry/geometryEngine",
+//            'esri/geometry/Geometry',
+//            'esri/geometry/Polygon',
+//            "esri/widgets/Search/SearchSource",
+//            'esri/request'
+//
+//        ]).then(([
+//            Graphic,
+//            geometryEngine,
+//            Geometry,
+//            Polygon,
+//            SearchSource,
+//            esriRequest
+//
+//        ]) => {
 
 
             //var elestring = this.createElementFromHTML( `<input type="text" placeholder="Find address or place" aria-label="Search" autocomplete="off" tabindex="0" class="esri-input esri-search__input" aria-autocomplete="list" aria-haspopup="true" aria-owns="1687b00a338-widget-1-suggest-menu" role="textbox" data-node-ref="_inputNode" title="Find address or place">`);
@@ -400,7 +404,7 @@ static displayName = 'ArcticMapLLDSearch';
             
 
 
-        });
+ //       });
     }
 
     searchLLD(event) {

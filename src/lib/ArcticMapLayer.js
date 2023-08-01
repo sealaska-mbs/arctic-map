@@ -1,10 +1,20 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom'
-import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
+import geojsonToArcGIS from '@esri/arcgis-to-geojson-utils';
 
-import {
-    loadModules
-} from 'react-arcgis';
+//import { loadModules } from 'react-arcgis';
+import Graphic from '@arcgis/core/Graphic.js';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer.js';
+import MapImageLayer from '@arcgis/core/layers/MapImageLayer.js';
+import ImageryLayer from '@arcgis/core/layers/ImageryLayer.js';
+import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer.js';
+import * as identify from '@arcgis/core/rest/identify.js';
+import IdentifyParameters from '@arcgis/core/rest/support/IdentifyParameters.js';
+import Point from '@arcgis/core/geometry/Point.js';
+import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol.js';
+import GroupLayer from '@arcgis/core/layers/GroupLayer.js';
+import Renderer from '@arcgis/core/renderers/Renderer.js'
+import Multipoint from '@arcgis/core/geometry/Multipoint.js';
 
 class ArcticMapLayer extends React.Component {
     static displayName = "ArcticMapLayer";
@@ -29,33 +39,33 @@ class ArcticMapLayer extends React.Component {
     componentDidMount() {
         var self = this;
 //        console.log("ComponentDidMount: "+this.props.title);
-        loadModules(['esri/Graphic',
-            "esri/layers/FeatureLayer",
-            "esri/layers/MapImageLayer",
-            "esri/layers/ImageryLayer",
-
-            "esri/layers/GraphicsLayer",
-            "esri/tasks/IdentifyTask",
-            "esri/tasks/support/IdentifyParameters",
-            //"esri/rest/support/IdentifyParameters",
-            "esri/geometry/Point",
-            "esri/symbols/SimpleMarkerSymbol",
-            "esri/layers/GroupLayer",
-            "esri/renderers/Renderer"
-        ]).then(([
-            Graphic,
-            FeatureLayer,
-            MapImageLayer,
-            ImageryLayer,
-
-            GraphicsLayer,
-            IdentifyTask,
-            IdentifyParameters,
-            Point,
-            SimpleMarkerSymbol,
-            GroupLayer,
-            Renderer
-        ]) => {
+//        loadModules(['esri/Graphic',
+//            "esri/layers/FeatureLayer",
+//            "esri/layers/MapImageLayer",
+//            "esri/layers/ImageryLayer",
+//
+//            "esri/layers/GraphicsLayer",
+//            "esri/tasks/IdentifyTask",
+//            "esri/tasks/support/IdentifyParameters",
+//            //"esri/rest/support/IdentifyParameters",
+//            "esri/geometry/Point",
+//            "esri/symbols/SimpleMarkerSymbol",
+//            "esri/layers/GroupLayer",
+//            "esri/renderers/Renderer"
+//        ]).then(([
+//            Graphic,
+//            FeatureLayer,
+//            MapImageLayer,
+//            ImageryLayer,
+//
+//            GraphicsLayer,
+//            IdentifyTask,
+//            IdentifyParameters,
+//            Point,
+//            SimpleMarkerSymbol,
+//            GroupLayer,
+//            Renderer
+//        ]) => {
             // Create a polygon geometry
 
             var children2 = [];
@@ -499,7 +509,7 @@ class ArcticMapLayer extends React.Component {
             });
 
             //this.state.view.graphics.add(graphic);
-        }); //.catch ((err) => console.error(err));
+//        }); //.catch ((err) => console.error(err));
     }
 
     zoomto() {
@@ -654,7 +664,7 @@ class ArcticMapLayer extends React.Component {
 
     identifyArea(eventPS, eventPE, sublayers, callback) {
         var self = this;
-        loadModules(["esri/geometry/Multipoint"]).then(([Multipoint]) => {
+//        loadModules(["esri/geometry/Multipoint"]).then(([Multipoint]) => {
             var points = new Multipoint();
             points.addPoint(eventPS);
             points.addPoint(eventPE);
@@ -672,7 +682,7 @@ class ArcticMapLayer extends React.Component {
                 //console.log("identifyArea", response)
                 callback(response);
             });
-        });
+//        });
     }
 
 

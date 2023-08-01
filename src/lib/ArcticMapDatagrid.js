@@ -4,9 +4,11 @@ import ArcticMapPanel from './ArcticMapPanel';
 import styles from './ArcticMapDatagrid.css';
 
 
-import {
-    loadModules
-} from 'react-arcgis';
+//import { loadModules } from 'react-arcgis';
+import FeatureTable from '@arcgis/core/widgets/FeatureTable.js';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer.js';
+
+
 
 class ArcticMapDatagrid extends React.Component {
     static displayName = "ArcticMapDatagrid";
@@ -33,21 +35,21 @@ class ArcticMapDatagrid extends React.Component {
 
     componentDidMount() {
       console.log("componentDidMount  *****", this);
-      loadModules([
-        "dgrid/Grid",
-        "dgrid/Selection",
-        'dojo/_base/declare',
-        'esri/layers/FeatureLayer',
-        'dojo/on'
-      ]).then(([
-        Grid,
-        Selection,
-        declare,
-        FeatureLayer,
-        on
-
-      ]) => {
-        var myGrid = declare([Grid, Selection]);
+  //    loadModules([
+  //      "dgrid/Grid",
+  //      "dgrid/Selection",
+  //      'dojo/_base/declare',
+  //      'esri/layers/FeatureLayer',
+  //      'dojo/on'
+  //    ]).then(([
+  //      Grid,
+  //      Selection,
+  //      declare,
+  //      FeatureLayer,
+  //      on
+//
+//      ]) => {
+        //var myGrid = declare([Grid, Selection]);
         var self = this;
         var caseFeatureLayer = new FeatureLayer({
           url: self.props.src,
@@ -71,7 +73,7 @@ class ArcticMapDatagrid extends React.Component {
           var items = response.features.map(feature => {
             return feature.attributes;
           });
-          var grid = new myGrid({
+          var grid = new FeatureTable({
             columns: featureColumns, 
               selectionMode: 'single',
             }, "arcticmapdatagrid");
@@ -85,7 +87,7 @@ class ArcticMapDatagrid extends React.Component {
       
         
 
-      })
+//      })
     }
     
     
