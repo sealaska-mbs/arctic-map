@@ -27,7 +27,7 @@
     "deploy": "gh-pages -d example/build"
   },
   "dependencies": {
-    "@arcgis/core": "^4.27.6",
+    "@arcgis/core": "4.27.6",
     "@terraformer/arcgis": "^2.1.2",
     "@arcgis/webpack-plugin": "^4.22.0",
     "adm-zip": "^0.5.9",
