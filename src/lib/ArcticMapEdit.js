@@ -1,15 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { arcgisToGeoJSON } from '@esri/arcgis-to-geojson-utils';
+import { arcgisToGeoJSON } from '@terraformer/arcgis';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapLayer from './ArcticMapLayer';
-import { geojsonToArcGIS } from '@esri/arcgis-to-geojson-utils';
+import { geojsonToArcGIS } from '@terraformer/arcgis';
 import style from  './ArcticMapEdit.css';
-import {
-    loadModules
-} from 'react-arcgis';
-
+import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
+import request from "@arcgis/core/request.js";
+import Geometry from '@arcgis/core/geometry/Geometry.js';
+import Polygon from '@arcgis/core/geometry/Polygon.js';
+import Polyline from '@arcgis/core/geometry/Polyline.js';
+import Graphic from '@arcgis/core/Graphic.js';
+import PopupTemplate from '@arcgis/core/PopupTemplate.js';
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
+import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
+import Field from "@arcgis/core/layers/support/Field.js";
+import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer.js";
+import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
 
 class ArcticMapEdit extends React.Component {
     static displayName = 'ArcticMapEdit';
@@ -43,23 +51,7 @@ class ArcticMapEdit extends React.Component {
 
 
         var self = this;
-        loadModules(["esri/Graphic",
-            "esri/layers/GraphicsLayer",
-            "esri/widgets/Sketch/SketchViewModel",
-            "esri/geometry/Geometry",
-            "esri/geometry/Polygon",
-            "esri/geometry/Polyline",
-            "esri/geometry/geometryEngine"
-        ]).then(([
-            Graphic,
-            GraphicsLayer,
-            SketchViewModel,
-            Geometry,
-            Polygon,
-            Polyline,
-            geometryEngine
-        ]) => {
-            const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
+             const tempGraphicsLayer = new GraphicsLayer({ title: 'Edit Layer', listMode: "hide" });
             self.setState({ tempGraphicsLayer });
 
             self.state.map.add(tempGraphicsLayer);
@@ -316,12 +308,9 @@ class ArcticMapEdit extends React.Component {
             self.setEditFeature = self.setEditFeature.bind(self);
 
             self.setGeoJson = (geojson) => {
-                //var esrijson = geojsonToArcGIS(geojson);
-            }
+               //var esrijson = geojsonToArcGIS(geojson);
+             }
             self.setGeoJson = self.setGeoJson.bind(self);
-
-        }); //.catch ((err) => console.error(err));
-
     }
 
     firenewfeature() {
@@ -953,20 +942,17 @@ class ArcticMapEdit extends React.Component {
                     .map(k => escape(k) + '=' + escape(myContent[k]))
                     .join('&');
         
-                loadModules(['esri/request'])
-                    .then(([request]) => {
-                        request(portalUrl + "/sharing/rest/content/features/generate",
-                            {
-                                query: myContent,
-                                body: new FormData(form.form),
-                                //body: document.getElementById("uploadForm"),
-                                responseType: "json"
-                            })
-                            .then(function (response) {
-                                var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
-                                if(self.addShapefileToMap(response.data.featureCollection, layerName)) 
-                                    self.uploadPanel.current.toggle();
-                            })
+                request(portalUrl + "/sharing/rest/content/features/generate",
+                    {
+                        query: myContent,
+                        body: new FormData(form.form),
+                        //body: document.getElementById("uploadForm"),
+                        responseType: "json"
+                    })
+                    .then(function (response) {
+                        var layerName = response.data.featureCollection.layers[0].layerDefinition.name;
+                        if(self.addShapefileToMap(response.data.featureCollection, layerName)) 
+                            self.uploadPanel.current.toggle();
                     })
             });
         });
@@ -993,64 +979,62 @@ class ArcticMapEdit extends React.Component {
                 }
             }
         }
-        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate'])
-            .then(([Graphic, FeatureLayer, Field, PopupTemplate]) => {
-                var sourceGraphics = [];
-                var layers = featureCollection.layers.map(function (layer) {
 
-                    var graphics = layer.featureSet.features.map(function (feature) {
-                        var gfx = Graphic.fromJSON(feature);
-                        gfx.symbol = {
-                            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-                            color: "rgba(224, 206, 69, 0.8)",
-                            style: "solid",
-                            outline: {
-                                color: "yellow",
-                                width: 3
-                            }
-                        };
-                        return gfx;
-                    });
-                    sourceGraphics = sourceGraphics.concat(graphics);
-                    var featureLayer = new FeatureLayer({
-                        title: "SHP File: " + layerName,
-                        //objectIDField: "FID",
-                        source: graphics,
-                        fields: layer.layerDefinition.fields.map(function (field) {
-                            return Field.fromJSON(field);
-                        })
-                    });
-                    return featureLayer;
+        var sourceGraphics = [];
+        var layers = featureCollection.layers.map(function (layer) {
 
-                });
-
-
-                layers[0].title = layerName;
-
-
-                self.state.map.addMany(layers);
-
-                self.state.view.goTo(sourceGraphics);
-
-                var props = {
-                    title: "Shape File: " + layerName,
-                    transparency: ".32",
-                    identmaxzoom: "13",
-                    blockidentselect: true,
-                    type: "geojson",
-                    src: "",
-                    map: self.state.map,
-                    view: self.state.view
+            var graphics = layer.featureSet.features.map(function (feature) {
+                var gfx = Graphic.fromJSON(feature);
+                gfx.symbol = {
+                    type: "simple-fill", // autocasts as new SimpleFillSymbol()
+                    color: "rgba(224, 206, 69, 0.8)",
+                    style: "solid",
+                    outline: {
+                        color: "yellow",
+                        width: 3
+                    }
                 };
-
-                var aml = new ArcticMapLayer(props);
-                aml.layerRef = layers[0];
-                aml.context = window._map.layers[0].context;
-                aml.layerRef.title = props.title;
-
-                self.state.map.amlayers.push(aml);
-
+                return gfx;
             });
+            sourceGraphics = sourceGraphics.concat(graphics);
+            var featureLayer = new FeatureLayer({
+                title: "SHP File: " + layerName,
+                //objectIDField: "FID",
+                source: graphics,
+                fields: layer.layerDefinition.fields.map(function (field) {
+                    return Field.fromJSON(field);
+                })
+            });
+            return featureLayer;
+
+        });
+
+
+        layers[0].title = layerName;
+
+
+        self.state.map.addMany(layers);
+
+        self.state.view.goTo(sourceGraphics);
+
+        var props = {
+            title: "Shape File: " + layerName,
+            transparency: ".32",
+            identmaxzoom: "13",
+            blockidentselect: true,
+            type: "geojson",
+            src: "",
+            map: self.state.map,
+            view: self.state.view
+        };
+
+        var aml = new ArcticMapLayer(props);
+        aml.layerRef = layers[0];
+        aml.context = window._map.layers[0].context;
+        aml.layerRef.title = props.title;
+
+        self.state.map.amlayers.push(aml);
+
         return true;
     }
 
@@ -1077,67 +1061,64 @@ class ArcticMapEdit extends React.Component {
             }
         }
 
-        loadModules(['esri/Graphic', 'esri/layers/FeatureLayer', 'esri/layers/support/Field', 'esri/PopupTemplate', "esri/renderers/SimpleRenderer"])
-            .then(([Graphic, FeatureLayer, Field, PopupTemplate, SimpleRenderer]) => {
-                var sourceGraphics = [];
-                var symbol = {
-                    type: "simple-fill", // autocasts as new SimpleFillSymbol()
-                    color: "rgba(224, 206, 69, 0.8)",
-                    style: "solid",
-                    outline: {
-                        color: "red",
-                        width: 2
-                    }
-                };
+        var sourceGraphics = [];
+        var symbol = {
+            type: "simple-fill", // autocasts as new SimpleFillSymbol()
+            color: "rgba(224, 206, 69, 0.8)",
+            style: "solid",
+            outline: {
+                color: "red",
+                width: 2
+            }
+        };
 
-                var i = 0;
-                var graphics = featureCollection.map(feature => {
+        var i = 0;
+        var graphics = featureCollection.map(feature => {
 
-                    feature.attributes["OBJECTID"] = i++;
-                    var gfx = Graphic.fromJSON(feature);
+            feature.attributes["OBJECTID"] = i++;
+            var gfx = Graphic.fromJSON(feature);
 
-                    gfx.symbol = symbol;
-                    return gfx;
+            gfx.symbol = symbol;
+            return gfx;
 
-                });
+        });
 
 
-                var featureLayer = new FeatureLayer({
-                    title: filetype +" File: " + layerName,
-                    objectIdField: "OBJECTID",
-                    //renderer : SimpleRenderer.fromJSON(symbol) ,
-                    source: graphics,
-                    // fields: layer.layerDefinition.fields.map(function (field) {
-                    //     return Field.fromJSON(field);
-                    // })
+        var featureLayer = new FeatureLayer({
+            title: filetype +" File: " + layerName,
+            objectIdField: "OBJECTID",
+            //renderer : SimpleRenderer.fromJSON(symbol) ,
+            source: graphics,
+            // fields: layer.layerDefinition.fields.map(function (field) {
+            //     return Field.fromJSON(field);
+            // })
 
-                });
+        });
 
 
-                self.state.map.add(featureLayer);
-                self.state.view.goTo(graphics);
+        self.state.map.add(featureLayer);
+        self.state.view.goTo(graphics);
 
 
 
 
-                var props = {
-                    title: filetype +" File: " + layerName,
-                    transparency: ".32",
-                    identmaxzoom: "13",
-                    blockidentselect: true,
-                    type: "geojson",
-                    src: "",
-                    map: self.state.map,
-                    view: self.state.view
-                };
+        var props = {
+            title: filetype +" File: " + layerName,
+            transparency: ".32",
+            identmaxzoom: "13",
+            blockidentselect: true,
+            type: "geojson",
+            src: "",
+            map: self.state.map,
+            view: self.state.view
+        };
 
-                var aml = new ArcticMapLayer(props);
-                aml.layerRef = featureLayer;
-                aml.context = window._map.layers[0].context;
-                aml.layerRef.title = props.title;
+        var aml = new ArcticMapLayer(props);
+        aml.layerRef = featureLayer;
+        aml.context = window._map.layers[0].context;
+        aml.layerRef.title = props.title;
 
-                self.state.map.amlayers.push(aml);
-            });
+        self.state.map.amlayers.push(aml);
         return true;
     }
 
