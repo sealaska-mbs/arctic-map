@@ -23,7 +23,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://registry.npmjs.org'
-        NODE_OPTIONS: "--max_old_space_size=4096"
     - run: npm -v
     - run: npm ci
     - run: npm install
@@ -32,3 +31,4 @@ jobs:
       env:
         CI: true
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        NODE_OPTIONS: "--max_old_space_size=40960"
