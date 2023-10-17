@@ -4,5 +4,6 @@
     ["@babel/preset-env",  {
       "modules": false
     }]
-  ]
+  ],
+  "targets": { "es5": true }
 }

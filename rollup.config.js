@@ -43,11 +43,7 @@ export default {
     }),
     url(),
     svgr(),
-    babel({
-      exclude: 'node_modules/**',
-      babelHelpers: 'bundled'
-    }),
-    resolve(),
+        resolve(),
     commonjs()
   ]
 
