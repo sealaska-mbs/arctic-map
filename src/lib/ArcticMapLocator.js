@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from 'react-dom'
-
 import request from "@arcgis/core/request.js";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
 import * as Locator from "@arcgis/core/rest/locator.js";
@@ -14,17 +13,18 @@ class ArcticMapLocator extends React.Component {
 
     }
 
-    componentWillMount() {
+    
 
-    }
+//    componentWillMount() {
+//
+//    }
 
     componentDidMount() {
         var self = this;
         var searchsources = []
         
-        
         var devaultSource = {
-          locator: new Locator({ url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer" }),
+          url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer",
           singleLineFieldName: "SingleLine",
           name: "Standard Geocoder",
           placeholder: "Find address",

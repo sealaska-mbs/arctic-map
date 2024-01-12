@@ -6,25 +6,17 @@ class ArcticMapControlArea extends React.Component {
     constructor(props) {
         super(props)
         
-        this.controlNode = document.createElement("div");
-        this.props.view.ui.add(this.controlNode, this.props.location);
-        
     }
 
     componentDidUpdate() {
         
-        if (this.controlNode) {
-            ReactDOM.render(this.widgetRender(), this.controlNode, ()=>{
-             
-            });
-        }
     }
 
     append(ele){
         this.props.children.push(ele);
     }
 
-    widgetRender() {
+    render() {
 
         var self = this;
         var index = 0
@@ -49,15 +41,10 @@ class ArcticMapControlArea extends React.Component {
                 //ref: 'child-' + (index++)
                 //ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
               })
-            
           });
 
-          
 
         return (<span className='arcticmap-area'>{children}</span>)
-    }
-    render() {
-        return (<span></span>);
     }
 
 }

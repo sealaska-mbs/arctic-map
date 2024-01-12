@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ReactDOM from 'react-dom'
+import ReactDOM from 'react-dom';
 import { geojsonToArcGIS } from '@terraformer/arcgis';
 
 import Multipoint from '@arcgis/core/geometry/Multipoint.js';
@@ -18,7 +18,7 @@ class ArcticMapLayer extends React.Component {
     static displayName = "ArcticMapLayer";
     constructor(props) {
         super(props);
-//        console.log(props)
+        //console.log("AML Props: ",props);
 
         this.state = {
             map: props.map,
@@ -28,6 +28,7 @@ class ArcticMapLayer extends React.Component {
             blockSelect: props.blockIdentSelect !== undefined,
             disablePopup: props.disablePopup !== undefined
         };
+        //console.log("AML State: ",this.state);
     }
 
     componentWillUnmount() {
@@ -36,8 +37,9 @@ class ArcticMapLayer extends React.Component {
 
     componentDidMount() {
         var self = this;
-        // Create a polygon geometry
+        //console.log("AML State2: ",self.state);
 
+        // Create a polygon geometry
         var children2 = [];
         var children = React.Children.map(this.props.children, function (child) {
                 if (child.type.displayName === 'ArcticMapLayerPopup') {
@@ -299,6 +301,7 @@ class ArcticMapLayer extends React.Component {
         }
 
         if (self.props.type === "dynamic") {
+            console.log("Dynamic: ",self.props);
 
             var trans = 1;
             if (self.props.transparency) {
@@ -386,8 +389,8 @@ class ArcticMapLayer extends React.Component {
             self.layerRef.visible = false;
 
         }
-
-        self.state.map.add(self.layerRef);
+        console.log("AML State: ",self.state);
+        self.state.map.layers.add(self.layerRef);
         self.layerRef.when(function () {
             setTimeout(() => {
                 var evt = new Event('ready', { bubbles: true });
@@ -398,8 +401,7 @@ class ArcticMapLayer extends React.Component {
                 }
             }, 500)
         });
-    }
-
+    } //ComponentDidMount
     zoomto() {
         if (this.layerRef.graphics) {
             this.state.view.goTo(this.layerRef.graphics.items);

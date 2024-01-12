@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import async from 'async';
 import './ArcticMap.css';
 
 import Map from "@arcgis/core/Map.js";
+import MapView from "@arcgis/core/views/MapView.js"
 import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
 import IdentifyParameters from "@arcgis/core/rest/support/IdentifyParameters.js";
 import request from "@arcgis/core/request.js";
@@ -40,6 +41,10 @@ class ArcticMap extends React.Component {
   static displayName = 'ArcticMap';
   constructor(props) {
     super(props)
+
+    this.mapRef = React.createRef();
+
+
     this.state = {
       map: null,
       view: null,
@@ -52,63 +57,44 @@ class ArcticMap extends React.Component {
       sr: Number.parseInt(props.sr || "102100"),
     }
 
-    this.handleMapLoad = this.handleMapLoad.bind(this)
-    this.handleMapClick = this.handleMapClick.bind(this)
-    this.layers = []
+    this.handleMapLoad = this.handleMapLoad.bind(this);
+    this.handleMapClick = this.handleMapClick.bind(this);
+    this.layers = [];
+    
+ 
+  }
+
+  componentDidMount(){
+      // create map
+ /*      const map = new Map({
+        basemap: 'topo-vector' 
+      });
+  
+      // load the map view at the ref's DOM node
+      const view = new MapView({
+        container: this.mapRef.current,
+        map: map,
+        center: [-118, 34],
+        zoom: 8
+      });
+ */
+      //this.state.map = map;
+      //this.state.view = view;
+      this.state.hideBasemapButton = false;
+      this.state.loading = false;
+      this.state.lat = props.lat;
+      this.state.lng = props.lng;
+      this.state.mode = props.mode || "view";
+      this.state.basemap = props.basemap || "hybrid";
+      this.state.sr = Number.parseInt(props.sr || "102100");
+  
+      this.handleMapLoad = this.handleMapLoad.bind(this)
+      this.handleMapClick = this.handleMapClick.bind(this)
+      this.layers = []
+      console.log("AM State: ", this.state);
   }
 
 
-
-
-  render() {
-    var self = this
-    var index = 0
-    this.layers = []
-    self.childrenElements = [];
-
-    var children = React.Children.map(this.props.children, function (child) {
-      if(child){
-        if (child.type.displayName === 'ArcticMapLayer') {
-          return React.cloneElement(child, {
-            ref: (c) => { if (c) { self.layers.push(c) } }
-          })
-        } else if (child.type.displayName === 'ArcticMapEdit') {
-          // console.log(self.refs);
-          return React.cloneElement(child, {
-            am: self,
-            // ref: 'editor'
-
-          })
-
-        }
-        else {
-          return React.cloneElement(child, {
-            am: self,
-
-            map: self.state.map,
-            view: self.state.view,
-            //ref: 'child-' + (index++)
-            ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
-          })
-        }
-    }
-    })
-
-    if (children) {
-      children = children.sort(l => l.type.displayName === 'ArcticMapEdit').reverse()
-
-    } else {
-      children = (<div />)
-    }
-
-    return (
-      <Map class='full-screen-map'
-        mapProperties={{ basemap: this.state.basemap }} onLoad={this.handleMapLoad} onClick={this.handleMapClick} >
-        {children}
-        <ArcticMapLoader loading={this.state.loading} />
-      </Map>
-    );
-  }
 
   handleShowBasemaps(event) {
     this.state.view.ui.add(this.basemapGallery, {
@@ -148,6 +134,7 @@ class ArcticMap extends React.Component {
   }
 
   setMode(val) {
+    console.log("Val:",val);
     this.setState({ mode: val });
     if (val === "identify") {
       this.state.view.cursor = "help";
@@ -206,7 +193,7 @@ class ArcticMap extends React.Component {
 
 
   handleMapLoad(map, view) {
-
+    console.log("Map is loading");
 
     this.setState({ map, view })
 
@@ -906,6 +893,68 @@ class ArcticMap extends React.Component {
 
 
     //document.getElementsByClassName('esri-view-root')[0].style.cursor = 'auto';
+  }
+  render() {
+    var self = this
+    var index = 0
+    this.layers = []
+    self.childrenElements = [];
+    const map = new Map({
+      basemap: 'topo-vector' 
+    });
+
+    // load the map view at the ref's DOM node
+    const view = new MapView({
+      container: this.mapRef.current,
+      map: map,
+      center: [-118, 34],
+      zoom: 8
+    });
+
+    var children = React.Children.map(this.props.children, function (child) {
+      if(child){
+        if (child.type.displayName === 'ArcticMapLayer') {
+          return React.cloneElement(child, {
+            am: self,
+            map: self.state.map,
+            view: self.state.view,
+            ref: (c) => { if (c) { self.layers.push(c) } }
+          })
+        } else if (child.type.displayName === 'ArcticMapEdit') {
+          // console.log(self.refs);
+          return React.cloneElement(child, {
+            am: self,
+            // ref: 'editor'
+
+          })
+
+        }
+        else {
+          return React.cloneElement(child, {
+            am: self,
+
+            map: self.state.map,
+            view: self.state.view,
+            //ref: 'child-' + (index++)
+            ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
+          })
+        }
+    }
+    })
+
+    if (children) {
+      children = children.sort(l => l.type.displayName === 'ArcticMapEdit').reverse()
+
+    } else {
+      children = (<div />)
+    }
+
+    return (
+      <map id="viewContainer" style={{ width: '100vw', height: '100vh' }} className='full-screen-map' ref={this.mapRef} onLoad={this.handleMapLoad} onClick={this.handleMapClick}>
+        {/* {children} */}
+        <ArcticMapLoader loading={this.state.loading} />
+      </map>
+    );
   }
 }
 

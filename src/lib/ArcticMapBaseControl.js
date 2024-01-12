@@ -1,11 +1,11 @@
 import React from "react";
-import ReactDOM from 'react-dom'
+import ReactDOM from 'react-dom';
 import { geojsonToArcGIS } from '@terraformer/arcgis';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
 import ArcticMapControlArea from './ArcticMapControlArea';
 import request from "@arcgis/core/request.js";
-import Zoom from "@arcgis/core/widgets/Zoom.js";
+//import Zoom from "@arcgis/core/widgets/Zoom.js";
 import Legend from "@arcgis/core/widgets/Legend.js";
 import LayerList from "@arcgis/core/widgets/LayerList.js";
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery.js";
@@ -19,15 +19,17 @@ class ArcticMapBaseControl extends React.Component {
 
        
         this.state = {
-            zoomControl: null,
+            //zoomControl: null,
             renderElements: [],
             canReset: this.props.reset !== undefined,
 
         }
         var self = this;
-        this.zoomControlDiv = document.createElement("div");
+        //this.zoomControlDiv = document.createElement("div");
         this.layersDiv = document.createElement("div");
         this.legendDiv = document.createElement("div");
+        
+        //console.log("ABC_Props",self.props);
 
         self.props.view.on('click', (event) => {
 
@@ -43,13 +45,13 @@ class ArcticMapBaseControl extends React.Component {
 
         });
 
-        var zoom = new Zoom({
+/*         var zoom = new Zoom({
             view: props.view,
             container: self.zoomControlDiv,
             position: "top-left"
         })
         self.state.zoomControl = zoom;
-        
+ */        
         //this.props.hostDiv.appendChild(zoom);
         //props.view.ui.add(zoom, props.hostDiv);
         //self.state.children.push(self.zoomControlDiv);
@@ -66,11 +68,8 @@ class ArcticMapBaseControl extends React.Component {
             container: self.layersDiv,
             listItemCreatedFunction: function (event) {
                 // only legend if imageFormat exist in TOC
-                var actions = [{
-                    title: "Labels on/off",
-                    className: "esri-icon-checkbox-checked",
-                    id: "toggle-labels"
-                },
+                // labelsVisible:true
+                var actions = [
                 {
                     title: "Increase opacity",
                     className: "esri-icon-up",
@@ -165,6 +164,20 @@ class ArcticMapBaseControl extends React.Component {
                     }                    
                 else {
                     //console.log("NotImageItem",item);
+                    if (item.layer.labelsVisible === true) {
+                        actions.unshift({
+                            title: "Labels on/off",
+                            className: "esri-icon-checkbox-checked",
+                            id: "toggle-labels"
+                        })
+                    }
+                    else if (item.layer.labelsVisible === false) {
+                        actions.unshift({
+                            title: "Labels on/off",
+                            className: "esri-icon-checkbox-unchecked",
+                            id: "toggle-labels"
+                        })
+                    }
                     if (self.canShowAttributeTable(item.layer.url)) {
                         actions.unshift({
                             title: "Open Attribute Table",
@@ -195,7 +208,6 @@ class ArcticMapBaseControl extends React.Component {
                     event.action.className = "esri-icon-checkbox-unchecked";
                     event.item.layer.labelsVisible=false;
                 }
-                //console.log(event);
             }
             if (event.action.id === "increase-opacity") {
                 event.item.layer.opacity += 0.1;
@@ -206,6 +218,7 @@ class ArcticMapBaseControl extends React.Component {
                 event.item.layer.opacity <= 0 ? event.item.layer.opacity = 0:  event.item.layer.opacity;
             }
             if (event.action.id === "open-attribute-table") {
+                console.log("OpenAttributeTable");
                 self.props.openAttributesTable({
                     view: self.props.view,
                     url: event.item.layer.url,
@@ -222,7 +235,8 @@ class ArcticMapBaseControl extends React.Component {
         });
         //self.state.view.ui.add(layerList, 'top-left')
         //var joined = self.state.renderElements.concat(self.zoomControlDiv);
-        this.setState({ renderElements: self.state.renderElements.concat(self.zoomControlDiv) })
+        //this.state.renderElements = self.state.renderElements.concat(self.zoomControlDiv);
+        //this.setState({ renderElements: self.state.renderElements.concat(self.zoomControlDiv) })
     }
 
     canShowAttributeTable = (layerUrl) => {
@@ -262,11 +276,11 @@ class ArcticMapBaseControl extends React.Component {
 
     }
 
-    renderZoomcontrol() {
+/*     renderZoomcontrol() {
         
         return this.zoomControlDiv;
     }
-
+ */
     basemapclick() {
         this.props.view.ui.add(this.basemapGallery, {
             position: 'bottom-right'
@@ -364,11 +378,6 @@ class ArcticMapBaseControl extends React.Component {
         return (
             <div >
 
-                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="top-left">
-                    <div ref={(e) => { e && e.appendChild(this.zoomControlDiv) }} />
-                </ArcticMapControlArea>
-
-                <ArcticMapControlArea am={this.props.am} view={this.props.view} location="bottom-right" className={styles.ArcticMap} >
                     <ArcticMapPanel  esriicon='layer-list' title='Legend' ontoggle={this.removeLegendDuplicateLabels.bind(this)}>
                         <div ref={(e) => { e && e.appendChild(this.legendDiv) }} />
                     </ArcticMapPanel>
@@ -382,10 +391,6 @@ class ArcticMapBaseControl extends React.Component {
                         <div ref={(e) => { e && e.appendChild(this.layersDiv) }} />
                     </ArcticMapPanel>
                     <ArcticMapButton esriicon='basemap' title='Basemaps' onclick={this.basemapclick.bind(this)} />
-                </ArcticMapControlArea>
-
-
-
 
             </div>
 
