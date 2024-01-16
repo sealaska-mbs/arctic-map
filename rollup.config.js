@@ -6,8 +6,6 @@ import resolve from '@rollup/plugin-node-resolve'
 import url from '@rollup/plugin-url'
 import svgr from '@svgr/rollup'
 
-
-
 import pkg from './package.json'
 
 export default {
@@ -43,7 +41,8 @@ export default {
     }),
     url(),
     svgr(),
-        resolve(),
+    babel({ babelHelpers: 'bundled' }),
+    resolve(),
     commonjs()
   ]
 
