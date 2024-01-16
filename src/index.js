@@ -1,4 +1,8 @@
 
+export {
+  default as ArcticMapV4
+} from './lib/ArcticMapV4'
+
 
 export {
   default as ArcticMap
