@@ -174,7 +174,8 @@ class ArcticMapV4 extends React.Component {
     
     
                          
-														 
+        view.popup.dockEnabled = true;
+        view.popup.dockOptions = {position: 'bottom-left'};
 	
         view.popup.watch("visible", function (visible) {
           
