@@ -148,7 +148,7 @@ class ArcticMapV4 extends React.Component {
           ReactDOM.render(<div>{layerchildren}</div>, x);
  
 
-        console.info(children);      
+        //console.info(children);      
   		
         view.when(() => {
             
@@ -706,13 +706,13 @@ class ArcticMapV4 extends React.Component {
           this.state.map.editor.state.tempGraphicsLayer.graphics.items[0];
         }
     
-        /*   setTimeout(() => {
+        setTimeout(() => {
           var evt = new Event('mapready', { bubbles: true });
           Object.defineProperty(evt, 'target', { value: self, enumerable: true });
           if (self.props.onmapready) {
             self.props.onmapready(evt);
           }
-          }, 500) */
+        }, 500);
          
       }
       setMode(val) {
