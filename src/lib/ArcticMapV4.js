@@ -279,6 +279,8 @@ class ArcticMapV4 extends React.Component {
               //console.log("check self", self);
               idParams.geometry=tempPolygon;
               idParams.tolerance = 3;
+              idParams.
+              returnFieldName = false;
               //vw.goTo([pt,self.dragStart]);
               self.layers.filter( function(layer){
                 //console.log("layers", layer);
