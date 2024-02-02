@@ -303,7 +303,7 @@ class ArcticMapLayer extends React.Component {
         }
 
         if (self.props.type === "dynamic") {
-            console.log("Dynamic: ",self.props);
+            //console.log("Dynamic: ",self.props);
 
             var trans = 1;
             if (self.props.transparency) {
@@ -392,7 +392,7 @@ class ArcticMapLayer extends React.Component {
             self.layerRef.visible = false;
 
         }
-        console.log("AML State: ",self.state);
+        //console.log("AML State: ",self.state);
         self.state.map.layers.add(self.layerRef);
         self.layerRef.when(function () {
             setTimeout(() => {
@@ -429,7 +429,7 @@ class ArcticMapLayer extends React.Component {
     }
 
     renderPopup(feature, result) {
-        console.log("renderPopup",result);
+        //console.log("renderPopup",result);
 
         if (result.layerId !== undefined && this.layerRenderers) {
             var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());
