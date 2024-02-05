@@ -219,6 +219,7 @@ class ArcticMapLayer extends React.Component {
                         child.params.height = self.state.view.height;
                         child.params.returnGeometry = true;
                         child.params.returnFieldName = false;
+                        child.params.returnUnformattedValues = false;
                         child.params.returnGeometry = !self.state.blockSelect;
                     });
     
@@ -287,6 +288,7 @@ class ArcticMapLayer extends React.Component {
                         self.params.tolerance = 3;
                         self.params.layerIds = layerids;
                         self.params.returnFieldName = false;
+                        self.params.returnUnformattedValues = false;
                         self.params.layerOption = "visible";
                         self.params.width = self.state.view.width;
                         self.params.height = self.state.view.height;
@@ -367,6 +369,7 @@ class ArcticMapLayer extends React.Component {
                 self.params.height = self.state.view.height;
                 self.params.returnGeometry = true;
                 self.params.returnFieldName = false;
+                self.params.returnUnformattedValues = false;
                 self.params.returnGeometry = !self.state.blockSelect;
             });
 
