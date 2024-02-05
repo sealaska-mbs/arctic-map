@@ -219,6 +219,7 @@ class ArcticMapLayer extends React.Component {
                         child.params.height = self.state.view.height;
                         child.params.returnGeometry = true;
                         child.params.returnFieldName = false;
+                        child.params.returnUnformattedValues = false;
                         child.params.returnGeometry = !self.state.blockSelect;
                     });
     
@@ -287,6 +288,7 @@ class ArcticMapLayer extends React.Component {
                         self.params.tolerance = 3;
                         self.params.layerIds = layerids;
                         self.params.returnFieldName = false;
+                        self.params.returnUnformattedValues = false;
                         self.params.layerOption = "visible";
                         self.params.width = self.state.view.width;
                         self.params.height = self.state.view.height;
@@ -303,7 +305,7 @@ class ArcticMapLayer extends React.Component {
         }
 
         if (self.props.type === "dynamic") {
-            console.log("Dynamic: ",self.props);
+            //console.log("Dynamic: ",self.props);
 
             var trans = 1;
             if (self.props.transparency) {
@@ -367,6 +369,7 @@ class ArcticMapLayer extends React.Component {
                 self.params.height = self.state.view.height;
                 self.params.returnGeometry = true;
                 self.params.returnFieldName = false;
+                self.params.returnUnformattedValues = false;
                 self.params.returnGeometry = !self.state.blockSelect;
             });
 
@@ -392,7 +395,7 @@ class ArcticMapLayer extends React.Component {
             self.layerRef.visible = false;
 
         }
-        console.log("AML State: ",self.state);
+        //console.log("AML State: ",self.state);
         self.state.map.layers.add(self.layerRef);
         self.layerRef.when(function () {
             setTimeout(() => {
@@ -429,7 +432,7 @@ class ArcticMapLayer extends React.Component {
     }
 
     renderPopup(feature, result) {
-        console.log("renderPopup",result);
+        //console.log("renderPopup",result);
 
         if (result.layerId !== undefined && this.layerRenderers) {
             var popuprender = this.layerRenderers.find(l => l.props.layerid === result.layerId.toString());

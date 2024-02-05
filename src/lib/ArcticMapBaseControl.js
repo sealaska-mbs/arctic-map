@@ -218,7 +218,7 @@ class ArcticMapBaseControl extends React.Component {
                 event.item.layer.opacity <= 0 ? event.item.layer.opacity = 0:  event.item.layer.opacity;
             }
             if (event.action.id === "open-attribute-table") {
-                console.log("OpenAttributeTable");
+                //console.log("OpenAttributeTable");
                 self.props.openAttributesTable({
                     view: self.props.view,
                     url: event.item.layer.url,

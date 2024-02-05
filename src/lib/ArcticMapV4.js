@@ -56,7 +56,7 @@ class ArcticMapV4 extends React.Component {
             lat: props.lat,
             lng: props.lng,
             mode: props.mode || "view",
-            basemap: props.basemap || "hybrid",
+            basemap: props.basemap || "gray-vector",
             sr: Number.parseInt(props.sr || "102100")
         };
 
@@ -73,7 +73,7 @@ class ArcticMapV4 extends React.Component {
 
         // create map
         var map = new Map({
-            basemap: 'topo-vector'
+          basemap: this.props.basemap
         });
 
         // load the map view at the ref's DOM node
