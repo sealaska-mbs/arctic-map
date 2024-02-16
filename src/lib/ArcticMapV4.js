@@ -110,6 +110,23 @@ class ArcticMapV4 extends React.Component {
 
               } else if (child.type.displayName === 'ArcticMapControlArea') {
 																	
+                child.props.children.forEach(function (eachChild) {
+                  //console.log(eachChild.type.displayName);
+                  if (eachChild.type.displayName === 'ArcticMapLLDSearch') {
+                    let ele =  React.cloneElement(eachChild, {
+                      am: self,
+                      map: self.state.map,
+                      view: self.state.view,
+                      //ref: 'child-' + (index++)
+                      ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
+          
+                    });
+                    let x = document.createElement('div');
+                    view.ui.add(x, ele.props.location);
+                    ReactDOM.render(<div>{ele}</div>, x);
+                  }
+                });
+
                 // console.log(self.refs);
                 var ele =  React.cloneElement(child, {
                   am: self,
