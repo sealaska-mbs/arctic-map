@@ -15,6 +15,7 @@ import Locate from "@arcgis/core/widgets/Locate.js";
 import Home from "@arcgis/core/widgets/Home.js";
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery.js";
 import Popup from "@arcgis/core/widgets/Popup.js";
+import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
 												  
 
 import ArcticMapButton from './ArcticMapButton';
@@ -84,7 +85,8 @@ class ArcticMapV4 extends React.Component {
               dockEnabled: true,
               dockOptions: {
                 position: 'bottom-left'
-              }
+              },
+              defaultPopupTemplateEnabled: true
             }),
             center: [-118, 34],
             zoom: 8
@@ -94,6 +96,19 @@ class ArcticMapV4 extends React.Component {
 
         self.state.map = map;
         self.state.view = view;
+        
+        reactiveUtils.watch(
+          () => self.state.view.map.allLayers.map( layer => layer.title),
+          (ids) => {
+            //console.log(`Layer Titles ${ids}`);
+          });        
+
+        map.allLayers.on("change", function(event) {
+          //console.log("event",event);
+          //console.log("Layer added: ", event.added);
+          //console.log("Layer removed: ", event.removed);
+          //console.log("Layer moved: ", event.moved);
+        });
 
         var layerchildren = [];
         var children = React.Children.map(this.props.children, function (child) {
@@ -165,13 +180,27 @@ class ArcticMapV4 extends React.Component {
           ReactDOM.render(<div>{layerchildren}</div>, x);
  
 
-        //console.info(children);      
+        //console.info(children);
+        
+        view.on("layerview-create-error", function(event) {
+          console.log("LayerView failed to create for layer with the id: ", event.layer.loadError);
+        });
   		
         view.when(() => {
             
             this.handleMapLoad(map, view);
         });
     }
+
+    componentDidUpdate(prevProps, prevState) {
+      if (prevProps !== this.props) {
+       //console.log('updated Props',this.props); // You can check this.props will change if they are updated
+          //this.setState({
+          //  amlayers: this.state.map.amlayers,
+          //  layers: this.props.layers
+          //})
+      }
+  }
 
     //TODO L137-230
     handleMapLoad(map, view) {
@@ -186,13 +215,10 @@ class ArcticMapV4 extends React.Component {
         window._request = request;
         window._map = self;
         self.request = request;
-    
-    
-    
-    
                          
         view.popup.dockEnabled = true;
         view.popup.dockOptions = {position: 'bottom-left'};
+        view.popup.defaultPopupTemplateEnabled = true;
 	
         view.popup.watch("visible", function (visible) {
           
@@ -526,28 +552,30 @@ class ArcticMapV4 extends React.Component {
               }
               
               layer.identify(event, function (resultslist) {
-                resultslist.forEach(results => {
-    
-                  if (results) {
-                    if(visibleLayers.length > 0){
-                      var rem = [];
-                      results.results.forEach(res =>{
-                        if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
-                        {
-                          rem.push(res.layerId);
-                        }
-                      });
-                      rem.forEach(remid =>{
-                        results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
-                      });                      
+                if(resultslist) {
+                  resultslist.forEach(results => {
+      
+                    if (results) {
+                      if(visibleLayers.length > 0){
+                        var rem = [];
+                        results.results.forEach(res =>{
+                          if(visibleLayers.length > 0 && !visibleLayers.includes(`${results.layer.layerRef.url}/${res.layerId}`))
+                          {
+                            rem.push(res.layerId);
+                          }
+                        });
+                        rem.forEach(remid =>{
+                          results.results.splice(results.results.findIndex(r => r.layerId === remid), 1);
+                        });                      
+                      }
+      
+                      if(results.results.length > 0)
+                      {
+                        identresults.push(results);
+                      }
                     }
-    
-                    if(results.results.length > 0)
-                    {
-                      identresults.push(results);
-                    }
-                  }
-                });
+                  });
+              }
                 cb();
               });
             } 
