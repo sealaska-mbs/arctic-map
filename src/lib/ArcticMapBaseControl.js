@@ -9,6 +9,7 @@ import request from "@arcgis/core/request.js";
 import Legend from "@arcgis/core/widgets/Legend.js";
 import LayerList from "@arcgis/core/widgets/LayerList.js";
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery.js";
+import * as reactiveUtils from "@arcgis/core/core/reactiveUtils.js";
 import styles from './ArcticMap.css';
 
 
@@ -45,13 +46,13 @@ class ArcticMapBaseControl extends React.Component {
 
         });
 
-/*         var zoom = new Zoom({
+     /*         var zoom = new Zoom({
             view: props.view,
             container: self.zoomControlDiv,
             position: "top-left"
         })
         self.state.zoomControl = zoom;
- */        
+     */        
         //this.props.hostDiv.appendChild(zoom);
         //props.view.ui.add(zoom, props.hostDiv);
         //self.state.children.push(self.zoomControlDiv);
@@ -65,8 +66,11 @@ class ArcticMapBaseControl extends React.Component {
 
         var layerList = new LayerList({
             view: props.view,
+            visibleElements: {
+                errors: true
+            },
             container: self.layersDiv,
-            listItemCreatedFunction: function (event) {
+            listItemCreatedFunction: (event) => {
                 // only legend if imageFormat exist in TOC
                 // labelsVisible:true
                 var actions = [
@@ -82,86 +86,90 @@ class ArcticMapBaseControl extends React.Component {
                 }];
                 
                 const item = event.item;
+                
                 //console.log("item", item);
-                    if (item.layer.imageFormat && item.parent) {
-                            // make a request to the server to retrieve the layer image url
-                            request(item.layer.url + "/legend", {
-                                query: {
-                                    f: 'json'
-                                },
-                                responseType: "json"
-                            }).then(function (response) {
-                                //console.log("response",response);
-                                var aDiv = document.createElement("Div");
+                
+                //await item.layer.when();
 
-                                // build unique url for the legend symbol
-                                for (let i = 0; i < response.data.layers.length; i++) {
-                                    var layerNum = i;
+                if (item.layer.imageFormat && item.parent) {
+                        // make a request to the server to retrieve the layer image url
+                        request(item.layer.url + "/legend", {
+                            query: {
+                                f: 'json'
+                            },
+                            responseType: "json"
+                        }).then(function (response) {
+                            //console.log("response",response);
+                            var aDiv = document.createElement("Div");
 
-                                    //console.log("iLayer", layerNum, response.data.layers[layerNum]); 
-                                    if (response.data.layers[layerNum].legend.length === 1){
+                            // build unique url for the legend symbol
+                            for (let i = 0; i < response.data.layers.length; i++) {
+                                var layerNum = i;
+
+                                //console.log("iLayer", layerNum, response.data.layers[layerNum]); 
+                                if (response.data.layers[layerNum].legend.length === 1){
+                                    let img = document.createElement("img");
+                                    img.contentType = "image/png";
+                                    img.style.margin = "5px";
+                                    img.width = response.data.layers[layerNum].legend[0].width;
+                                    img.height = response.data.layers[layerNum].legend[0].height;
+                                    img.src = 'data:image/png;base64,'+response.data.layers[layerNum].legend[0].imageData;
+                                    //console.log("img", img);    
+                                    // assign image to the sublayers in layerlist
+                                    var para = document.createElement("P");
+                                    para.style.margin = "5px";
+                                    para.style.verticalAlign = "middle";
+                                    var theLabel = response.data.layers[layerNum].layerName;
+                                    var t =  document.createTextNode(theLabel);
+                                    para.appendChild(img);
+                                    para.appendChild(t);                                         
+                                    aDiv.appendChild(para);
+                                    item.panel = {
+                                        className: "esri-icon-layer-list",
+                                        content: [aDiv],
+                                        open: false
+                                    }
+                                }
+                                else if (response.data.layers[layerNum].legend.length > 1){
+                                    for (let j = 0; j < response.data.layers[layerNum].legend.length; j++) {
+                                        var legendNum = j;
                                         let img = document.createElement("img");
                                         img.contentType = "image/png";
                                         img.style.margin = "5px";
-                                        img.width = response.data.layers[layerNum].legend[0].width;
-                                        img.height = response.data.layers[layerNum].legend[0].height;
-                                        img.src = 'data:image/png;base64,'+response.data.layers[layerNum].legend[0].imageData;
-                                        //console.log("img", img);    
-                                        // assign image to the sublayers in layerlist
+                                        img.width = response.data.layers[layerNum].legend[legendNum].width;
+                                        img.height = response.data.layers[layerNum].legend[legendNum].height;
+                                        img.src = 'data:image/png;base64,'+response.data.layers[layerNum].legend[legendNum].imageData;
+                                        //console.log("img", img);
                                         var para = document.createElement("P");
                                         para.style.margin = "5px";
                                         para.style.verticalAlign = "middle";
-                                        var theLabel = response.data.layers[layerNum].layerName;
-                                        var t =  document.createTextNode(theLabel);
+                                        var theLabel = response.data.layers[layerNum].legend[legendNum].label;
+                                        t =  document.createTextNode(theLabel);
                                         para.appendChild(img);
                                         para.appendChild(t);                                         
                                         aDiv.appendChild(para);
-                                        item.panel = {
-                                            className: "esri-icon-layer-list",
-                                            content: [aDiv],
-                                            open: false
-                                        }
                                     }
-                                    else if (response.data.layers[layerNum].legend.length > 1){
-                                        for (let j = 0; j < response.data.layers[layerNum].legend.length; j++) {
-                                            var legendNum = j;
-                                            let img = document.createElement("img");
-                                            img.contentType = "image/png";
-                                            img.style.margin = "5px";
-                                            img.width = response.data.layers[layerNum].legend[legendNum].width;
-                                            img.height = response.data.layers[layerNum].legend[legendNum].height;
-                                            img.src = 'data:image/png;base64,'+response.data.layers[layerNum].legend[legendNum].imageData;
-                                            //console.log("img", img);
-                                            var para = document.createElement("P");
-                                            para.style.margin = "5px";
-                                            para.style.verticalAlign = "middle";
-                                            var theLabel = response.data.layers[layerNum].legend[legendNum].label;
-                                            t =  document.createTextNode(theLabel);
-                                            para.appendChild(img);
-                                            para.appendChild(t);                                         
-                                            aDiv.appendChild(para);
-                                        }
-                                        item.panel = {
-                                            className: "esri-icon-layer-list",
-                                            content: [aDiv],
-                                            open: false
-                                        }        
-                                    }
+                                    item.panel = {
+                                        className: "esri-icon-layer-list",
+                                        content: [aDiv],
+                                        open: false
+                                    }        
+                                }
 
-                                };
-                        });
+                            };
+                    });
+                }
+                else if (item.layer.imageFormat) {
+                    item.panel = {
+                        content: 'legend',
+                        open: false
                     }
-                    else if (item.layer.imageFormat) {
-                        item.panel = {
-                            content: 'legend',
-                            open: false
-                        }
-                        item.panel.watch('open', (isOpen) => {
-                            self.removeLegendDuplicateLabels();
-                            //console.log("panel", item);
-                            layerList.renderNow();
-                        });
-                    }                    
+                    item.panel.watch('open', (isOpen) => {
+                        self.removeLegendDuplicateLabels();
+                        //console.log("panel", item);
+                        layerList.renderNow();
+                    });
+                }                    
                 else {
                     //console.log("NotImageItem",item);
                     if (item.layer.labelsVisible === true) {
@@ -196,43 +204,55 @@ class ArcticMapBaseControl extends React.Component {
             }
         });
         layerList.selectionEnabled = true;
+        
+        reactiveUtils.watch(
+            () => props.view.map.layers.filter((layer) => layer.visible).toArray(),
+            (visibleLayers) => {
+              // Do something with the visibleLayers Collection
+              //console.log(visibleLayers);
+              //layerList.viewModel._recompileList();
+            }
+          );            
         this.watchForLayerListChanges(layerList);
 
-        layerList.on("trigger-action", function (event) {
-            if (event.action.id === "toggle-labels") {
-                if (event.action.className === "esri-icon-checkbox-unchecked") {
-                    event.action.className = "esri-icon-checkbox-checked";
-                    event.item.layer.labelsVisible=true;
+        reactiveUtils.on(
+            () => layerList,
+            "trigger-action",
+            (event) => {
+                if (event.action.id === "toggle-labels") {
+                    if (event.action.className === "esri-icon-checkbox-unchecked") {
+                        event.action.className = "esri-icon-checkbox-checked";
+                        event.item.layer.labelsVisible=true;
+                    }
+                    else {
+                        event.action.className = "esri-icon-checkbox-unchecked";
+                        event.item.layer.labelsVisible=false;
+                    }
                 }
-                else {
-                    event.action.className = "esri-icon-checkbox-unchecked";
-                    event.item.layer.labelsVisible=false;
+                if (event.action.id === "increase-opacity") {
+                    event.item.layer.opacity += 0.1;
+                    event.item.layer.opacity >= 1 ? event.item.layer.opacity = 1:  event.item.layer.opacity;
                 }
-            }
-            if (event.action.id === "increase-opacity") {
-                event.item.layer.opacity += 0.1;
-                event.item.layer.opacity >= 1 ? event.item.layer.opacity = 1:  event.item.layer.opacity;
-            }
-            if (event.action.id === "decrease-opacity") {
-                event.item.layer.opacity -= 0.1;
-                event.item.layer.opacity <= 0 ? event.item.layer.opacity = 0:  event.item.layer.opacity;
-            }
-            if (event.action.id === "open-attribute-table") {
-                //console.log("OpenAttributeTable");
-                self.props.openAttributesTable({
-                    view: self.props.view,
-                    url: event.item.layer.url,
-                    title: event.item.layer.title,
-                    fields: self.getAttributeTableLayerFields(event.item.layer.url),
-                    hiddenFields: self.getAttributeTableLayerHiddenFields(event.item.layer.url)
-                    });
-            }
-            if (event.action.id === "open-map-service") {
-                self.props.openMapService({
-                    url: event.item.layer.url
-                    });                    
-            }
-        });
+                if (event.action.id === "decrease-opacity") {
+                    event.item.layer.opacity -= 0.1;
+                    event.item.layer.opacity <= 0 ? event.item.layer.opacity = 0:  event.item.layer.opacity;
+                }
+                if (event.action.id === "open-attribute-table") {
+                    //console.log("OpenAttributeTable");
+                    self.props.openAttributesTable({
+                        view: self.props.view,
+                        url: event.item.layer.url,
+                        title: event.item.layer.title,
+                        fields: self.getAttributeTableLayerFields(event.item.layer.url),
+                        hiddenFields: self.getAttributeTableLayerHiddenFields(event.item.layer.url)
+                        });
+                }
+                if (event.action.id === "open-map-service") {
+                    self.props.openMapService({
+                        url: event.item.layer.url
+                        });                    
+                }
+            });
         //self.state.view.ui.add(layerList, 'top-left')
         //var joined = self.state.renderElements.concat(self.zoomControlDiv);
         //this.state.renderElements = self.state.renderElements.concat(self.zoomControlDiv);
@@ -276,7 +296,7 @@ class ArcticMapBaseControl extends React.Component {
 
     }
 
-/*     renderZoomcontrol() {
+  /*     renderZoomcontrol() {
         
         return this.zoomControlDiv;
     }

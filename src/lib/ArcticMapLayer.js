@@ -35,6 +35,12 @@ class ArcticMapLayer extends React.Component {
         this.props.view.graphics.remove(this.state.graphic);
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps !== this.props) {
+          //console.log('updated Props',this.props); // You can check this.props will change if they are updated
+        }
+    }    
+
     componentDidMount() {
         var self = this;
         //console.log("AML State2: ",self.state);
@@ -321,7 +327,7 @@ class ArcticMapLayer extends React.Component {
                 maplayer.sublayers = self.props.sublayers;
             }
 
-            if (self.props.childsrc);
+            //if (self.props.childsrc);
 
             if (self.props.title) {
 
@@ -329,7 +335,7 @@ class ArcticMapLayer extends React.Component {
             }
 
             maplayer.on("layerview-create", function (event) {
-                // console.lof("Layerview:" , event)
+                 //console.log("Layerview:" , event)
             });
 
             maplayer.when(() => {
