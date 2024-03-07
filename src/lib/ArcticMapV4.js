@@ -506,6 +506,11 @@ class ArcticMapV4 extends React.Component {
           identLayers = identLayers.concat(self.state.map.amlayers);
           
           async.eachSeries(identLayers, function (layer, cb) {
+            if(layer.state == undefined){
+              console.log("layer.state is undefined");
+              cb();   
+              return;
+            }
             if(layer.layerRef.visible === false || layer.layerRef.sublayers === undefined && layer.props.type !== "geojson" && layer.props.type !== "group" && layer.props.type !== "feature" && layer.props.type !== "groupby")
             {
               cb();   
