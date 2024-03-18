@@ -396,6 +396,10 @@ class ArcticMapV4 extends React.Component {
               //console.log(self.state.map.amlayers);
           
               async.eachSeries(identLayers, function (layer, cb) {
+                if(typeof layer.state == "undefined"){
+                  cb();
+                  return;
+                }
                 if(!layer.state.disablePopup){   
                   //TODO
                   layer.identifyArea(self.dragStart, pt, layer.props.allowMultiSelect, function (results) {
