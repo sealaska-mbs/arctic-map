@@ -819,6 +819,10 @@ class ArcticMapEdit extends React.Component {
                 var srp = geojson.crs.properties.name.split(":");
                 sr=srp[srp.length-1];
             }
+            else if (geojson.features[0].geometry.spatialReference) {
+                var srp = geojson.features[0].geometry.spatialReference.wkid;
+                sr = srp;
+            }
             var features = [];
 
             geojson.features.forEach(f => {
