@@ -231,7 +231,7 @@ class ArcticMapV4 extends React.Component {
         view.popup.watch('selectedFeature', function (graphic) {
           view.graphics.removeAll();
           if (graphic) {
-            var graphicTemplate = graphic.getEffectivePopupTemplate();
+            var graphicTemplate = graphic.getEffectivePopupTemplate(true);
             if(graphic.geometry){
               graphicTemplate.actions = [{
                 id: 'select-item',
