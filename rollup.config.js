@@ -13,27 +13,28 @@ export default {
   input: 'src/index.js',
   output: [
     {
-      file: pkg.main,
+      dir: pkg.main,
       format: 'cjs',
       sourcemap: true
     },
     {
-      file: pkg.module,
+      dir: pkg.module,
       format: 'es',
       sourcemap: true
     },
     {
-      file: pkg.example,
+      dir: pkg.example,
       format: 'cjs',
       sourcemap: true
     },
     {
-      file: pkg.examplemodule,
+      dir: pkg.examplemodule,
       format: 'es',
       sourcemap: true
     }
   ],
   plugins: [
+    "@babel/plugin-syntax-jsx",
     external(),
    
     postcss({

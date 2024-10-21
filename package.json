@@ -1,6 +1,6 @@
 {
   "name": "arctic-map",
-  "version": "2.0.15",
+  "version": "2.0.16",
   "description": "arctic-map",
   "author": "sealaska-mbs",
   "license": "MIT",
@@ -20,18 +20,17 @@
   "scripts": {
     "test": "cross-env CI=1 react-scripts test --env=jsdom",
     "test:watch": "react-scripts test --env=jsdom",
-    "build": "rollup -c rollup.config.js",
-    "start": "rollup -c -w",
-    "prepare": "npm run build",
+    "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
+    "start": "rollup -c -w --bundleConfigAsCjs",
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build"
   },
   "dependencies": {
-    "@arcgis/core": "4.27.6",
+    "@arcgis/core": "4.30.9",
     "@terraformer/arcgis": "^2.1.2",
-    "async": "^3.2.4",
+    "async": "^3.2.6",
     "esri-loader": "^3.7.0",
-    "jszip": "^3.7.1",
+    "jszip": "^3.10.1",
     "prop-types": "^15.5.4"
   },
   "peerDependencies": {
@@ -40,22 +39,26 @@
     "react-dom": "^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.10",
-    "@babel/preset-env": "^7.22.10",
-    "@babel/preset-react": "^7.22.5",
-    "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-node-resolve": "^15.2.0",
-    "@rollup/plugin-url": "^8.0.1",
+    "@babel/core": "^7.25.8",
+    "@babel/preset-env": "^7.25.8",
+    "@babel/preset-react": "^7.25.7",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-url": "^8.0.2",
     "@svgr/rollup": "^8.1.0",
     "cross-env": "^7.0.3",
-    "gh-pages": "^6.0.0",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
+    "gh-pages": "^6.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1",
-    "rollup": "^2.79.1",
-    "rollup-plugin-peer-deps-external": "^2.2.0",
+    "rollup": "^4.24.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2"
+  },
+  "overrides": {
+    "nth-check": "2.1.1",
+    "postcss": "8.4.31"
   },
   "browser": {
     "fs": false
@@ -69,5 +72,6 @@
   "homepage": "https://github.com/sealaska-mbs/arctic-map#readme",
   "directories": {
     "example": "example"
-  }
+  },
+  "keywords": []
 }
