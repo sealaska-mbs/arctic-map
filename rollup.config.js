@@ -9,7 +9,6 @@ import svgr from '@svgr/rollup'
 import pkg from './package.json'
 
 export default {
-  inlineDynamicImports: true,
   input: 'src/index.js',
   output: [
     {
@@ -34,7 +33,7 @@ export default {
     }
   ],
   plugins: [
-    "@babel/plugin-syntax-jsx",
+    // "@babel/plugin-syntax-jsx", TODO: do we need this or just delete entirely? app seems to work without it
     external(),
    
     postcss({
