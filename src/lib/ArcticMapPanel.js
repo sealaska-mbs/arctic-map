@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 import ArcticMapButton from './ArcticMapButton';
 
 var styles = {
@@ -139,10 +139,10 @@ class ArcticMapPanel extends React.Component {
             //     <span style={{ height: "15px", width: "15px" }} aria-hidden className={esriClassName} ></span>
             // </button>
 
-            ReactDOM.render(ele, this.renderEle);
+            createRoot(this.renderEle).render(ele);
         } else {
             var eleempty = React.createElement('span', null);
-            ReactDOM.render(eleempty, this.renderEle);
+            createRoot(this.renderEle).render(eleempty);
         }
     }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import async from 'async';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Map from "@arcgis/core/Map.js";
 import MapView from "@arcgis/core/views/MapView.js"
 																	
@@ -138,7 +138,7 @@ class ArcticMapV4 extends React.Component {
                     });
                     let x = document.createElement('div');
                     view.ui.add(x, ele.props.location);
-                    ReactDOM.render(<div>{ele}</div>, x);
+                    createRoot(x).render(<div>{ele}</div>);
                   }
                 });
 
@@ -151,9 +151,10 @@ class ArcticMapV4 extends React.Component {
                   ref: (c) => { if (c) { self.childrenElements.push(c); } return 'child-' + (index++) }
       
                 });
+
                 var x = document.createElement('div');
                 view.ui.add(x, ele.props.location);
-                ReactDOM.render(<div>{ele}</div>, x);
+                createRoot(x).render(<div>{ele}</div>);
 
                 return ele;
               }
@@ -169,16 +170,13 @@ class ArcticMapV4 extends React.Component {
           }
         })
       
-          if (layerchildren) {
+        if (layerchildren) {
             layerchildren = layerchildren.reverse()
-				  
-								
-          }
+        }
 		 
-          var x = document.createElement('div');
-          view.ui.add(x, "bottom-left");
-          ReactDOM.render(<div>{layerchildren}</div>, x);
- 
+        var x = document.createElement('div');
+        view.ui.add(x, "bottom-left");
+        createRoot(x).render(<div>{layerchildren}</div>);
 
         //console.info(children);
         

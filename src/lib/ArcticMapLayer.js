@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { geojsonToArcGIS } from '@terraformer/arcgis';
-
 import Multipoint from '@arcgis/core/geometry/Multipoint.js';
 import * as identify from "@arcgis/core/rest/identify.js";
 import IdentifyParameters from "@arcgis/core/rest/support/IdentifyParameters.js";
@@ -449,7 +448,7 @@ class ArcticMapLayer extends React.Component {
 
                 if (ele) {
                     var workingdiv = document.createElement('div');
-                    ReactDOM.render(ele, workingdiv);
+                    createRoot(workingdiv).render(ele);
                     return workingdiv;
                 }
             }
