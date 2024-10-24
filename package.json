@@ -31,7 +31,7 @@
     "async": "^3.2.6",
     "esri-loader": "^3.7.0",
     "jszip": "^3.10.1",
-    "prop-types": "^15.5.4"
+    "prop-types": "^15.8.1"
   },
   "peerDependencies": {
     "prop-types": "^15.5.4",
@@ -39,16 +39,16 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.8",
-    "@babel/preset-env": "^7.25.8",
-    "@babel/preset-react": "^7.25.7",
+    "@babel/core": "^7.25.9",
+    "@babel/preset-env": "^7.25.9",
+    "@babel/preset-react": "^7.25.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-url": "^8.0.2",
     "@svgr/rollup": "^8.1.0",
     "cross-env": "^7.0.3",
-    "gh-pages": "^6.1.1",
+    "gh-pages": "^6.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1",
