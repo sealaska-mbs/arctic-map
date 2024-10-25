@@ -154,6 +154,7 @@ class ArcticMapEdit extends React.Component {
 
             this.top_right_node = document.createElement("div");
             self.state.view.ui.add(this.top_right_node, "top-right");
+            this.root = createRoot(this.top_right_node);
 
             self.setState({ loaded: true })
 
@@ -1213,7 +1214,7 @@ class ArcticMapEdit extends React.Component {
 
     componentDidUpdate() {
         if (this.top_right_node) {
-            createRoot(this.top_right_node).render(this.widgetRender());
+            this.root.render(this.widgetRender());
         }
     }
 
