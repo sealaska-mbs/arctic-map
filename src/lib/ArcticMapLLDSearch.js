@@ -2,10 +2,7 @@
 
 
 import React from "react";
-import ReactDOM from "react-dom";
-
 import style from './ArcticMapLLDSearch.css';
-
 import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
 import request from "@arcgis/core/request.js";
 import Geometry from '@arcgis/core/geometry/Geometry.js';
@@ -26,10 +23,6 @@ static displayName = 'ArcticMapLLDSearch';
 
         this.handleChange = this.handleChange.bind(this);
     }
-
-
-
-
 
     componentDidMount() {
         var self = this;

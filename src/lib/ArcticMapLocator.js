@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from 'react-dom'
 import request from "@arcgis/core/request.js";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
 import * as Locator from "@arcgis/core/rest/locator.js";
