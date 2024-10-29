@@ -529,7 +529,7 @@ class ArcticMapLayer extends React.Component {
 
                             });
 
-                            callback({results:res});
+                            callback({results:res, layes:self});
                         } 
                       });
                 }); 
