@@ -66,6 +66,8 @@ class ArcticMapBaseControl extends React.Component {
 
         var layerList = new LayerList({
             view: props.view,
+            visibilityAppearance: "checkbox",
+            dragEnabled: true,
             visibleElements: {
                 errors: true
             },
@@ -203,7 +205,8 @@ class ArcticMapBaseControl extends React.Component {
                 item.actionsSections = [ actions ];     
             }
         });
-        layerList.selectionEnabled = true;
+        //layerList.selectionEnabled = true;
+        layerList.selectionMode = "single";
         
         reactiveUtils.watch(
             () => props.view.map.layers.filter((layer) => layer.visible).toArray(),
