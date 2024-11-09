@@ -76,8 +76,17 @@ class ArcticMapLocator extends React.Component {
         });
 
         searchWidget2.on('select-result', function (evt) {
+            var graph = evt.result.feature;
+            graph.symbol = new SimpleFillSymbol({
+              color: [135, 206, 235, 0.5],
+              style: "solid",
+              outline: {
+                  color: [0, 191, 255],
+                  width: 1
+              }
+          });
 
-            self.props.view.popup.currentSearchResultFeature = evt.result.feature;
+            self.props.view.popup.currentSearchResultFeature = graph;
             self.props.view.popup.close();
           });
     }
