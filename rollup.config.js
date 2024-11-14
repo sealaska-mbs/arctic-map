@@ -9,31 +9,31 @@ import svgr from '@svgr/rollup'
 import pkg from './package.json'
 
 export default {
-  inlineDynamicImports: true,
   input: 'src/index.js',
   output: [
     {
-      file: pkg.main,
+      dir: pkg.main,
       format: 'cjs',
       sourcemap: true
     },
     {
-      file: pkg.module,
+      dir: pkg.module,
       format: 'es',
       sourcemap: true
     },
     {
-      file: pkg.example,
+      dir: pkg.example,
       format: 'cjs',
       sourcemap: true
     },
     {
-      file: pkg.examplemodule,
+      dir: pkg.examplemodule,
       format: 'es',
       sourcemap: true
     }
   ],
   plugins: [
+    // "@babel/plugin-syntax-jsx", TODO: do we need this or just delete entirely? app seems to work without it
     external(),
    
     postcss({

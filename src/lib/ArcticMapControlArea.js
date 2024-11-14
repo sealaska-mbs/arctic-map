@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from "react-dom";
 
 class ArcticMapControlArea extends React.Component {
     static displayName = 'ArcticMapControlArea';

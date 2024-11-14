@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 import ArcticMapButton from './ArcticMapButton';
 
 var styles = {
@@ -40,6 +40,7 @@ class ArcticMapPanel extends React.Component {
             }
         };
         this.toggle = this.toggle.bind(this);
+        
 
         this.mapFrame = document.getElementsByClassName('esri-view-root')[0];
         this.renderEle = document.createElement("span");
@@ -48,6 +49,7 @@ class ArcticMapPanel extends React.Component {
             hidden: !this.props.hidden ? false : true,
             open: this.props.open || false
         };
+        this.root = createRoot(this.renderEle);
 
         ArcticMapPanel.defaultProps= {
             infoAreaText: ""
@@ -86,6 +88,7 @@ class ArcticMapPanel extends React.Component {
 
     renderPanel() {
         // refactor this
+        
         if (this.state.open) {
             var ele = React.createElement(
                 'div',
@@ -139,10 +142,10 @@ class ArcticMapPanel extends React.Component {
             //     <span style={{ height: "15px", width: "15px" }} aria-hidden className={esriClassName} ></span>
             // </button>
 
-            ReactDOM.render(ele, this.renderEle);
+            this.root.render(ele);
         } else {
             var eleempty = React.createElement('span', null);
-            ReactDOM.render(eleempty, this.renderEle);
+            this.root.render(eleempty);
         }
     }
 

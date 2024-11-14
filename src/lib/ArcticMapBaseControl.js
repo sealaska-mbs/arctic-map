@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from 'react-dom';
 import { geojsonToArcGIS } from '@terraformer/arcgis';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
@@ -66,6 +65,8 @@ class ArcticMapBaseControl extends React.Component {
 
         var layerList = new LayerList({
             view: props.view,
+            visibilityAppearance: "checkbox",
+            dragEnabled: true,
             visibleElements: {
                 errors: true
             },
@@ -203,7 +204,8 @@ class ArcticMapBaseControl extends React.Component {
                 item.actionsSections = [ actions ];     
             }
         });
-        layerList.selectionEnabled = true;
+        //layerList.selectionEnabled = true;
+        layerList.selectionMode = "single";
         
         reactiveUtils.watch(
             () => props.view.map.layers.filter((layer) => layer.visible).toArray(),

@@ -2,16 +2,14 @@
 
 
 import React from "react";
-import ReactDOM from "react-dom";
-
 import style from './ArcticMapLLDSearch.css';
-
 import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
 import request from "@arcgis/core/request.js";
 import Geometry from '@arcgis/core/geometry/Geometry.js';
 import Polygon from '@arcgis/core/geometry/Polygon.js';
 import Graphic from '@arcgis/core/Graphic.js';
 import SearchSource from "@arcgis/core/widgets/Search/SearchSource.js";
+import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol.js";
 
 class ArcticMapLLDSearch extends React.Component {
 static displayName = 'ArcticMapLLDSearch';
@@ -26,10 +24,6 @@ static displayName = 'ArcticMapLLDSearch';
 
         this.handleChange = this.handleChange.bind(this);
     }
-
-
-
-
 
     componentDidMount() {
         var self = this;
@@ -50,7 +44,14 @@ static displayName = 'ArcticMapLLDSearch';
         self.search = new SearchSource({
                 name: 'Legal Land Description',
                 placeholder: "example: NV 21 T38N R56E SEC 10 ALIQ SESW",
-                
+                resultSymbol: new SimpleFillSymbol({
+                    color: [135, 206, 235, 0.5],
+                    style: "solid",
+                    outline: {
+                        color: [0, 191, 255],
+                        width: 1
+                    }
+                }),
                 getSuggestions: function (p) {
                     let getIT = function (params) {
                         var searchParams = params.suggestTerm.replace(/\+/g, ' ');

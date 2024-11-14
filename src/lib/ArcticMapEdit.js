@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 import { arcgisToGeoJSON } from '@terraformer/arcgis';
 import ArcticMapButton from './ArcticMapButton';
 import ArcticMapPanel from './ArcticMapPanel';
@@ -154,6 +154,7 @@ class ArcticMapEdit extends React.Component {
 
             this.top_right_node = document.createElement("div");
             self.state.view.ui.add(this.top_right_node, "top-right");
+            this.root = createRoot(this.top_right_node);
 
             self.setState({ loaded: true })
 
@@ -1213,10 +1214,7 @@ class ArcticMapEdit extends React.Component {
 
     componentDidUpdate() {
         if (this.top_right_node) {
-            ReactDOM.render(
-                this.widgetRender(),
-                this.top_right_node
-            );
+            this.root.render(this.widgetRender());
         }
     }
 
