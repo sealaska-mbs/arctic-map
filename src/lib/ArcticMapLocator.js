@@ -3,6 +3,7 @@ import request from "@arcgis/core/request.js";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
 import * as Locator from "@arcgis/core/rest/locator.js";
 import Search from "@arcgis/core/widgets/Search.js";
+import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol.js";
 
 
 class ArcticMapLocator extends React.Component {
@@ -27,6 +28,11 @@ class ArcticMapLocator extends React.Component {
           singleLineFieldName: "SingleLine",
           name: "Standard Geocoder",
           placeholder: "Find address",
+          //  resultSymbol: new SimpleMarkerSymbol({
+          //      style: "circle",
+          //      color: [135, 206, 235, 0.5],
+          //      size: 1
+          //  }),
           maxResults: 3,
           maxSuggestions: 6,
           suggestionsEnabled: true,
@@ -67,6 +73,7 @@ class ArcticMapLocator extends React.Component {
             view: self.props.view,
             sources: searchsources,
             includeDefaultSources: false, // true will include standard locator
+            popupEnabled: false,
             locationEnabled: locationServicesEnabled
         });
 
@@ -75,11 +82,7 @@ class ArcticMapLocator extends React.Component {
             index: 1
         });
 
-        searchWidget2.on('select-result', function (evt) {
-
-            self.props.view.popup.currentSearchResultFeature = evt.result.feature;
-            self.props.view.popup.close();
-          });
+        searchWidget2.on('select-result', function (evt) { });
     }
     render() {
         return null;

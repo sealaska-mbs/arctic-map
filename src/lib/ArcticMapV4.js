@@ -688,7 +688,7 @@ class ArcticMapV4 extends React.Component {
               self.setState({ loading: false });
             } //current mode identify
     
-            if (currentmode === "select") {
+            if (currentmode === "select" && results.length > 0) {
               var feature = null;
               var fType = null;
               for (var idx = 0; idx<results.length && feature===null; idx++){
