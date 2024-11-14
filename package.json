@@ -28,6 +28,7 @@
   "dependencies": {
     "@arcgis/core": "4.30.9",
     "@terraformer/arcgis": "^2.1.2",
+    "@esri/calcite-components-react": "2.13.2",
     "async": "^3.2.6",
     "esri-loader": "^3.7.0",
     "jszip": "^3.10.1",
