@@ -41,7 +41,17 @@ class ArcticMapBaseControl extends React.Component {
             view: props.view
         })
         self.basemapGallery.watch('activeBasemap', function (newValue, oldValue, property, object) {
-            self.props.view.ui.remove(self.basemapGallery);
+            //self.props.view.ui.remove(self.basemapGallery);
+            //listen for key-up event
+            var galleryItems = document.getElementsByClassName("esri-basemap-gallery__item");
+
+            for(let i=0; i<galleryItems.length; i++){
+                galleryItems[i].addEventListener('keyup', (event) => {
+                    if(event.key === "Enter"){
+                        self.props.view.ui.remove(self.basemapGallery);
+                    }
+                });
+            }
 
         });
 

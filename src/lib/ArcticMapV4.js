@@ -733,8 +733,8 @@ class ArcticMapV4 extends React.Component {
         });
   
         this.basemapGallery.watch('activeBasemap', function (newValue, oldValue, property, object) {
-          self.state.view.ui.remove(self.basemapGallery)
-          self.setState({ hideBasemapButton: false })
+          //self.state.view.ui.remove(self.basemapGallery)
+          //self.setState({ hideBasemapButton: false })
         });
     
     
