@@ -351,6 +351,13 @@ class ArcticMapEdit extends React.Component {
         this.setState({ editing: true });
     }
 
+    inputOpen(evt){
+        var self = this;
+        if(evt.key === "Enter"){
+            document.getElementById("inFile").click();
+        }
+    }
+
     fileUploaded(evt) {
         var self = this;
         var fileName = evt.target.value.toLowerCase();
@@ -1199,7 +1206,7 @@ class ArcticMapEdit extends React.Component {
                     <form encType="multipart/form-data" method="post" id="uploadForm">
                         <div className="field">
                             <br/>
-                            <label className={style.btm_primary_file}>
+                            <label className={style.btm_primary_file} htmlFor="inFile" tabIndex={0} onKeyUp={this.inputOpen.bind(this)}>
                                 <input type="file" name="file" id="inFile" onChange={this.fileUploaded.bind(this)} />
                                 Upload File
                             </label>
