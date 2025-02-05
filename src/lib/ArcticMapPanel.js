@@ -107,7 +107,8 @@ class ArcticMapPanel extends React.Component {
                         {
                             onClick : this.toggle,
                             title : 'Close',
-                            style : { border : 'none', background : 'transparent', cursor : 'pointer'}
+                            style : { border : 'none', background : 'transparent', cursor : 'pointer'},
+                            autoFocus : true
                         },
                         React.createElement(
                             'span',
