@@ -182,10 +182,14 @@ class ArcticMapEdit extends React.Component {
                     trim = false;
                 }
 
-                if (feature.attributes.layerName) {
-                    feature.sourceLayer = feature.attributes.layerName.trim();
+                if(Object.keys(feature.attributes).length == 1){
+                    feature.sourceLayer = "Shapefile";
                 } else {
-                    feature.sourceLayer = 'PLSS';
+                    if('First Division Identifier' in feature.attributes){
+                        feature.sourceLayer = 'PLSS'
+                    } else {
+                        feature.sourceLayer = feature.attributes.layerName.trim();
+                    }
                 }
 
                 if (!feature.geometry.type) {
