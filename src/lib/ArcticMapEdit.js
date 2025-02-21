@@ -18,6 +18,7 @@ import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
 import Field from "@arcgis/core/layers/support/Field.js";
 import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer.js";
 import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
+import { shape } from "prop-types";
 
 class ArcticMapEdit extends React.Component {
     static displayName = 'ArcticMapEdit';
@@ -182,14 +183,21 @@ class ArcticMapEdit extends React.Component {
                     trim = false;
                 }
 
-                if(Object.keys(feature.attributes).length == 1){
+                var uploadedShape = true;
+
+                if("layerName" in feature.attributes){
+                    // PLOTTED
+                    feature.sourceLayer = feature.attributes.layerName.trim();
+                    uploadedShape = false;
+                }
+
+                if('First Division Identifier' in feature.attributes){
+                    feature.sourceLayer = "PLSS";
+                    uploadedShape = false;
+                }
+
+                if(uploadedShape){
                     feature.sourceLayer = "Shapefile";
-                } else {
-                    if('First Division Identifier' in feature.attributes){
-                        feature.sourceLayer = 'PLSS'
-                    } else {
-                        feature.sourceLayer = feature.attributes.layerName.trim();
-                    }
                 }
 
                 if (!feature.geometry.type) {
