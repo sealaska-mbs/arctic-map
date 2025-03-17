@@ -251,15 +251,7 @@ class ArcticMapV4 extends React.Component {
 			        }
             };
 
-            /* var symbol = new SimpleFillSymbol({
-                color: [135, 206, 235, 0.5],
-                style: "solid",
-                outline: {
-                    color: [0, 191, 255],
-                    width: 1
-                }
-            }); */
-             if (graphic) {
+            if (graphic) {
                 graphic.symbol = symbol;
                 var popupGraphic = graphic
                 view.graphics.add(popupGraphic);

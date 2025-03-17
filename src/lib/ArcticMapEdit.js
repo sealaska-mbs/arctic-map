@@ -1025,6 +1025,7 @@ class ArcticMapEdit extends React.Component {
                 title: "SHP File: " + layerName,
                 //objectIDField: "FID",
                 source: graphics,
+                popupEnabled: false,
                 fields: layer.layerDefinition.fields.map(function (field) {
                     return Field.fromJSON(field);
                 })
@@ -1113,6 +1114,7 @@ class ArcticMapEdit extends React.Component {
             objectIdField: "OBJECTID",
             //renderer : SimpleRenderer.fromJSON(symbol) ,
             source: graphics,
+            popupEnabled: false
             // fields: layer.layerDefinition.fields.map(function (field) {
             //     return Field.fromJSON(field);
             // })
