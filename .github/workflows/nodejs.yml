@@ -18,18 +18,19 @@ jobs:
         node-version: [18.x]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://registry.npmjs.org'
     - run: npm -v
+    - run: npm token list
     - run: npm set strict-ssl false
     - run: npm ci
     - run: npm install
     - run: npm run build --if-present
-    - run: npm publish 
+    - run: npm publish --access public
       env:
         CI: true
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
