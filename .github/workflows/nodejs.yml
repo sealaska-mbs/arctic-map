@@ -25,7 +25,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://registry.npmjs.org'
     - run: npm -v
-    - run: npm token list
     - run: npm set strict-ssl false
     - run: npm ci
     - run: npm install
