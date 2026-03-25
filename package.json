@@ -1,12 +1,12 @@
 {
-  "name": "arcticmap",
-  "version": "3.0.0",
-  "description": "arcticmap",
+  "name": "seakmap",
+  "version": "3.0.1",
+  "description": "seakmap",
   "author": "sealaska-mbs",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sealaska-mbs/arcticmap.git"
+    "url": "git+https://github.com/sealaska-mbs/arctic-map.git"
   },
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -63,9 +63,9 @@
     "dist"
   ],
   "bugs": {
-    "url": "https://github.com/sealaska-mbs/arcticmap/issues"
+    "url": "https://github.com/sealaska-mbs/arctic-map/issues"
   },
-  "homepage": "https://github.com/sealaska-mbs/arcticmap#readme",
+  "homepage": "https://github.com/sealaska-mbs/arctic-map#readme",
   "directories": {
     "example": "example"
   },
