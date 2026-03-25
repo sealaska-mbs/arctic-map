@@ -1,13 +1,13 @@
-# arctic-map
+# seakmap
 
-> arctic-map
+> seakmap
 
-[![NPM](https://img.shields.io/npm/v/arctic-map.svg)](https://www.npmjs.com/package/arctic-map) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![NPM](https://img.shields.io/npm/v/seakmap.svg)](https://www.npmjs.com/package/seakmap) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Install
 
 ```bash
-npm install --save arctic-map
+npm install --save seakmap
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ npm install --save arctic-map
 ```jsx
 import React, { Component } from 'react'
 
-import MyComponent from 'arctic-map'
+import MyComponent from 'seakmap'
 
 class Example extends Component {
   render () {
