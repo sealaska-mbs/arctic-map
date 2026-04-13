@@ -190,7 +190,7 @@ class ArcticMapEdit extends React.Component {
                     if(feature.attributes.layerName.indexOf("Shape")!==0 || feature.attributes.layerName.indexOf("KML")!==0 || feature.attributes.layerName.indexOf("GML")!==0 || feature.attributes.layerName.indexOf("GPX")!==0) 
                         {
                             feature.sourceLayer = feature.attributes.layerName.trim();
-                            uploadedShape = false;
+                            uploadedShape = true;
                         }
                 }
 
