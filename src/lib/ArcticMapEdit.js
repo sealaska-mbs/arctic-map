@@ -183,24 +183,21 @@ class ArcticMapEdit extends React.Component {
                     trim = false;
                 }
 
-                var uploadedShape = true;
-
                 if("layerName" in feature.attributes){
-                    // PLOTTED
-                    if(feature.attributes.layerName.indexOf("Shape")!==0 || feature.attributes.layerName.indexOf("KML")!==0 || feature.attributes.layerName.indexOf("GML")!==0 || feature.attributes.layerName.indexOf("GPX")!==0) 
-                        {
-                            feature.sourceLayer = feature.attributes.layerName.trim();
-                            uploadedShape = true;
-                        }
+                    const name = feature.attributes.layerName.trim();
+                    feature.sourceLayer = name;
+                    if (
+                        name.includes("Shape") ||
+                        name.includes("KML") ||
+                        name.includes("GML") ||
+                        name.includes("GPX")
+                    ) {
+                        feature.sourceLayer = "Shapefile";
+                    }
                 }
 
-                if('First Division Identifier' in feature.attributes){
+                if ('First Division Identifier' in feature.attributes) {
                     feature.sourceLayer = "PLSS";
-                    uploadedShape = false;
-                }
-
-                if(uploadedShape){
-                    feature.sourceLayer = "Shapefile";
                 }
 
                 if (!feature.geometry.type) {
