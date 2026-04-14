@@ -54,7 +54,7 @@ static displayName = 'ArcticMapLLDSearch';
                 }),
                 getSuggestions: function (p) {
                     let getIT = function (params) {
-                        var searchParams = params.suggestTerm.replace(/\+/g, ' ');
+                        var searchParams = params.suggestTerm.replace(/\+/g, ' ').toUpperCase();
                         var searchParts = searchParams.trim().replace(/\s+/g, ' ').split(' ').filter((part) => part!="" );
 
                         if (searchParts.length > 4) {
@@ -342,7 +342,7 @@ static displayName = 'ArcticMapLLDSearch';
                 },
             
                 getResults: function (params) {
-                    var serarchParams = params.suggestResult.text.replace(/\+/g,' ');
+                    var serarchParams = params.suggestResult.text.replace(/\+/g,' ').toUpperCase();
                     var options = {
                         query :{
                             "legaldescription": serarchParams,
