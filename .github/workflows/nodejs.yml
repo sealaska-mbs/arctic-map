@@ -7,8 +7,10 @@ on:
   workflow_dispatch: 
   push:
     branches: [ master ]
+    
 permissions: 
   id-token: write
+  contents: read
 
 jobs:
   build:
@@ -22,16 +24,16 @@ jobs:
         node-version: [18.x]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://registry.npmjs.org'
+        package-manager-cache: false
     - run: npm -v
     - run: npm set strict-ssl false
     - run: npm ci
     - run: npm install
     - run: npm run build --if-present
-    - run: npm login
     - run: npm publish --access public
