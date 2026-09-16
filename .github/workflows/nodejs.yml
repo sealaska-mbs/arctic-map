@@ -31,4 +31,5 @@ jobs:
     - run: npm ci
     - run: npm install
     - run: npm run build --if-present
+    - run: npm login
     - run: npm publish --access public
