@@ -153,6 +153,8 @@ class ArcticMapV4 extends React.Component {
                 });
 
                 var x = document.createElement('div');
+                x.id = ele.props.key;
+                x.key = x.id;
                 view.ui.add(x, ele.props.location);
                 createRoot(x).render(<div>{ele}</div>);
 

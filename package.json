@@ -1,6 +1,6 @@
 {
   "name": "seakmap",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "seakmap",
   "author": "sealaska-mbs",
   "license": "MIT",
@@ -30,7 +30,6 @@
     "@terraformer/arcgis": "^2.1.2",
     "@esri/calcite-components-react": "2.13.2",
     "async": "^3.2.6",
-    "esri-loader": "^3.7.0",
     "jszip": "^3.10.1",
     "prop-types": "^15.8.1"
   },
