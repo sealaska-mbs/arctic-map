@@ -111,12 +111,12 @@ class ArcticMapBaseControl extends React.Component {
                             responseType: "json"
                         }).then(function (response) {
                             //console.log("response",response);
-                            var aDiv = document.createElement("Div");
-
+                            //var aDiv = document.createElement("Div");
+                            var divs = [];
                             // build unique url for the legend symbol
                             for (let i = 0; i < response.data.layers.length; i++) {
                                 var layerNum = i;
-
+                                var aDiv = document.createElement("Div");
                                 //console.log("iLayer", layerNum, response.data.layers[layerNum]); 
                                 if (response.data.layers[layerNum].legend.length === 1){
                                     let img = document.createElement("img");
@@ -135,11 +135,12 @@ class ArcticMapBaseControl extends React.Component {
                                     para.appendChild(img);
                                     para.appendChild(t);                                         
                                     aDiv.appendChild(para);
-                                    item.panel = {
-                                        className: "esri-icon-layer-list",
-                                        content: [aDiv],
-                                        open: false
-                                    }
+                                    // item.panel = {
+                                    //     className: "esri-icon-layer-list",
+                                    //     content: [aDiv],
+                                    //     open: false
+                                    // }
+                                    divs.push(aDiv);
                                 }
                                 else if (response.data.layers[layerNum].legend.length > 1){
                                     for (let j = 0; j < response.data.layers[layerNum].legend.length; j++) {
@@ -160,14 +161,20 @@ class ArcticMapBaseControl extends React.Component {
                                         para.appendChild(t);                                         
                                         aDiv.appendChild(para);
                                     }
-                                    item.panel = {
-                                        className: "esri-icon-layer-list",
-                                        content: [aDiv],
-                                        open: false
-                                    }        
+                                    // item.panel = {
+                                    //     className: "esri-icon-layer-list",
+                                    //     content: [aDiv],
+                                    //     open: false
+                                    // }     
+                                    divs.push(aDiv);   
                                 }
 
                             };
+                            item.panel = {
+                                className: "esri-icon-layer-list",
+                                content: divs,
+                                open: false
+                            }                            
                     });
                 }
                 else if (item.layer.imageFormat) {

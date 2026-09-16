@@ -1,11 +1,6 @@
-
 export {
   default as ArcticMapV4
 } from './lib/ArcticMapV4'
-
-export {
-  default as ArcticMap
-} from './lib/ArcticMap'
 
 
 export {
@@ -58,7 +53,6 @@ export {
 export {
   default as ArcticMapLocator
 } from './lib/ArcticMapLocator'
-
 
 
 
