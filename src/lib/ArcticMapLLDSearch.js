@@ -39,7 +39,7 @@ static displayName = 'ArcticMapLLDSearch';
             index: 0
         });
 
-        var url = "https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD"
+        var url = "https://gis.blm.gov/natplss/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD"
 
         self.search = new SearchSource({
                 name: 'Legal Land Description',
@@ -78,7 +78,7 @@ static displayName = 'ArcticMapLLDSearch';
                             });
                         }
 
-                        var PLSSurl = "https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/1/query";
+                        var PLSSurl = "https://gis.blm.gov/natplss/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/1/query";
 
                         //get the states
                         if (!self.suggestionDictionary) {
@@ -379,7 +379,7 @@ static displayName = 'ArcticMapLLDSearch';
 
         var self = this;
 
-        fetch(`https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${this.state.searchinput}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
+        fetch(`https://gis.blm.gov/natplss/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/exts/CadastralSpecialServices/FindLD?legaldescription=${this.state.searchinput}+&returnalllevels=&f=json`).then(r => r.json()).then(data => {
    
 
 
