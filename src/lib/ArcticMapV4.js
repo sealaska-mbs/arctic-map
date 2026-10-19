@@ -5,7 +5,6 @@ import Map from "@arcgis/core/Map.js";
 import MapView from "@arcgis/core/views/MapView.js"
 																	
 import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
-import IdentifyParameters from "@arcgis/core/rest/support/IdentifyParameters.js";
 import request from "@arcgis/core/request.js";
 import Polygon from '@arcgis/core/geometry/Polygon.js';
 import Graphic from '@arcgis/core/Graphic.js';
@@ -294,7 +293,6 @@ class ArcticMapV4 extends React.Component {
             event.stopPropagation();
             var vw = self.state.view;
             var pt = vw.toMap({ x: event.x, y: event.y });
-            var idParams = new IdentifyParameters();
             if(event.action==="start"){
               self.dragStart = pt;
             }
@@ -312,18 +310,14 @@ class ArcticMapV4 extends React.Component {
                 spatialReference: self.state.view.spatialReference
               })
               //console.log("check self", self);
-              idParams.geometry=tempPolygon;
-              idParams.tolerance = 3;
-              idParams.
-              returnFieldName = false;
               //vw.goTo([pt,self.dragStart]);
               self.layers.filter( function(layer){
                 //console.log("layers", layer);
-                layer.params.width = self.state.view.width;
-                layer.params.height = self.state.view.height;
-                layer.params.mapExtent = self.state.view.extent;
+                if (!layer.params || typeof layer.queryIdentify !== "function") {
+                  return;
+                }
                 layer.params.geometry=tempPolygon;
-                identify.identify(layer.identifyTask, layer.params).then(function(response){
+                layer.queryIdentify(layer.identifyTask, layer.params).then(function(response){
                   //console.log("identifyTask ",response );
                   
                 })

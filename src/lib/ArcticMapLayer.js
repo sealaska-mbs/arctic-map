@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { createRoot } from 'react-dom/client';
 import { geojsonToArcGIS } from '@terraformer/arcgis';
 import Multipoint from '@arcgis/core/geometry/Multipoint.js';
-import * as identify from "@arcgis/core/rest/identify.js";
-import IdentifyParameters from "@arcgis/core/rest/support/IdentifyParameters.js";
+import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
+import * as query from "@arcgis/core/rest/query.js";
+import Query from "@arcgis/core/rest/support/Query.js";
 import Graphic from '@arcgis/core/Graphic.js';
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer.js";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
@@ -216,15 +217,9 @@ class ArcticMapLayer extends React.Component {
                         });
     
                         child.identifyTask = child.props.src;
-                        child.params = new IdentifyParameters();
+                        child.params = {};
                         child.params.tolerance = 3;
                         child.params.layerIds = layerids;
-                        child.params.layerOption = "visible";
-                        child.params.width = self.state.view.width;
-                        child.params.height = self.state.view.height;
-                        child.params.returnGeometry = true;
-                        child.params.returnFieldName = false;
-                        child.params.returnUnformattedValues = false;
                         child.params.returnGeometry = !self.state.blockSelect;
                     });
     
@@ -289,15 +284,9 @@ class ArcticMapLayer extends React.Component {
                     layerids.reverse();
                     if(src===srcsplit[srcsplit.length-1]){
                         self.identifyTask = src;
-                        self.params = new IdentifyParameters();
+                        self.params = {};
                         self.params.tolerance = 3;
                         self.params.layerIds = layerids;
-                        self.params.returnFieldName = false;
-                        self.params.returnUnformattedValues = false;
-                        self.params.layerOption = "visible";
-                        self.params.width = self.state.view.width;
-                        self.params.height = self.state.view.height;
-                        self.params.returnGeometry = true;
                         self.params.returnGeometry = !self.state.blockSelect;
                             //console.log(self.params);
                     }
@@ -366,15 +355,9 @@ class ArcticMapLayer extends React.Component {
                 //layerids.reverse();
 
                 self.identifyTask = self.props.src;
-                self.params = new IdentifyParameters();
+                self.params = {};
                 self.params.tolerance = 3;
                 self.params.layerIds = layerids;
-                self.params.layerOption = "visible";
-                self.params.width = self.state.view.width;
-                self.params.height = self.state.view.height;
-                self.params.returnGeometry = true;
-                self.params.returnFieldName = false;
-                self.params.returnUnformattedValues = false;
                 self.params.returnGeometry = !self.state.blockSelect;
             });
 
@@ -478,6 +461,85 @@ class ArcticMapLayer extends React.Component {
         return null;
     }
 
+    // Converts a screen-pixel tolerance into a map-unit buffer distance for the
+    // current view so query results match the previous Identify tolerance behavior.
+    toleranceGeometry(geometry, params) {
+        var view = this.state.view;
+        var tolerance = (params && params.tolerance !== undefined) ? params.tolerance : 3;
+        if (geometry && geometry.type === "point" && view && view.resolution) {
+            var distance = tolerance * view.resolution;
+            try {
+                var buffered = geometryEngine.buffer(geometry, distance, "meters");
+                if (buffered) {
+                    return buffered;
+                }
+            } catch (e) {
+                // Fall back to the raw geometry if buffering is unavailable.
+            }
+        }
+        return geometry;
+    }
+
+    // Replacement for the legacy Identify REST operation. Runs a spatial Query
+    // against each requested MapServer sublayer and assembles the results into the
+    // same shape the previous identify() produced: { results: [{ feature, layerName, layerId }], ... }.
+    queryIdentify(taskUrl, params) {
+        var self = this;
+        var layerIds = (params && params.layerIds) ? params.layerIds : [];
+        var geometry = this.toleranceGeometry(params ? params.geometry : null, params);
+        var returnGeometry = (params && params.returnGeometry !== undefined) ? params.returnGeometry : !self.state.blockSelect;
+        var outSR = (self.state.view && self.state.view.spatialReference) ? self.state.view.spatialReference : undefined;
+
+        // Resolves a sublayer's display title by id so popup titles match the
+        // previous Identify behavior (which returned layerName per result).
+        var resolveLayerName = function (layerId) {
+            if (self.layerRef && self.layerRef.allSublayers) {
+                var sub = self.layerRef.allSublayers.find(function (s) { return s.id === layerId; });
+                if (sub && sub.title) {
+                    return sub.title;
+                }
+            }
+            return undefined;
+        };
+
+        var sublayerQueries = layerIds.map(function (layerId) {
+            var q = new Query();
+            q.geometry = geometry;
+            q.spatialRelationship = "intersects";
+            q.returnGeometry = returnGeometry;
+            q.outFields = ["*"];
+            if (outSR) {
+                q.outSpatialReference = outSR;
+            }
+            var sublayerUrl = taskUrl.replace(/\/$/, "") + "/" + layerId;
+            return query.executeQueryJSON(sublayerUrl, q)
+                .then(function (featureSet) {
+                    var fields = (featureSet && featureSet.fields) ? featureSet.fields : null;
+                    var features = (featureSet && featureSet.features) ? featureSet.features : [];
+                    return features.map(function (feature) {
+                        if (fields && feature && !feature.layer) {
+                            // Preserve field metadata so downstream popup rendering can resolve aliases.
+                            feature.fields = fields;
+                        }
+                        return {
+                            feature: feature,
+                            layerName: (featureSet && featureSet.layerName) ? featureSet.layerName : resolveLayerName(layerId),
+                            layerId: layerId
+                        };
+                    });
+                })
+                .catch(function (err) {
+                    console.warn("queryIdentify: query failed for " + sublayerUrl, err && err.message ? err.message : err);
+                    return [];
+                });
+        });
+
+        return Promise.all(sublayerQueries).then(function (perLayerResults) {
+            var results = [].concat.apply([], perLayerResults);
+            return { results: results, layer: self };
+        });
+    }
+
     identify(event, callback) {
         
         var self = this;
@@ -540,8 +602,8 @@ class ArcticMapLayer extends React.Component {
             Promise.allSettled(self.children.map(function (item,index) {
                 return new Promise((res, rej) => {
                     item.params.geometry = event.mapPoint;
-                    item.params.mapExtent = self.state.view.extent;
-                    identify.identify(item.identifyTask, item.params).then(function (response) {
+                    var queryContext = (typeof item.queryIdentify === "function") ? item : self;
+                    queryContext.queryIdentify(item.identifyTask, item.params).then(function (response) {
                         response.layer=item;
                         response.layer.layerRenderers = item.props.children;
                         allResponse.push(response);
@@ -555,8 +617,7 @@ class ArcticMapLayer extends React.Component {
             if (!this.params) { callback(null); return; }
 
             this.params.geometry = event.mapPoint;
-            this.params.mapExtent = this.state.view.extent;
-            identify.identify(this.identifyTask, this.params).then(function (response) {
+            this.queryIdentify(this.identifyTask, this.params).then(function (response) {
                 response.layer = self;
                 callback([response]);
             });
@@ -576,8 +637,7 @@ class ArcticMapLayer extends React.Component {
         self.params.layerIds = sublayers;
         self.params.geometry = points.extent;
         self.params.geometry.spatialReference = self.state.view.extent.spatialReference;
-        self.params.mapExtent = self.state.view.extent;
-        identify.identify(self.identifyTask, self.params).then(function (response) {
+        self.queryIdentify(self.identifyTask, self.params).then(function (response) {
             self.params.layerIds = layerids;
             //console.log("identifyArea", response)
             callback(response);
