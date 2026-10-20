@@ -516,10 +516,33 @@ class ArcticMapLayer extends React.Component {
                 .then(function (featureSet) {
                     var fields = (featureSet && featureSet.fields) ? featureSet.fields : null;
                     var features = (featureSet && featureSet.features) ? featureSet.features : [];
+
+                    // The legacy Identify operation returned attributes keyed by field ALIAS
+                    // (e.g. "Township Identifier"), while Query returns them keyed by field
+                    // NAME (e.g. "PLSSID"). Remap name -> alias so downstream popup templates
+                    // that look up attributes by alias keep working.
+                    var nameToAlias = null;
+                    if (fields) {
+                        nameToAlias = {};
+                        fields.forEach(function (f) {
+                            if (f && f.name && f.alias && f.name !== f.alias) {
+                                nameToAlias[f.name] = f.alias;
+                            }
+                        });
+                    }
+
                     return features.map(function (feature) {
                         if (fields && feature && !feature.layer) {
                             // Preserve field metadata so downstream popup rendering can resolve aliases.
                             feature.fields = fields;
+                        }
+                        if (nameToAlias && feature && feature.attributes) {
+                            var aliased = {};
+                            Object.keys(feature.attributes).forEach(function (key) {
+                                var aliasKey = nameToAlias[key] || key;
+                                aliased[aliasKey] = feature.attributes[key];
+                            });
+                            feature.attributes = aliased;
                         }
                         return {
                             feature: feature,
