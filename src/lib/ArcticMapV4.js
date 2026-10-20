@@ -83,7 +83,10 @@ class ArcticMapV4 extends React.Component {
             popup: new Popup({
               dockEnabled: true,
               dockOptions: {
-                position: 'bottom-left'
+                position: 'bottom-left',
+                // Always dock (regardless of view size) so the popup stays locked
+                // bottom-left instead of floating as a balloon on wide screens.
+                breakpoint: false
               },
               defaultPopupTemplateEnabled: true
             }),
@@ -216,7 +219,7 @@ class ArcticMapV4 extends React.Component {
         self.request = request;
                          
         view.popup.dockEnabled = true;
-        view.popup.dockOptions = {position: 'bottom-left'};
+        view.popup.dockOptions = {position: 'bottom-left', breakpoint: false};
         view.popup.defaultPopupTemplateEnabled = true;
 	
         view.popup.watch("visible", function (visible) {
