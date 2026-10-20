@@ -522,8 +522,11 @@ class ArcticMapLayer extends React.Component {
 
                     // The legacy Identify operation returned attributes keyed by field ALIAS
                     // (e.g. "Township Identifier"), while Query returns them keyed by field
-                    // NAME (e.g. "PLSSID"). Remap name -> alias so downstream popup templates
-                    // that look up attributes by alias keep working.
+                    // NAME (e.g. "PLSSID"). Popup templates were written against the legacy
+                    // Identify output and look values up inconsistently: the PLSS popup keys on
+                    // the field ALIAS ("Township Identifier") while NLSDB case popups key on the
+                    // field NAME ("CSE_NR"). Expose each value under BOTH its name and alias so
+                    // every template keeps working regardless of which it uses.
                     var nameToAlias = null;
                     if (fields) {
                         nameToAlias = {};
@@ -540,12 +543,18 @@ class ArcticMapLayer extends React.Component {
                             feature.fields = fields;
                         }
                         if (nameToAlias && feature && feature.attributes) {
-                            var aliased = {};
+                            var merged = {};
                             Object.keys(feature.attributes).forEach(function (key) {
-                                var aliasKey = nameToAlias[key] || key;
-                                aliased[aliasKey] = feature.attributes[key];
+                                // Keep the field-name key for name-based lookups (NLSDB popups).
+                                merged[key] = feature.attributes[key];
+                                // Also expose the value under the field alias for alias-based
+                                // lookups (PLSS popup), without clobbering a real attribute.
+                                var aliasKey = nameToAlias[key];
+                                if (aliasKey && merged[aliasKey] === undefined) {
+                                    merged[aliasKey] = feature.attributes[key];
+                                }
                             });
-                            feature.attributes = aliased;
+                            feature.attributes = merged;
                         }
                         return {
                             feature: feature,
