@@ -48,14 +48,17 @@ class ArcticMapLayer extends React.Component {
         // Create a polygon geometry
         var children2 = [];
         var children = React.Children.map(this.props.children, function (child) {
+                if (!child || !child.type) {
+                    return;
+                }
                 if (child.type.displayName === 'ArcticMapLayerPopup') {
                     return child;
                 }
                 else if (child.type.displayName === 'ArcticMapLayer') {
                     var subchildren = [];
                     //console.log(child.props.children);
-                    child.props.children.forEach(function (subchild) {
-                        if (subchild.type.displayName === 'ArcticMapLayerPopup') {
+                    React.Children.forEach(child.props.children, function (subchild) {
+                        if (subchild && subchild.type && subchild.type.displayName === 'ArcticMapLayerPopup') {
                             //console.log(subchild);
                             subchildren.push(subchild);
                         }
@@ -82,7 +85,7 @@ class ArcticMapLayer extends React.Component {
         }
 
         var renderers = childrenEles.filter(child => {
-            if (child.type.displayName === 'ArcticMapLayerRenderer') {
+            if (child && child.type && child.type.displayName === 'ArcticMapLayerRenderer') {
                 return child;
             }
         });
